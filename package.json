@@ -12,7 +12,10 @@
 		"format:check": "prettier --check .",
 		"test": "vitest run",
 		"test:watch": "vitest",
-		"test:coverage": "vitest run --coverage"
+		"test:coverage": "vitest run --coverage",
+		"test:e2e": "playwright test",
+		"test:e2e:vue": "cross-env E2E_TARGETS=vue playwright test",
+		"test:parity": "cross-env E2E_TARGETS=next,vue playwright test"
 	},
 	"engines": {
 		"node": "^22.12.0 || >=24.0.0"
@@ -34,6 +37,7 @@
 		"@vitejs/plugin-react": "^6.1.2",
 		"@vitest/coverage-v8": "^5.0.5",
 		"autoprefixer": "10.4.15",
+		"cross-env": "^10.1.0",
 		"eslint": "^9",
 		"eslint-config-next": "16.4.3",
 		"eslint-config-prettier": "^10.1.8",
