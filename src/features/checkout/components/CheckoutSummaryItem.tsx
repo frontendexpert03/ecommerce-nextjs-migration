@@ -27,12 +27,12 @@ export function CheckoutSummaryItem({
 					{cartItem.header}
 				</p>
 				<p className="text-md text-start font-bold text-k-black opacity-80">
-					$ {cartItem.price}
+					{`$ ${cartItem.price}`}
 				</p>
 			</div>
 
 			<div className="ml-auto justify-self-end text-lg font-bold text-black opacity-50">
-				x{itemCount}
+				{`x${itemCount}`}
 			</div>
 		</div>
 	)

@@ -22,7 +22,7 @@ export function ProductFeatures({ features, inthebox }: ProductFeaturesProps) {
 				</h2>
 				{inthebox.map((item, index) => (
 					<div key={index} className="flex flex-row items-baseline gap-4">
-						<p className="font-bold tracking-wide text-k-main">{item.count}x</p>
+						<p className="font-bold tracking-wide text-k-main">{`${item.count}x`}</p>
 						<p className="tracking-wide text-black opacity-60">
 							{item.content}
 						</p>

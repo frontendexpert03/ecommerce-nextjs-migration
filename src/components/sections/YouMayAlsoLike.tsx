@@ -51,8 +51,9 @@ export function YouMayAlsoLike({
 							/>
 						</RouterLink>
 						<h3 className="text-center font-Manrope text-2xl font-semibold text-black">
-							{item.header} <br className="hidden lg:inline" />
-							<span className="capitalize"> {item.subheader}</span>
+							{`${item.header} `}
+							<br className="hidden lg:inline" />
+							<span className="capitalize">{` ${item.subheader}`}</span>
 						</h3>
 						<ButtonSolid
 							to={productHref(item.category, item.id)}

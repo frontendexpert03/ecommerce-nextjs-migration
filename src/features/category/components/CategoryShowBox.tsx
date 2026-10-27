@@ -45,7 +45,9 @@ export function CategoryShowBox({
 					</p>
 				)}
 				<h1 className="mt-4 text-center text-4xl font-semibold uppercase text-black md:text-start md:text-5xl lg:text-6xl">
-					{item.header} <br className="hidden md:block" /> {item.subheader}
+					{`${item.header} `}
+					<br className="hidden md:block" />
+					{` ${item.subheader}`}
 				</h1>
 				<p className="mb-10 mt-4 text-center text-black opacity-60 md:pr-20 md:text-start">
 					{item.text}

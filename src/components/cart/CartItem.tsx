@@ -30,7 +30,7 @@ export function CartItem({ cartItem, itemCount }: CartItemProps) {
 						{cartItem.header}
 					</p>
 					<p className="lg:text-md text-sm font-bold text-k-black opacity-80">
-						$ {cartItem.price}
+						{`$ ${cartItem.price}`}
 					</p>
 				</div>
 			</div>

@@ -43,7 +43,7 @@ export function CartModal({ show }: { show: boolean }) {
 							className="font-Manrope text-2xl font-bold text-k-black lg:text-3xl"
 							data-test="cart-header"
 						>
-							CART ({cartLength})
+							{`CART (${cartLength})`}
 						</p>
 						<p
 							onClick={clearCart}
@@ -80,7 +80,7 @@ export function CartModal({ show }: { show: boolean }) {
 						<p className="text-xl font-semibold text-black opacity-50 lg:text-2xl">
 							TOTAL
 						</p>
-						<p className="text-2xl font-bold text-black">${cartValue}</p>
+						<p className="text-2xl font-bold text-black">{`$${cartValue}`}</p>
 					</div>
 					{!(cartLength === 0) && (
 						<ButtonSolid

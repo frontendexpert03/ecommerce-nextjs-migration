@@ -84,17 +84,17 @@ export function CheckoutSuccessModal() {
 									{firstItem.product.header}
 								</p>
 								<p className="text-lg font-bold text-black opacity-60">
-									${firstItem.product.price}
+									{`$${firstItem.product.price}`}
 								</p>
 							</div>
 							<p className="ml-auto place-self-center text-lg font-bold text-black opacity-60">
-								x{firstItem.amount}
+								{`x${firstItem.amount}`}
 							</p>
 						</div>
 						{uniqueItems > 1 && <hr />}
 						{uniqueItems > 1 && (
 							<p className="mt-2 text-center font-semibold text-black opacity-70">
-								and {uniqueItems - 1} other item
+								{`and ${uniqueItems - 1} other item`}
 								<span style={uniqueItems > 2 ? undefined : { display: 'none' }}>
 									s
 								</span>
@@ -106,7 +106,7 @@ export function CheckoutSuccessModal() {
 							<p className="text-md font-semibold uppercase tracking-wide opacity-90">
 								Grand Total
 							</p>
-							<p className="text-md font-semibold lg:text-lg">$ {grandTotal}</p>
+							<p className="text-md font-semibold lg:text-lg">{`$ ${grandTotal}`}</p>
 						</div>
 					</div>
 				</div>

@@ -42,7 +42,7 @@ export function CheckoutSummary() {
 				<p className="font-semibold tracking-wide text-black text-opacity-60">
 					TOTAL
 				</p>
-				<p className="text-lg font-bold text-black">${cartValue}</p>
+				<p className="text-lg font-bold text-black">{`$${cartValue}`}</p>
 			</div>
 			<div className="flex flex-row justify-between">
 				<p className="font-semibold tracking-wide text-black text-opacity-60">
@@ -54,18 +54,18 @@ export function CheckoutSummary() {
 						cartValue > FREE_SHIPPING_THRESHOLD && 'line-through',
 					)}
 				>
-					${SHIPPING}
+					{`$${SHIPPING}`}
 				</p>
 			</div>
 			<div className="flex flex-row justify-between">
 				<p className="font-semibold tracking-wide text-black text-opacity-60">
 					VAT (INCLUDED)
 				</p>
-				<p className="text-lg font-bold text-black">${vat}</p>
+				<p className="text-lg font-bold text-black">{`$${vat}`}</p>
 			</div>
 			<div className="mt-4 flex flex-row justify-between">
 				<p className="font-black tracking-wide text-black">GRAND TOTAL</p>
-				<p className="text-lg font-bold text-black">${grandTotal}</p>
+				<p className="text-lg font-bold text-black">{`$${grandTotal}`}</p>
 			</div>
 			<ButtonSolid
 				content="continue & pay"

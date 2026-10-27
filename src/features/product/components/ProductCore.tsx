@@ -21,12 +21,14 @@ export function ProductCore({ item }: { item: Product }) {
 						</p>
 					)}
 					<h1 className="mt-4 text-center text-4xl font-semibold uppercase text-black lg:text-start lg:text-6xl">
-						{item.header} <br className="hidden lg:inline" /> {item.subheader}
+						{`${item.header} `}
+						<br className="hidden lg:inline" />
+						{` ${item.subheader}`}
 					</h1>
 					<p className="mt-6 text-center text-black opacity-60 lg:pr-20 lg:text-start">
 						{item.text}
 					</p>
-					<p className="my-8 text-xl font-bold text-black">$ {item.price}</p>
+					<p className="my-8 text-xl font-bold text-black">{`$ ${item.price}`}</p>
 					<ButtonSolid
 						onClick={() => addToCart(item)}
 						color="light"

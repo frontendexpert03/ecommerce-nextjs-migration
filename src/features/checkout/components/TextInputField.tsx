@@ -44,7 +44,8 @@ export function TextInputField({
 			data-test={`text-input-${id}`}
 		>
 			<label className="mb-1 font-bold text-black" htmlFor={id}>
-				{label} {required && <span className="text-sm"> *</span>}
+				{`${label} `}
+				{required && <span className="text-sm"> *</span>}
 			</label>
 			<div className="relative h-full w-full">
 				<input
