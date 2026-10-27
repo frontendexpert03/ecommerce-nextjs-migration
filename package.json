@@ -3,8 +3,8 @@
 	"version": "0.1.0",
 	"private": true,
 	"scripts": {
-		"dev": "next dev",
-		"build": "next build",
+		"dev": "next dev --webpack",
+		"build": "next build --webpack",
 		"start": "next start",
 		"lint": "eslint",
 		"typecheck": "next typegen && tsc --noEmit",
@@ -18,7 +18,8 @@
 		"test:coverage": "vitest run --coverage",
 		"test:e2e": "playwright test",
 		"test:e2e:vue": "cross-env E2E_TARGETS=vue playwright test",
-		"test:parity": "cross-env E2E_TARGETS=next,vue playwright test"
+		"test:parity": "cross-env E2E_TARGETS=next,vue playwright test",
+		"test:visual": "cross-env E2E_TARGETS=next,vue playwright test --project=visual-desktop --project=visual-mobile"
 	},
 	"engines": {
 		"node": "^22.12.0 || >=24.0.0"
