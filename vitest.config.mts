@@ -4,6 +4,7 @@ import react from '@vitejs/plugin-react'
 import vue from '@vitejs/plugin-vue'
 import {
 	defineConfig,
+	type Plugin,
 	type TestProjectInlineConfiguration,
 } from 'vitest/config'
 
@@ -40,8 +41,31 @@ const nextProject: TestProjectInlineConfiguration = {
 	},
 }
 
+// The Vue app imports images from its public/ folder by URL
+// (`import bannerImage from '/icons/KIIIBS-banner.png'` in src/data/meta.ts).
+// Vite's build replaces each import with that same URL string, so the tests
+// do the same instead of trying to load the image as a module.
+const PUBLIC_ASSET = '\0public-asset:'
+const vuePublicAssets: Plugin = {
+	name: 'vue-public-assets',
+	enforce: 'pre',
+	resolveId(id) {
+		if (
+			id.startsWith('/') &&
+			existsSync(path.join(VUE_APP_DIR, 'public', id))
+		) {
+			return PUBLIC_ASSET + id
+		}
+	},
+	load(id) {
+		if (id.startsWith(PUBLIC_ASSET)) {
+			return `export default ${JSON.stringify(id.slice(PUBLIC_ASSET.length))}`
+		}
+	},
+}
+
 const vueProject: TestProjectInlineConfiguration = {
-	plugins: [vue()],
+	plugins: [vuePublicAssets, vue()],
 	resolve: {
 		alias: {
 			'@contract-target': adapter('vue'),

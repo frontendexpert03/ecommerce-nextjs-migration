@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, test } from 'vitest'
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 import { target } from '@contract-target'
 import { deskmat, keyboard, withPrice } from '../fixtures'
 
@@ -8,6 +8,9 @@ const { cart } = target
 
 describe('cart store', () => {
 	beforeEach(() => target.reset())
+	afterEach(() => {
+		vi.restoreAllMocks()
+	})
 
 	test('CART-01 starts empty, closed, with quick add on', () => {
 		expect(cart.read()).toEqual({
@@ -138,5 +141,36 @@ describe('cart store', () => {
 			cart: { deskmats1: { product: deskmat, amount: 3 } },
 			cartLength: 3,
 		})
+	})
+
+	test('CART-14 a cart saved in another tab replaces this tab’s cart', async () => {
+		cart.addToCart(keyboard)
+		await target.settle()
+
+		// The browser writes the value, then tells the other tabs.
+		const saved = JSON.stringify({ deskmats1: { product: deskmat, amount: 2 } })
+		localStorage.setItem('cart', saved)
+		window.dispatchEvent(
+			new StorageEvent('storage', {
+				key: 'cart',
+				newValue: saved,
+				storageArea: localStorage,
+			}),
+		)
+		await target.settle()
+
+		expect(cart.read().cart).toEqual({
+			deskmats1: { product: deskmat, amount: 2 },
+		})
+	})
+
+	test('CART-15 an unreadable saved cart loads as an empty cart', async () => {
+		// The original logs the JSON error; the port stays silent.
+		vi.spyOn(console, 'error').mockImplementation(() => {})
+		localStorage.setItem('cart', '{not json')
+
+		await cart.reload()
+
+		expect(cart.read()).toMatchObject({ cart: {}, isEmpty: true })
 	})
 })

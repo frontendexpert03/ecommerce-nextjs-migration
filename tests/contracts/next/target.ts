@@ -2,6 +2,16 @@ import { render } from '@testing-library/react'
 import { act, createElement, type ComponentType } from 'react'
 import { CartItem } from '@/components/cart/CartItem'
 import { ButtonCount } from '@/components/ui/ButtonCount'
+import { products } from '@/lib/data/products'
+import {
+	get404PageMeta,
+	getCategoryPageMeta,
+	getCheckoutPageMeta,
+	getLandingPageMeta,
+	getProductPageMeta,
+} from '@/lib/metadata'
+import { getProduct, getProductsOfType, getSelection } from '@/lib/products'
+import { capitalize } from '@/lib/utils'
 import {
 	selectCartLength,
 	selectCartValue,
@@ -10,6 +20,7 @@ import {
 	selectIsEmpty,
 	selectUniqueItems,
 	selectVat,
+	startCartSync,
 	useCartStore,
 } from '@/store/cart-store'
 import { compareGolden } from '../harness/golden'
@@ -29,13 +40,18 @@ const initialState = useCartStore.getState()
 
 const store = () => useCartStore.getState()
 
+let stopCartSync = () => {}
+
 export const target: ContractTarget = {
 	name: 'next',
 
+	// startCartSync is what the root layout's <CartSync> runs on mount.
 	reset() {
+		stopCartSync()
 		useCartStore.setState(initialState, true)
 		localStorage.clear()
 		document.body.className = ''
+		stopCartSync = startCartSync()
 	},
 
 	render(name, props) {
@@ -46,7 +62,20 @@ export const target: ContractTarget = {
 
 	settle: async () => {},
 
-	expectGolden: compareGolden,
+	golden: compareGolden,
+
+	lib: {
+		products,
+		getSelection,
+		getProductsOfType,
+		getProduct,
+		capitalize,
+		getLandingPageMeta,
+		getCategoryPageMeta,
+		getProductPageMeta,
+		getCheckoutPageMeta,
+		get404PageMeta,
+	},
 
 	// Store updates made outside React are wrapped in act() so rendered
 	// components update before the next assertion.

@@ -1,0 +1,37 @@
+{
+  "keyboards0": [
+    "deskmats0",
+    "keycaps1",
+    "keycaps0"
+  ],
+  "keyboards1": [
+    "keyboards0",
+    "deskmats0",
+    "keyboards2"
+  ],
+  "keyboards2": [
+    "keyboards0",
+    "keycaps1",
+    "keyboards1"
+  ],
+  "keycaps0": [
+    "keyboards1",
+    "keyboards0",
+    "deskmats0"
+  ],
+  "keycaps1": [
+    "keycaps0",
+    "deskmats0",
+    "keyboards0"
+  ],
+  "deskmats0": [
+    "deskmats1",
+    "keycaps1",
+    "keycaps0"
+  ],
+  "deskmats1": [
+    "keyboards1",
+    "deskmats0",
+    "keycaps0"
+  ]
+}

@@ -1,0 +1,71 @@
+{
+  "landing": {
+    "title": "KIIIBS Mechanical Keyboard Store",
+    "description": "We sell custom mechanical keyboards, keycaps and deskmats for your gaming and office setup, right in the heart of Berlin.",
+    "image": "/icons/KIIIBS-banner.png"
+  },
+  "categories": {
+    "keyboards": {
+      "title": "All Mechanical Keyboards | KIIIBS",
+      "description": "Explore our selection of high quality mechanical keyboards that will elevate your typing experience.",
+      "image": "/products/keyboards/cow-full.webp"
+    },
+    "keycaps": {
+      "title": "All Custom Keycaps | KIIIBS",
+      "description": "Enjoy typing with style and upgrade your custom mechanical keyboard with our elegant keycaps",
+      "image": "/products/keycaps/cap2.webp"
+    },
+    "deskmats": {
+      "title": "All Deskmats | KIIIBS",
+      "description": "Make yourself comfortable in your work or gaming setup with one of our KIIIBS deskmats. Soft and stylish!",
+      "image": "/products/deskmats/grrr-full.webp"
+    }
+  },
+  "products": {
+    "keyboards0": {
+      "title": "XX59 Keyboard | KIIIBS",
+      "description": "The new XX59 keyboard is the pinnacle of pristine typing. It redefines your premium keyboard experience by providing a balanced depth and precision to each press of a key.",
+      "image": "/products/keyboards/pulsar-show.webp"
+    },
+    "keyboards1": {
+      "title": "ZX9 Keyboard | KIIIBS",
+      "description": "The new ZX9 Mark II keyboard is the pinnacle of pristine typing. It redefines your premium keyboard experience by providing a balanced depth and precision to each press of a key.",
+      "image": "/products/keyboards/keeb4-show.webp"
+    },
+    "keyboards2": {
+      "title": "XX99 Mark II Keyboard | KIIIBS",
+      "description": "The new XX99 Mark II keyboard is the pinnacle of pristine typing. It redefines your premium keyboard experience by providing a balanced depth and precision to each press of a key.",
+      "image": "/products/keyboards/keeb1-show.webp"
+    },
+    "keycaps0": {
+      "title": "XX01 Metal Keycap | KIIIBS",
+      "description": "The new XX99 Mark II keyboard is the pinnacle of pristine typing. It redefines your premium keyboard experience by providing a balanced depth and precision to each press of a key.",
+      "image": "/products/keycaps/cap2-2.webp"
+    },
+    "keycaps1": {
+      "title": "XX02 Metal Keycap | KIIIBS",
+      "description": "The new XX99 Mark II keyboard is the pinnacle of pristine typing. It redefines your premium keyboard experience by providing a balanced depth and precision to each press of a key.",
+      "image": "/products/keycaps/cap1-2.webp"
+    },
+    "deskmats0": {
+      "title": "\"Grrr\" Deskmat | KIIIBS",
+      "description": "The new XX99 Mark II keyboard is the pinnacle of pristine typing. It redefines your premium keyboard experience by providing a balanced depth and precision to each press of a key.",
+      "image": "/products/deskmats/mat1-show.webp"
+    },
+    "deskmats1": {
+      "title": "Mythic Deskmat | KIIIBS",
+      "description": "The new XX99 Mark II keyboard is the pinnacle of pristine typing. It redefines your premium keyboard experience by providing a balanced depth and precision to each press of a key.",
+      "image": "/products/deskmats/mat2-show.webp"
+    }
+  },
+  "checkout": {
+    "title": "Checkout",
+    "description": "Complete your purchase.",
+    "image": "/icons/KIIIBS-banner.png"
+  },
+  "notFound": {
+    "title": "404: Page not found.",
+    "description": "404: Page not found.",
+    "image": "/icons/KIIIBS-banner.png"
+  }
+}

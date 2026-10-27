@@ -1,4 +1,5 @@
-import type { Product } from '@/lib/types'
+import type { PageMeta } from '@/lib/metadata'
+import type { Catalog, Product } from '@/lib/types'
 import type { Cart, CartEntry } from '@/store/cart-store'
 
 /**
@@ -42,6 +43,20 @@ export interface CartDriver {
 	reload(): Promise<void>
 }
 
+/** Catalog data and helpers, under the Vue app's function names. */
+export interface Lib {
+	products: Catalog
+	getSelection(productCategory: string, productId: number): Product[]
+	getProductsOfType(category: string): Product[]
+	getProduct(category: string, id: number): Product | null
+	capitalize(str: string): string
+	getLandingPageMeta(): PageMeta
+	getCategoryPageMeta(category: string): PageMeta | undefined
+	getProductPageMeta(product: Product): PageMeta
+	getCheckoutPageMeta(): PageMeta
+	get404PageMeta(): PageMeta
+}
+
 /** One app under test: the Vue original or the Next.js port. */
 export interface ContractTarget {
 	name: 'vue' | 'next'
@@ -57,7 +72,12 @@ export interface ContractTarget {
 	): { root: Element }
 	/** Wait until state changes have reached the DOM and localStorage. */
 	settle(): Promise<void>
-	/** Compare the rendered markup with the golden copy recorded from the Vue app. */
-	expectGolden(root: Element, name: string): Promise<void>
+	/**
+	 * Check `content` against `__golden__/<file>`. The Vue target records the
+	 * file; the Next target only compares. Specs use expectMarkup and
+	 * expectData from ./assertions instead of calling this directly.
+	 */
+	golden(file: string, content: string): Promise<void>
 	cart: CartDriver
+	lib: Lib
 }

@@ -2,6 +2,7 @@ import { screen } from '@testing-library/dom'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, test, vi } from 'vitest'
 import { target } from '@contract-target'
+import { expectMarkup } from '../harness/assertions'
 
 // Spec: docs/behaviour-spec.md#buttoncount
 
@@ -47,6 +48,6 @@ describe('ButtonCount', () => {
 	test('BC-04 markup matches the Vue original', async () => {
 		const { root } = target.render('ButtonCount', { itemCount: 2 })
 
-		await target.expectGolden(root, 'button-count')
+		await expectMarkup(root, 'button-count')
 	})
 })

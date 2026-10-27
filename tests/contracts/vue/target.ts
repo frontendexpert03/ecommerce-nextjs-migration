@@ -3,9 +3,23 @@ import { createPinia, setActivePinia, type Pinia } from 'pinia'
 import { nextTick } from 'vue'
 import ButtonCount from '@vue-app/components/Buttons/button-count.vue'
 import CartItem from '@vue-app/components/Cart/cart-item.vue'
+import {
+	get404PageMeta,
+	getCategoryPageMeta,
+	getCheckoutPageMeta,
+	getLandingPageMeta,
+	getProductPageMeta,
+} from '@vue-app/data/meta-utils.ts'
+import {
+	getProduct,
+	getProductsOfType,
+	getSelection,
+} from '@vue-app/data/product-utils.ts'
+import { products } from '@vue-app/data/products.ts'
 // Renamed on import: it is a Pinia store, but the React hooks lint rule
 // treats any use* call as a React hook.
 import { useCartStore as cartStoreOf } from '@vue-app/pinia/cartStore.ts'
+import { capitalize } from '@vue-app/utils/utilities.ts'
 import { recordGolden } from '../harness/golden'
 import type { ContractComponent, ContractTarget } from '../harness/types'
 
@@ -27,9 +41,12 @@ const store = () => cartStoreOf(pinia)
 const plain = <T>(value: T): T =>
 	value === undefined ? value : JSON.parse(JSON.stringify(value))
 
+// Creating the store starts useStorage, which loads the saved cart and
+// listens for other tabs, as the app does on its first page.
 const createStore = () => {
 	pinia = createPinia()
 	setActivePinia(pinia)
+	store()
 }
 
 export const target: ContractTarget = {
@@ -52,7 +69,20 @@ export const target: ContractTarget = {
 
 	settle: () => nextTick(),
 
-	expectGolden: recordGolden,
+	golden: recordGolden,
+
+	lib: {
+		products,
+		getSelection,
+		getProductsOfType,
+		getProduct,
+		capitalize,
+		getLandingPageMeta,
+		getCategoryPageMeta,
+		getProductPageMeta,
+		getCheckoutPageMeta,
+		get404PageMeta,
+	},
 
 	cart: {
 		addToCart: (item) => store().addToCart(item),

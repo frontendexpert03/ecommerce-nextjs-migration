@@ -2,6 +2,7 @@ import { screen } from '@testing-library/dom'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, test } from 'vitest'
 import { target } from '@contract-target'
+import { expectMarkup } from '../harness/assertions'
 import { deskmat, keyboard } from '../fixtures'
 
 // Spec: docs/behaviour-spec.md#cartitem
@@ -65,6 +66,6 @@ describe('CartItem', () => {
 			itemCount: 2,
 		})
 
-		await target.expectGolden(root, 'cart-item')
+		await expectMarkup(root, 'cart-item')
 	})
 })
