@@ -21,7 +21,7 @@ The goal is a Next.js App Router copy of the KIIIBS Vue store with the same look
 | 1   | Contract test harness (ADR 0009); trial on cart store, `ButtonCount`, `CartItem` | Done   |
 | 2   | Foundation: `public/` assets, fonts, root layout, `lib/` data + contracts        | Done   |
 | 3   | Form store + validators (Zustand) + contracts                                    | Done   |
-| 4   | UI building blocks: remaining 5 buttons + `Fade` + contracts                     | To do  |
+| 4   | UI building blocks: remaining 5 buttons + `Fade` + contracts                     | Done   |
 | 5   | Shared sections: navigation, cart modal, footer, info, category boxes, YMAL      | To do  |
 | 6   | Pages: 404 → landing → category → product → checkout, with metadata              | To do  |
 | 7   | Playwright specs: port Cypress suites, add routing/SEO/cart specs                | To do  |
@@ -52,12 +52,13 @@ Each phase ends with lint, typecheck, unit and contract tests and (from Phase 6)
 | Vue file                                      | Next.js file                                       | Kind   |
 | --------------------------------------------- | -------------------------------------------------- | ------ |
 | `components/Buttons/button-solid.vue`         | `components/ui/ButtonSolid.tsx`                    | shared |
-| `components/Buttons/button-empty.vue`         | `components/ui/ButtonEmpty.tsx`                    | server |
-| `components/Buttons/button-add-to-cart.vue`   | `components/ui/ButtonAddToCart.tsx`                | server |
+| `components/Buttons/button-empty.vue`         | `components/ui/ButtonEmpty.tsx`                    | shared |
+| `components/Buttons/button-add-to-cart.vue`   | `components/ui/ButtonAddToCart.tsx`                | shared |
 | `components/Buttons/button-count.vue`         | `components/ui/ButtonCount.tsx`                    | shared |
 | `components/Buttons/button-go-back.vue`       | `components/ui/ButtonGoBack.tsx`                   | client |
-| `components/Buttons/button-quick-add.vue`     | `components/ui/ButtonQuickAdd.tsx`                 | client |
+| `components/Buttons/button-quick-add.vue`     | `components/ui/ButtonQuickAdd.tsx`                 | shared |
 | (Vue `<Transition>`)                          | `components/ui/Fade.tsx`                           | client |
+| (vue-router `<router-link>`)                  | `components/ui/RouterLink.tsx` (ADR 0011)          | client |
 | `components/Cart/cart-modal.vue`              | `components/cart/CartModal.tsx`                    | client |
 | `components/Cart/cart-item.vue`               | `components/cart/CartItem.tsx`                     | client |
 | `components/navigation-global.vue`            | `components/layout/Navigation.tsx`                 | client |
@@ -79,7 +80,7 @@ Each phase ends with lint, typecheck, unit and contract tests and (from Phase 6)
 These are Vue behaviours that a line-by-line translation to React would get wrong.
 
 1. **Attribute pass-through.** Vue puts a parent's `class`, `@click` and `data-test` on a child's outer element automatically. Several screens rely on this (for example `ButtonSolid`'s outer `<a>` gets the parent's margin classes; `ButtonQuickAdd`'s `data-test` is overwritten by the parent's). React components must accept `className`, `onClick` and other props and put them on the outer element.
-2. **`v-show` vs `v-if`.** The cart modal and cart badge stay in the DOM but hidden. The mobile menu and success modal are removed. Tests check "hidden" for the first two and "absent" for the second two.
+2. **`v-show` vs `v-if`.** The cart modal and cart badge stay in the DOM but hidden. The mobile menu and success modal are removed. Tests check "hidden" for the first two and "absent" for the second two. The success modal never fades: its `<Transition>` is inside the component that `v-if` removes.
 3. **`<Transition>`.** Fade-in over 0.3s and fade-out over 0.2s, using classes from `style.css`. `Fade` reproduces both the `v-show` and `v-if` modes.
 4. **Runtime class names.** `'bg-' + color` in the navbar becomes a lookup of full class names (ADR 0003).
 5. **Saved cart and server rendering.** Load the saved cart after mount to avoid hydration errors (ADR 0004).
@@ -90,6 +91,8 @@ These are Vue behaviours that a line-by-line translation to React would get wron
 10. **Side effects kept:** `alert('Shopping cart is empty!')`, the `overflow-y-hidden` class on `<body>` while a modal is open, "Go Back" as browser history back, and `preventDefault` on the payment buttons.
 11. **Other tabs.** VueUse's `useStorage` reloads the cart when another tab saves it. Zustand's `persist` doesn't, so `startCartSync()` adds the same `storage` listener (CART-14).
 12. **Images imported from `public/`.** `meta.ts` imports images by URL, and Vite turns each import back into that URL. The port uses the URL strings directly.
+13. **`<router-link>` extras.** It marks a link to the current page with two classes and `aria-current="page"`, and always renders `class`. `RouterLink` does the same (ADR 0011).
+14. **Class order and Prettier.** The Tailwind Prettier plugin re-sorts classes inside a string. Where the original builds classes from arrays of single names, the port uses the same arrays (`cx([...])`), so the order stays the same.
 
 ### Head differences (not visible on the page)
 

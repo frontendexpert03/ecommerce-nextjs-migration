@@ -14,6 +14,7 @@ Each record explains one decision: the context, what we chose, and what it costs
 | [0008](0008-404-behaviour.md)         | Match the Vue app's 404 behaviour exactly                  | Accepted |
 | [0009](0009-shared-contract-tests.md) | Shared contract tests run each unit test against both apps | Accepted |
 | [0010](0010-manrope-via-next-font.md) | Self-host Manrope with next/font                           | Accepted |
+| [0011](0011-router-link-port.md)      | Port `<router-link>` as a RouterLink component             | Accepted |
 
 ## Template
 

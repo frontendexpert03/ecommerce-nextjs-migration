@@ -118,3 +118,67 @@ Each validator returns the string `'empty'` for an empty field, otherwise `'true
 | VAL-05 | zip     | `/^[0-9]{5}(?:-[0-9]{4})?$/` (US ZIP)                             | `10115`, `12345-6789`                                | `1234`, `123456`, `AB 12`                                                      | L100–105 |
 | VAL-06 | city    | `/[a-zA-Z]+/`, not anchored                                       | `Berlin`, `São Paulo`, `1a`                          | `123` **Quirk**                                                                | L107–110 |
 | VAL-07 | country | `/[a-zA-Z]+/`, not anchored                                       | `Germany`, `1a`                                      | `123`                                                                          | L112–115 |
+
+## ButtonSolid
+
+Source: `components/Buttons/button-solid.vue` · Port: `src/components/ui/ButtonSolid.tsx` · Test: `tests/contracts/specs/button-solid.contract.test.ts`
+
+| ID    | Behaviour                                                                                                                                                 | Source |
+| ----- | --------------------------------------------------------------------------------------------------------------------------------------------------------- | ------ |
+| BS-01 | By default: a dark, big button labelled "to product", inside a plain `<div class="w-fit">`.                                                               | L18–46 |
+| BS-02 | With `to`, the outer element is a link (`<router-link>`) to that path instead of a `<div>`.                                                               | L26    |
+| BS-03 | `color="light"` and `size="small"` swap the button's colour and size classes; `add` appends more classes to the button.                                   | L29–42 |
+| BS-04 | A parent's `class`, `data-test` and `@click` land on the outer element, not the button (Vue attribute fallthrough). Clicking the button reaches `@click`. | —      |
+| BS-05 | Without `to`, a click on the button still reaches the parent's `@click` (the checkout "continue & pay" button).                                           | —      |
+| BS-06 | A link to the current page gets `router-link-active router-link-exact-active` and `aria-current="page"`, from `<router-link>` (ADR 0011).                 | —      |
+
+The original also renders `to=""` on the `<div>` variant, because it binds `:to` whatever the element is. The attribute does nothing, so the port doesn't copy it, and BS-01, BS-03 and BS-05 ignore it when comparing markup.
+
+The colour and size classes are written as arrays of single class names, as in the original. Prettier's Tailwind plugin re-sorts classes inside a string, which changed the order and failed the markup tests.
+
+## ButtonEmpty and ButtonAddToCart
+
+Source: `components/Buttons/button-empty.vue`, `button-add-to-cart.vue` · Port: `src/components/ui/ButtonEmpty.tsx`, `ButtonAddToCart.tsx` · Test: `tests/contracts/specs/button-empty.contract.test.ts`
+
+| ID    | Behaviour                                                                                                                       | Source |
+| ----- | ------------------------------------------------------------------------------------------------------------------------------- | ------ |
+| BE-01 | By default: a link to `/` wrapping an outlined "to product" button. The link always has a `class` attribute, even an empty one. | L17–31 |
+| BE-02 | `to`, `content` and `add` set the link, the label and extra button classes.                                                     | L24–30 |
+| BE-03 | On the page it links to, the link is marked active (see BS-06).                                                                 | —      |
+| BA-01 | `ButtonAddToCart` renders exactly like `ButtonEmpty`. Nothing in the original imports it. **Quirk**                             | all    |
+
+## ButtonGoBack
+
+Source: `components/Buttons/button-go-back.vue` · Port: `src/components/ui/ButtonGoBack.tsx` · Test: `tests/contracts/specs/button-go-back.contract.test.ts`
+
+| ID    | Behaviour                                                                                                                        | Source |
+| ----- | -------------------------------------------------------------------------------------------------------------------------------- | ------ |
+| GB-01 | "Go Back" is an `<a>` without an `href`, styled as a link.                                                                       | L3–9   |
+| GB-02 | Clicking it goes back one page in the browser history (`$router.go(-1)`). The test accepts `history.go(-1)` or `history.back()`. | L5     |
+
+## ButtonQuickAdd
+
+Source: `components/Buttons/button-quick-add.vue` · Port: `src/components/ui/ButtonQuickAdd.tsx` · Test: `tests/contracts/specs/button-quick-add.contract.test.ts`
+
+| ID    | Behaviour                                                                                                         | Source |
+| ----- | ----------------------------------------------------------------------------------------------------------------- | ------ |
+| QA-01 | A button with the cart icon (`/icons/cart-icon.svg`, `loading="lazy"`) and a `+`; `data-test="button-quick-add"`. | L6–18  |
+| QA-02 | Clicking it fires `addToCart` once.                                                                               | L7     |
+| QA-03 | A parent's `data-test` replaces the button's own (Vue attribute fallthrough).                                     | L9     |
+
+## Fade
+
+Source: Vue's `<Transition>` in `components/Cart/cart-modal.vue` and `components/navigation-global.vue`, styled by `style.css` · Port: `src/components/ui/Fade.tsx` · Test: `tests/contracts/specs/fade.contract.test.ts`
+
+The reference is Vue's own `<Transition>`, used the way the app uses it: one element toggled by `v-show` (cart modal, cart badge) or `v-if` (mobile menu). jsdom has no CSS, so the tests check the class steps and what happens to the element, not the 0.3s and 0.2s timing.
+
+| ID      | Behaviour                                                                                                                     |
+| ------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| FADE-01 | `v-show`, hidden at first: the element stays in the DOM with `display: none`.                                                 |
+| FADE-02 | Shown at first: no fade-in on the first render.                                                                               |
+| FADE-03 | `v-if`, hidden at first: nothing is rendered.                                                                                 |
+| FADE-04 | Showing adds `v-enter-from v-enter-active` straight away; they are removed when the fade ends. Same for `v-show` and `v-if`.  |
+| FADE-05 | Hiding with `v-show` keeps the element visible with `v-leave-from v-leave-active` during the fade, then sets `display: none`. |
+| FADE-06 | Hiding with `v-if` keeps the element during the fade, then removes it.                                                        |
+
+The checkout success modal's `<Transition>` sits inside a component that `v-if` adds and removes as a whole, so it never animates: it appears and disappears at once. Its port must not use `Fade`.

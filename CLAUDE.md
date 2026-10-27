@@ -42,3 +42,6 @@ Read `docs/migration-plan.md` (phases, component map, known quirks) and `docs/ad
 - Component files are PascalCase (`ButtonSolid.tsx`); everything else kebab-case.
 - Conventional commits (`feat(cart): …`, `test(nav): …`, `docs: …`), one concern per commit.
 - A new structural decision gets a new ADR in `docs/adr/`.
+- Every `<router-link>` in the original becomes `RouterLink` (`src/components/ui/RouterLink.tsx`), not a bare `next/link` (ADR 0011).
+- Conditional classes that the original writes as arrays of single names stay arrays in `cx([...])`. Inside a single string, Prettier's Tailwind plugin re-sorts them and the markup contracts fail.
+- `<Transition>` becomes `Fade` (`mode="show"` for `v-show`, `mode="if"` for `v-if`), except where the original never animates.
