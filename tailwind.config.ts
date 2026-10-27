@@ -1,13 +1,14 @@
 import type { Config } from 'tailwindcss'
 
-// Theme copied verbatim from the Vue project's tailwind.config.js so both
-// apps generate the same utility classes. See docs/adr/0003.
+// Theme copied from the Vue project's tailwind.config.js so both apps
+// generate the same utility classes (docs/adr/0003). The one change: the
+// font family comes from next/font's variable (docs/adr/0010).
 const config = {
 	content: ['./src/**/*.{js,ts,jsx,tsx,mdx}'],
 	theme: {
 		extend: {
 			fontFamily: {
-				Manrope: ['Manrope', 'sans-serif'],
+				Manrope: ['var(--font-manrope)', 'sans-serif'],
 			},
 			colors: {
 				'k-main': '#FFC700',
