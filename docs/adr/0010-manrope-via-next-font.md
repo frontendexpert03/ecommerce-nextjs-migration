@@ -1,6 +1,6 @@
 # 0010. Self-host Manrope with next/font
 
-- Status: Accepted
+- Status: Superseded by [0013](0013-manrope-exact-files.md)
 - Date: 2026-10-27
 - Amends: [0003](0003-tailwind-3-pinned.md) (one line of the Tailwind theme)
 

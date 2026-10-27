@@ -24,8 +24,8 @@ The goal is a Next.js App Router copy of the KIIIBS Vue store with the same look
 | 4   | UI building blocks: remaining 5 buttons + `Fade` + contracts                     | Done   |
 | 5   | Shared sections: navigation, cart modal, footer, info, category boxes, YMAL      | Done   |
 | 6   | Pages: 404 → landing → category → product → checkout, with metadata              | Done   |
-| 7   | Playwright specs: port Cypress suites, add routing/SEO/cart specs                | To do  |
-| 8   | Visual parity check across both apps; Lighthouse comparison                      | To do  |
+| 7   | Playwright specs (Cypress suites ported, cart, routing, SEO) + visual parity     | Done   |
+| 8   | Lighthouse: performance and accessibility of both apps compared                  | To do  |
 | 9   | CI (GitHub Actions), README, Vercel deployment                                   | To do  |
 
 Each phase ends with lint, typecheck, unit and contract tests and (from Phase 6) the parity suite passing, then a review before the next phase starts.
@@ -93,6 +93,8 @@ These are Vue behaviours that a line-by-line translation to React would get wron
 12. **Images imported from `public/`.** `meta.ts` imports images by URL, and Vite turns each import back into that URL. The port uses the URL strings directly.
 13. **`<router-link>` extras.** It marks a link to the current page with two classes and `aria-current="page"`, and always renders `class`. `RouterLink` does the same (ADR 0011).
 14. **Class order and Prettier.** The Tailwind Prettier plugin re-sorts classes inside a string. Where the original builds classes from arrays of single names, the port uses the same arrays (`cx([...])`), so the order stays the same.
+15. **Text nodes.** Vue compiles `$ {{ price }}` into one text node; JSX `$ {price}` makes two, and Chrome shapes the text slightly differently (found by the visual tests). Mixed text and expressions are written as one template literal: ``{`$ ${price}`}``.
+16. **CSS precision.** Turbopack's CSS minifier rounds `33.333333%` to `33.3333%`. The port builds with webpack, which keeps Tailwind's values (ADR 0015).
 
 ### Differences users can't see
 
@@ -106,7 +108,7 @@ These are Vue behaviours that a line-by-line translation to React would get wron
 
 ### Head differences (not visible on the page)
 
-- **Font:** Manrope is self-hosted with `next/font` instead of the Google Fonts `<link>` (ADR 0010).
+- **Font:** the exact Manrope files and `@font-face` rules Google Fonts serves are self-hosted, instead of the Google Fonts `<link>` (ADR 0013).
 - **Favicon:** same file, `/icons/KIIIBS.png`. The original's `<link>` says `type="image/svg+xml"` for a PNG; the port leaves `type` out.
 
 ## Quirks in the original, kept as-is

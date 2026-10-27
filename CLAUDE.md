@@ -8,12 +8,12 @@ Read `docs/migration-plan.md` (phases, component map, known quirks) and `docs/ad
 
 ## Commands
 
-- `npm run dev`: dev server on :3000
+- `npm run dev`: dev server on :3000 (webpack, like the build: ADR 0015)
 - `npm run lint` / `npm run typecheck` / `npm run format:check`
 - `npm test`: Vitest unit and contract tests on both apps (`npm run test:coverage` for coverage)
 - `npm run test:vue` / `npm run test:next`: contract tests on one app; `npm run test:golden` re-records golden markup from Vue
-- `npm run test:e2e`: Playwright against the Next app
-- `npm run test:parity`: Playwright against both apps (Vue on :4173)
+- `npm run test:e2e`: Playwright against the Next production build (:3100)
+- `npm run test:parity`: Playwright against both apps (Vue preview on :4173), plus the visual comparison; `npm run test:visual` for the visual part only
 
 ## Layout
 
@@ -45,3 +45,11 @@ Read `docs/migration-plan.md` (phases, component map, known quirks) and `docs/ad
 - Every `<router-link>` in the original becomes `RouterLink` (`src/components/ui/RouterLink.tsx`), not a bare `next/link` (ADR 0011).
 - Conditional classes that the original writes as arrays of single names stay arrays in `cx([...])`. Inside a single string, Prettier's Tailwind plugin re-sorts them and the markup contracts fail.
 - `<Transition>` becomes `Fade` (`mode="show"` for `v-show`, `mode="if"` for `v-if`), except where the original never animates.
+- Text that mixes static words and expressions is one template literal (``{`$ ${price}`}``), so React renders one text node like Vue does. Split text nodes are shaped differently and fail the visual tests.
+
+## Playwright
+
+- Page Object Model: specs never build locators. Every locator lives in a page class in `e2e/pages/` (`BasePage` → `StorePage` → one class per page), and specs get page objects as fixtures from `e2e/fixtures.ts`.
+- Use Playwright's auto-waiting queries (`getByRole`, `getByLabel`, `getByText`, `getByPlaceholder`; `getByTestId` for the original's `data-test` hooks) and web-first assertions (`await expect(locator)…`). No fixed waits.
+- Open pages with `open(path)`, which waits until the app is interactive. After opening an overlay, wait for its fade (`openCart()`, `openMenu()` already do).
+- New visual scenes go in `e2e/specs/visual.spec.ts` through `parity.expectSameLook()` (ADR 0014).

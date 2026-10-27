@@ -2,7 +2,7 @@
 
 A Next.js 16 rebuild of [KIIIBS](https://github.com/rauldotgit/E-Commerce-Store), a Vue 3 web store for mechanical keyboards, keycaps and deskmats. The port keeps the original's look and behaviour, adds unit tests for every component, and includes one Playwright suite that runs against **both** apps to prove they match.
 
-> **Status:** Phase 6 of 9 done: every page of the original is ported (landing, category, product, checkout, 404), with metadata, and checked against the Vue app page by page. See the [migration plan](docs/migration-plan.md).
+> **Status:** Phase 7 of 9 done: every page is ported and checked against the Vue app at three levels: unit contracts, Playwright behaviour specs, and pixel-by-pixel screenshots. See the [migration plan](docs/migration-plan.md).
 
 ## Tech stack
 
@@ -10,11 +10,13 @@ A Next.js 16 rebuild of [KIIIBS](https://github.com/rauldotgit/E-Commerce-Store)
 | ------------ | ---------------------------------------------------------- | -------------------------------------------------- |
 | Framework    | Next.js 16 App Router, React 19, TypeScript (strict)       | [ADR 0001](docs/adr/0001-nextjs-app-router.md)     |
 | Styling      | Tailwind CSS 3.3.3, same version and theme as the original | [ADR 0003](docs/adr/0003-tailwind-3-pinned.md)     |
-| Font         | Manrope, self-hosted with `next/font`                      | [ADR 0010](docs/adr/0010-manrope-via-next-font.md) |
+| Font         | Manrope, the exact files Google serves, self-hosted        | [ADR 0013](docs/adr/0013-manrope-exact-files.md)   |
+| Build        | `next build --webpack`, to keep Tailwind's CSS precision   | [ADR 0015](docs/adr/0015-webpack-builds.md)        |
 | State        | Zustand with `localStorage` persistence                    | [ADR 0004](docs/adr/0004-zustand-state.md)         |
 | Unit tests   | Vitest, React Testing Library, jest-dom                    | [ADR 0006](docs/adr/0006-vitest-rtl.md)            |
 | Contracts    | The same unit tests run against the Vue originals          | [ADR 0009](docs/adr/0009-shared-contract-tests.md) |
 | E2E / parity | Playwright, one suite run against both apps                | [ADR 0007](docs/adr/0007-shared-parity-suite.md)   |
+| Visual       | Live screenshots of both apps compared pixel by pixel      | [ADR 0014](docs/adr/0014-visual-parity-tests.md)   |
 | Quality      | ESLint (flat config), Prettier                             |                                                    |
 
 ## Getting started
@@ -41,17 +43,22 @@ npm run dev          # http://localhost:3000
 | `npm run test:next`     | Unit and contract tests on this app only             |
 | `npm run test:golden`   | Re-record all golden markup from the Vue app         |
 | `npm run test:coverage` | Unit tests with a coverage report in `coverage/`     |
-| `npm run test:e2e`      | Playwright against the Next app                      |
+| `npm run test:e2e`      | Playwright against the Next app (production build)   |
 | `npm run test:e2e:vue`  | Playwright against the original Vue app              |
-| `npm run test:parity`   | Playwright against both apps                         |
+| `npm run test:parity`   | Playwright against both apps, plus visual comparison |
+| `npm run test:visual`   | Only the visual comparison of both apps              |
 
 ## Testing strategy
 
-Two layers each run the **same tests against both apps**, so passing means "behaves like the original", not just "works".
+Three layers each check the port **against the original app**, so passing means "behaves and looks like the original", not just "works".
 
 **Contract tests** (`tests/contracts/`) are unit tests written once and run twice by Vitest: against the original `.vue` components (read-only from the Vue app) and against the React port. Each one must pass on Vue first, which proves it describes how the original really behaves. Contracts also compare the rendered markup with a golden copy recorded from Vue, class for class. Every test is named after a behaviour in the [behaviour spec](docs/behaviour-spec.md). Tests that only apply to the port sit next to its component (`Foo.test.tsx`).
 
-**Parity tests** run the same Playwright specs against the original Vue app and this app, at desktop (1440×900) and mobile (375×667) sizes. A spec that passes on `vue-*` but fails on `next-*` means the port doesn't match yet.
+**Parity tests** run the same Playwright specs against the original Vue app and this app, at desktop (1440×900) and mobile (375×667) sizes. A spec that passes on `vue-*` but fails on `next-*` means the port doesn't match yet. They cover navigation, the cart (including reloads and other tabs), checkout, routing and 404s, and page metadata. The original Cypress suite is ported into them. Specs follow the Page Object Model: every locator lives in `e2e/pages/` and uses Playwright's auto-waiting queries (`getByRole`, `getByLabel`, `getByTestId` for the original's `data-test` hooks).
+
+**Visual tests** open every page and key states (cart, mobile menu, checkout errors, order confirmation) in both apps at once and compare the screenshots pixel by pixel, with the Vue app's screenshot as the expected image.
+
+All Playwright runs use production builds (`next build` + `next start` on port 3100, `vite build` + `vite preview` on port 4173), never dev servers.
 
 For parity runs, clone the original next to this repo:
 
@@ -80,7 +87,9 @@ tests/contracts/
 └─ __golden__/     markup recorded from the Vue app
 e2e/
 ├─ specs/          Playwright specs (shared by both apps)
-└─ pages/          page objects
+├─ pages/          page objects, one class per page
+├─ fixtures.ts     page objects and the parity camera as fixtures
+└─ parity-camera.ts  screenshots both apps and compares them
 docs/
 ├─ migration-plan.md
 └─ adr/            architecture decision records
