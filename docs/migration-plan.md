@@ -19,7 +19,7 @@ The goal is a Next.js App Router copy of the KIIIBS Vue store with the same look
 | --- | -------------------------------------------------------------------------------- | ------ |
 | 0   | Scaffold, tooling, test harnesses, docs                                          | Done   |
 | 1   | Contract test harness (ADR 0009); trial on cart store, `ButtonCount`, `CartItem` | Done   |
-| 2   | Foundation: `public/` assets, fonts, root layout, `lib/` data + contracts        | To do  |
+| 2   | Foundation: `public/` assets, fonts, root layout, `lib/` data + contracts        | Done   |
 | 3   | Form store + validators (Zustand) + contracts                                    | To do  |
 | 4   | UI building blocks: remaining 5 buttons + `Fade` + contracts                     | To do  |
 | 5   | Shared sections: navigation, cart modal, footer, info, category boxes, YMAL      | To do  |
@@ -88,6 +88,13 @@ These are Vue behaviours that a line-by-line translation to React would get wron
 8. **Store coupling.** `formStore` imports `cartStore` when the module loads. In Zustand, `submit()` reads `useCartStore.getState()` at call time instead.
 9. **Named routes.** `{ name: 'keyboards', params: { id } }` becomes `productHref('keyboards', id)`. The landing grid's relative `{ path: 'keycaps' }` becomes `/keycaps`.
 10. **Side effects kept:** `alert('Shopping cart is empty!')`, the `overflow-y-hidden` class on `<body>` while a modal is open, "Go Back" as browser history back, and `preventDefault` on the payment buttons.
+11. **Other tabs.** VueUse's `useStorage` reloads the cart when another tab saves it. Zustand's `persist` doesn't, so `startCartSync()` adds the same `storage` listener (CART-14).
+12. **Images imported from `public/`.** `meta.ts` imports images by URL, and Vite turns each import back into that URL. The port uses the URL strings directly.
+
+### Head differences (not visible on the page)
+
+- **Font:** Manrope is self-hosted with `next/font` instead of the Google Fonts `<link>` (ADR 0010).
+- **Favicon:** same file, `/icons/KIIIBS.png`. The original's `<link>` says `type="image/svg+xml"` for a PNG; the port leaves `type` out.
 
 ## Quirks in the original, kept as-is
 

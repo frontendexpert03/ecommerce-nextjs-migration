@@ -23,8 +23,42 @@ Source: `pinia/cartStore.ts` · Port: `src/store/cart-store.ts` · Test: `tests/
 | CART-11 | `cartOn`/`cartOff` open and close the cart and add/remove `overflow-y-hidden` on `<body>` to stop the page scrolling.                      | L23–31   |
 | CART-12 | The cart is saved to `localStorage` under `cart` as a plain `{ key: { product, amount } }` object.                                         | L16      |
 | CART-13 | On load, a saved cart is restored.                                                                                                         | L16      |
+| CART-14 | When another tab saves a cart, this tab's cart is replaced with it (VueUse `useStorage` listens to the `storage` event).                   | L16      |
+| CART-15 | A saved cart that isn't valid JSON loads as an empty cart. The original also logs the error to the console; the port doesn't.              | L16      |
 
 Not ported, because nothing in the app uses them: `getItemByKey`, `getItemAmountByKey` (never return a value), `addTestItem`, `getProductAmount`, `isCartShown`.
+
+In the port, the saved cart is loaded after the first render by `<CartSync>` in the root layout (ADR 0004). Next-only tests: `src/components/cart/CartSync.test.tsx`.
+
+## Catalog
+
+Source: `data/products.ts`, `data/product-utils.ts` · Port: `src/lib/data/products.ts`, `src/lib/products.ts` · Test: `tests/contracts/specs/catalog.contract.test.ts`
+
+| ID     | Behaviour                                                                                                                                                                                | Source                    |
+| ------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------- |
+| CAT-01 | 3 keyboards, 2 keycaps and 2 deskmats. Every field matches the original (golden `catalog.json`).                                                                                         | `products.ts`             |
+| CAT-02 | `getProductsOfType` returns a category's products in catalog order, or `[]` for an unknown category.                                                                                     | `product-utils.ts` L32–37 |
+| CAT-03 | `getProduct` finds a product by category and id, or returns `null`.                                                                                                                      | L39–41                    |
+| CAT-04 | `getSelection` ("You may also like") returns 3 different products, never the one being viewed.                                                                                           | L8–30                     |
+| CAT-05 | It only excludes the same category **and** id, so `keycaps0` is offered on the `keyboards0` page.                                                                                        | L20–22                    |
+| CAT-06 | It shuffles with `sort(() => Math.random() - 0.5)`. This is a biased shuffle, but the port keeps it, so the same random numbers give the same picks (golden `selection.json`). **Quirk** | L28–29                    |
+
+Not ported: `getCount` (nothing uses it). The original's `getProduct` throws for an unknown category, which its routes never pass. The port returns `null`, because its `[category]/[id]` route can; that is tested in `src/lib/products.test.ts`.
+
+## Page metadata
+
+Source: `data/meta.ts`, `data/meta-utils.ts`, `utils/utilities.ts` · Port: `src/lib/metadata.ts`, `src/lib/utils.ts` · Test: `tests/contracts/specs/metadata.contract.test.ts`
+
+| ID      | Behaviour                                                                                                                                                | Source                 |
+| ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------- |
+| META-01 | Landing page: "KIIIBS Mechanical Keyboard Store", the Berlin description and the banner image.                                                           | `meta.ts` L7–13        |
+| META-02 | Each category page has its own title, description and image. An unknown category has no metadata.                                                        | `meta.ts` L15–33       |
+| META-03 | A product page's title is `<name> <category, singular, capitalised> \| KIIIBS` (`XX59 Keyboard \| KIIIBS`). Description and image come from the product. | `meta-utils.ts` L19–30 |
+| META-04 | Checkout is titled "Checkout"; the 404 page "404: Page not found." with the same description.                                                            | `meta.ts` L35–45       |
+| META-05 | Every page's metadata matches the original (golden `metadata.json`). Images are public paths such as `/icons/KIIIBS-banner.png`.                         | all                    |
+| UTIL-01 | `capitalize` upper-cases the first letter only; `''` stays `''`.                                                                                         | `utilities.ts` L5–11   |
+
+Not ported: `randomRange` (nothing uses it). The default title before any page sets one is "KIIBS Mechanical Keyboards" (two I's), from `index.html`; it is set in the port's root layout. **Quirk**
 
 ## ButtonCount
 

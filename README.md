@@ -2,7 +2,7 @@
 
 A Next.js 16 rebuild of [KIIIBS](https://github.com/rauldotgit/E-Commerce-Store), a Vue 3 web store for mechanical keyboards, keycaps and deskmats. The port keeps the original's look and behaviour, adds unit tests for every component, and includes one Playwright suite that runs against **both** apps to prove they match.
 
-> **Status:** Phase 1 of 9 done: tooling, docs and the contract test harness, with the cart store, `ButtonCount` and `CartItem` ported. See the [migration plan](docs/migration-plan.md).
+> **Status:** Phase 2 of 9 done: tooling, docs, the contract test harness, assets, font, root layout, catalog, metadata and the cart store. See the [migration plan](docs/migration-plan.md).
 
 ## Tech stack
 
@@ -10,6 +10,7 @@ A Next.js 16 rebuild of [KIIIBS](https://github.com/rauldotgit/E-Commerce-Store)
 | ------------ | ---------------------------------------------------------- | -------------------------------------------------- |
 | Framework    | Next.js 16 App Router, React 19, TypeScript (strict)       | [ADR 0001](docs/adr/0001-nextjs-app-router.md)     |
 | Styling      | Tailwind CSS 3.3.3, same version and theme as the original | [ADR 0003](docs/adr/0003-tailwind-3-pinned.md)     |
+| Font         | Manrope, self-hosted with `next/font`                      | [ADR 0010](docs/adr/0010-manrope-via-next-font.md) |
 | State        | Zustand with `localStorage` persistence                    | [ADR 0004](docs/adr/0004-zustand-state.md)         |
 | Unit tests   | Vitest, React Testing Library, jest-dom                    | [ADR 0006](docs/adr/0006-vitest-rtl.md)            |
 | Contracts    | The same unit tests run against the Vue originals          | [ADR 0009](docs/adr/0009-shared-contract-tests.md) |
