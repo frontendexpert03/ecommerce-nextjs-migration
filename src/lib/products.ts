@@ -27,8 +27,12 @@ export function getProductsOfType(category: string): Product[] {
 	return products[category] ?? []
 }
 
+export const isCategory = (category: string) =>
+	Object.hasOwn(products, category)
+
 // The original throws for an unknown category, which its routes never pass.
-// The [category] route can, so this returns null instead.
+// The [category]/[id] route can, so this returns null instead.
 export function getProduct(category: string, id: number): Product | null {
-	return products[category]?.find((item) => item.id === id) ?? null
+	if (!isCategory(category)) return null
+	return products[category].find((item) => item.id === id) ?? null
 }
