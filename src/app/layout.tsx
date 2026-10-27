@@ -1,12 +1,8 @@
 import type { Metadata } from 'next'
-import { Manrope } from 'next/font/google'
+import { preload } from 'react-dom'
 import { CartSync } from '@/components/cart/CartSync'
+import './fonts.css'
 import './globals.css'
-
-// The Vue app loads Manrope from Google Fonts at runtime; next/font
-// self-hosts the same font. Tailwind's font-Manrope reads the variable.
-// See docs/adr/0010.
-const manrope = Manrope({ subsets: ['latin'], variable: '--font-manrope' })
 
 // From the Vue app's index.html: shown until a page sets its own title.
 export const metadata: Metadata = {
@@ -17,8 +13,16 @@ export const metadata: Metadata = {
 // <div id="app"> is the Vue app's mount point in index.html; the inner
 // <div> is App.vue.
 export default function RootLayout({ children }: LayoutProps<'/'>) {
+	// fonts.css self-hosts the exact Manrope files the original gets from
+	// Google Fonts (docs/adr/0013). The latin file is needed on every page.
+	preload('/fonts/manrope/latin.woff2', {
+		as: 'font',
+		type: 'font/woff2',
+		crossOrigin: 'anonymous',
+	})
+
 	return (
-		<html lang="en" className={manrope.variable}>
+		<html lang="en">
 			<body>
 				<CartSync />
 				<div id="app">
