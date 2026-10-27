@@ -11,7 +11,8 @@ Tailwind v4 is the current major version. It changes the base styles (for exampl
 
 ## Decision
 
-- Install the exact versions from the Vue lockfile: `tailwindcss@3.3.3`, `postcss@8.4.29`, `autoprefixer@10.4.15`.
+- Install the exact versions from the Vue lockfile for the packages that decide the generated CSS: `tailwindcss@3.3.3` and `autoprefixer@10.4.15`.
+- PostCSS is the exception. `8.4.29` has known security advisories (GHSA-7fh5-64p2-3v2j, GHSA-qx2v-qp2m-jg93, GHSA-6g55-p6wh-862q), so it is upgraded to `8.5.32`. PostCSS only parses the CSS; the built stylesheet's hash is identical with either version.
 - Copy the theme (`k-*` colours, `Manrope` font family, `broad*` letter spacings) unchanged into `tailwind.config.ts`.
 - Copy `src/style.css` unchanged into `src/app/globals.css`.
 - Keep every class string from the Vue templates character for character.
