@@ -83,3 +83,38 @@ Source: `components/Cart/cart-item.vue` · Port: `src/components/cart/CartItem.t
 | CI-04 | `-` takes one of the product out of the cart store.                           | L37    |
 | CI-05 | `-` on the last one removes the product; other products stay.                 | L37    |
 | CI-06 | Markup matches the original.                                                  | L15–39 |
+
+## Form store
+
+Source: `pinia/formStore.ts` · Port: `src/store/form-store.ts` · Test: `tests/contracts/specs/form-store.contract.test.ts`
+
+| ID      | Behaviour                                                                                                                                      | Source |
+| ------- | ---------------------------------------------------------------------------------------------------------------------------------------------- | ------ |
+| FORM-01 | Starts with every field empty, no errors shown, the banner hidden and payment `'electronic'`.                                                  | L6–18  |
+| FORM-02 | Typing into a field stores the value (`v-model="formStore[id]"` in `text-input-field.vue`).                                                    | —      |
+| FORM-03 | The cash button cancels the click (`preventDefault`) and selects cash.                                                                         | L26–29 |
+| FORM-04 | The e-money button cancels the click and stores `'electonic'`, misspelt. Only `'cash'` is ever checked, so it has no visible effect. **Quirk** | L30–33 |
+| FORM-05 | `bannerOn`/`bannerOff` show and hide the success banner.                                                                                       | L20–25 |
+| FORM-06 | Submitting with an empty cart shows `alert('Shopping cart is empty!')` and changes nothing else, even if the form is invalid.                  | L35–38 |
+| FORM-07 | Submitting with a required field empty or invalid shows the errors and no banner.                                                              | L40–56 |
+| FORM-08 | Submitting a valid form shows the banner and hides the errors. Nothing is sent anywhere: the original has no backend.                          | L49–54 |
+| FORM-09 | Phone is optional, but a phone number that is filled in and invalid blocks the order.                                                          | L43    |
+| FORM-10 | A valid submit after a failed one clears the errors.                                                                                           | L51    |
+
+The original calls `useCartStore()` at the top of `formStore.ts` (L3), so the form reads whichever cart store existed when the module was first imported. In the app that is always the one cart, so the port reads the cart when `submit()` is called, with the same result. The Vue test adapter re-imports `formStore.ts` for each test so it sees that test's cart.
+
+## Validators
+
+Source: `pinia/formStore.ts` getters · Port: `src/lib/validation.ts` · Test: `tests/contracts/specs/validators.contract.test.ts`
+
+Each validator returns the string `'empty'` for an empty field, otherwise `'true'` or `'false'`. Strings, not booleans, because the input field compares them (`validator === 'false'`). Every validator is tested with an empty value plus the examples below.
+
+| ID     | Field   | Pattern                                                           | Passes                                               | Fails                                                                          | Source   |
+| ------ | ------- | ----------------------------------------------------------------- | ---------------------------------------------------- | ------------------------------------------------------------------------------ | -------- |
+| VAL-01 | name    | `/^[a-z ,.'-]+$/i`                                                | `Alex Keebs`, `O'Brien-Smith, Jr.`, a single space   | `José` (no accented letters), `R2D2` **Quirk**                                 | L75–78   |
+| VAL-02 | email   | `/^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-]+)(\.[a-zA-Z]{2,5}){1,2}$/` | `a.b-c_d@mail.co.uk`, `alex@sub.mail.com`            | `alex+shop@mail.com`, `alex@mail`, `alex@mail.london` (6-letter TLD) **Quirk** | L80–88   |
+| VAL-03 | phone   | `/^[0-9()-]+$/`                                                   | `030-1234567`, `(030)123`                            | `030 123`, `+4930123` (no spaces or `+`) **Quirk**                             | L90–93   |
+| VAL-04 | address | `/[\w',-\/.\s]/`, not anchored                                    | `Main St. 5`, `@` (`,-\` is a range from `,` to `\`) | `!!!` **Quirk**                                                                | L95–98   |
+| VAL-05 | zip     | `/^[0-9]{5}(?:-[0-9]{4})?$/` (US ZIP)                             | `10115`, `12345-6789`                                | `1234`, `123456`, `AB 12`                                                      | L100–105 |
+| VAL-06 | city    | `/[a-zA-Z]+/`, not anchored                                       | `Berlin`, `São Paulo`, `1a`                          | `123` **Quirk**                                                                | L107–110 |
+| VAL-07 | country | `/[a-zA-Z]+/`, not anchored                                       | `Germany`, `1a`                                      | `123`                                                                          | L112–115 |

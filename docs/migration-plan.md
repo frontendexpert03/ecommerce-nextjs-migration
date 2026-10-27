@@ -20,7 +20,7 @@ The goal is a Next.js App Router copy of the KIIIBS Vue store with the same look
 | 0   | Scaffold, tooling, test harnesses, docs                                          | Done   |
 | 1   | Contract test harness (ADR 0009); trial on cart store, `ButtonCount`, `CartItem` | Done   |
 | 2   | Foundation: `public/` assets, fonts, root layout, `lib/` data + contracts        | Done   |
-| 3   | Form store + validators (Zustand) + contracts                                    | To do  |
+| 3   | Form store + validators (Zustand) + contracts                                    | Done   |
 | 4   | UI building blocks: remaining 5 buttons + `Fade` + contracts                     | To do  |
 | 5   | Shared sections: navigation, cart modal, footer, info, category boxes, YMAL      | To do  |
 | 6   | Pages: 404 → landing → category → product → checkout, with metadata              | To do  |
