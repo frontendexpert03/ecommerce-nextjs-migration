@@ -20,14 +20,29 @@ const VOID_ELEMENTS = new Set([
  * - attribute order
  * - how text is split into nodes (`$ {price}` in JSX is two text nodes)
  * - runs of whitespace, and whitespace at the edges of a text run
+ *
+ * `ignoreAttributes` drops named attributes too. Use it only for Vue
+ * artifacts the port deliberately doesn't copy, and say why in the spec.
  */
-export function serialize(root: Element): string {
+export function serialize(
+	root: Element,
+	{ ignoreAttributes = [] }: SerializeOptions = {},
+): string {
 	const lines: string[] = []
-	writeChildren(root, 0, lines)
+	writeChildren(root, 0, lines, new Set(ignoreAttributes))
 	return lines.map((line) => line + '\n').join('')
 }
 
-function writeChildren(parent: Element, depth: number, lines: string[]) {
+export interface SerializeOptions {
+	ignoreAttributes?: string[]
+}
+
+function writeChildren(
+	parent: Element,
+	depth: number,
+	lines: string[],
+	ignored: Set<string>,
+) {
 	let text = ''
 	const flushText = () => {
 		const normalised = collapse(text)
@@ -40,21 +55,27 @@ function writeChildren(parent: Element, depth: number, lines: string[]) {
 			text += node.textContent
 		} else if (node.nodeType === Node.ELEMENT_NODE) {
 			flushText()
-			writeElement(node as Element, depth, lines)
+			writeElement(node as Element, depth, lines, ignored)
 		}
 	}
 	flushText()
 }
 
-function writeElement(element: Element, depth: number, lines: string[]) {
+function writeElement(
+	element: Element,
+	depth: number,
+	lines: string[],
+	ignored: Set<string>,
+) {
 	const tag = element.tagName.toLowerCase()
 	const attributes = [...element.attributes]
+		.filter(({ name }) => !ignored.has(name))
 		.map(({ name, value }) => ` ${name}="${collapse(value)}"`)
 		.sort()
 		.join('')
 
 	lines.push(`${indent(depth)}<${tag}${attributes}>`)
-	writeChildren(element, depth + 1, lines)
+	writeChildren(element, depth + 1, lines, ignored)
 	if (!VOID_ELEMENTS.has(tag)) lines.push(`${indent(depth)}</${tag}>`)
 }
 

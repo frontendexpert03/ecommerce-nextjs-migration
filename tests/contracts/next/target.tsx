@@ -1,7 +1,13 @@
 import { render } from '@testing-library/react'
 import { act, createElement, type ComponentType } from 'react'
 import { CartItem } from '@/components/cart/CartItem'
+import { ButtonAddToCart } from '@/components/ui/ButtonAddToCart'
 import { ButtonCount } from '@/components/ui/ButtonCount'
+import { ButtonEmpty } from '@/components/ui/ButtonEmpty'
+import { ButtonGoBack } from '@/components/ui/ButtonGoBack'
+import { ButtonQuickAdd } from '@/components/ui/ButtonQuickAdd'
+import { ButtonSolid } from '@/components/ui/ButtonSolid'
+import { Fade } from '@/components/ui/Fade'
 import { products } from '@/lib/data/products'
 import {
 	get404PageMeta,
@@ -37,10 +43,19 @@ import {
 	selectShowBanner,
 	useFormStore,
 } from '@/store/form-store'
+import { setPathname } from '@/test/navigation'
 import { compareGolden } from '../harness/golden'
 import type { ContractProps, ContractTarget } from '../harness/types'
 
 // Adapter for the Next.js port.
+
+function FadeFixture({ show, mode }: ContractProps['FadeFixture']) {
+	return (
+		<Fade show={show} mode={mode}>
+			<div className="fade-box">content</div>
+		</Fade>
+	)
+}
 
 // Fails to compile if a React component's props drift from the contract.
 const components: {
@@ -48,6 +63,12 @@ const components: {
 } = {
 	ButtonCount,
 	CartItem,
+	ButtonSolid,
+	ButtonEmpty,
+	ButtonAddToCart,
+	ButtonGoBack,
+	ButtonQuickAdd,
+	FadeFixture,
 }
 
 const initialState = useCartStore.getState()
@@ -69,15 +90,23 @@ export const target: ContractTarget = {
 		localStorage.clear()
 		document.body.className = ''
 		stopCartSync = startCartSync()
+		setPathname('/contract-test')
 	},
 
 	render(name, props) {
 		const component = components[name] as ComponentType<typeof props>
-		const { container } = render(createElement(component, props))
-		return { root: container }
+		const { container, rerender } = render(createElement(component, props))
+		return {
+			root: container,
+			rerender: async (next) => rerender(createElement(component, next)),
+		}
 	},
 
 	settle: async () => {},
+
+	goTo: async (path) => {
+		setPathname(path)
+	},
 
 	golden: compareGolden,
 

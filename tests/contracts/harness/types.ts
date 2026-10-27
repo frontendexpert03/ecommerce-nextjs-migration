@@ -7,7 +7,8 @@ import type { FormField } from '@/store/form-store'
 /**
  * Props for every component under contract. Vue events are passed as
  * on<Event> props, which Vue treats as listeners and the React port takes as
- * callbacks, so the same props object renders either version.
+ * callbacks, so the same props object renders either version. `className`
+ * is what a Vue parent writes as `class`; the Vue adapter renames it.
  */
 export interface ContractProps {
 	ButtonCount: {
@@ -16,6 +17,25 @@ export interface ContractProps {
 		onDecreaseCart?: () => void
 	}
 	CartItem: { cartItem: Product; itemCount: number }
+	ButtonSolid: {
+		content?: string
+		color?: 'light' | 'dark'
+		add?: string
+		to?: string
+		size?: 'small' | 'big'
+		className?: string
+		onClick?: () => void
+		'data-test'?: string
+	}
+	ButtonEmpty: { content?: string; add?: string; to?: string }
+	ButtonAddToCart: { content?: string; add?: string; to?: string }
+	ButtonGoBack: Record<string, never>
+	ButtonQuickAdd: { onAddToCart?: () => void; 'data-test'?: string }
+	/**
+	 * A <div class="fade-box"> inside Vue's <Transition> with v-show or v-if,
+	 * as the app uses it, and the same <div> inside the port's <Fade>.
+	 */
+	FadeFixture: { show: boolean; mode: 'show' | 'if' }
 }
 
 export type ContractComponent = keyof ContractProps
@@ -86,6 +106,12 @@ export interface Lib {
 	get404PageMeta(): PageMeta
 }
 
+export interface Rendered<K extends ContractComponent> {
+	root: Element
+	/** Render again with new props; resolves once the DOM is updated. */
+	rerender(props: ContractProps[K]): Promise<void>
+}
+
 /** One app under test: the Vue original or the Next.js port. */
 export interface ContractTarget {
 	name: 'vue' | 'next'
@@ -98,9 +124,14 @@ export interface ContractTarget {
 	render<K extends ContractComponent>(
 		name: K,
 		props: ContractProps[K],
-	): { root: Element }
+	): Rendered<K>
 	/** Wait until state changes have reached the DOM and localStorage. */
 	settle(): Promise<void>
+	/**
+	 * Make `path` the current page, as if the user had navigated there.
+	 * Each test starts on /contract-test, a page nothing links to.
+	 */
+	goTo(path: string): Promise<void>
 	/**
 	 * Check `content` against `__golden__/<file>`. The Vue target records the
 	 * file; the Next target only compares. Specs use expectMarkup and

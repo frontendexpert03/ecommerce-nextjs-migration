@@ -20,7 +20,7 @@
 		],
 		"paths": {
 			"@/*": ["./src/*"],
-			"@contract-target": ["./tests/contracts/next/target.ts"]
+			"@contract-target": ["./tests/contracts/next/target.tsx"]
 		}
 	},
 	"include": [

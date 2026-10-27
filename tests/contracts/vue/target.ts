@@ -1,8 +1,21 @@
 import { render } from '@testing-library/vue'
 import { createPinia, setActivePinia, type Pinia } from 'pinia'
 import { vi } from 'vitest'
-import { nextTick } from 'vue'
+import {
+	defineComponent,
+	h,
+	nextTick,
+	Transition,
+	vShow,
+	withDirectives,
+} from 'vue'
+import { createRouter, createWebHistory, type Router } from 'vue-router'
+import ButtonAddToCart from '@vue-app/components/Buttons/button-add-to-cart.vue'
 import ButtonCount from '@vue-app/components/Buttons/button-count.vue'
+import ButtonEmpty from '@vue-app/components/Buttons/button-empty.vue'
+import ButtonGoBack from '@vue-app/components/Buttons/button-go-back.vue'
+import ButtonQuickAdd from '@vue-app/components/Buttons/button-quick-add.vue'
+import ButtonSolid from '@vue-app/components/Buttons/button-solid.vue'
 import CartItem from '@vue-app/components/Cart/cart-item.vue'
 import {
 	get404PageMeta,
@@ -27,14 +40,54 @@ import type { ContractComponent, ContractTarget } from '../harness/types'
 // Adapter for the original Vue components, loaded read-only from the Vue app
 // through the @vue-app alias (see vitest.config.mts).
 
+// Vue's <Transition> used the way the app uses it (cart-modal.vue,
+// navigation-global.vue): one element, toggled by v-show or v-if.
+const FadeFixture = defineComponent({
+	props: { show: Boolean, mode: String },
+	setup(props) {
+		const box = () => h('div', { class: 'fade-box' }, 'content')
+		return () =>
+			h(Transition, null, () =>
+				props.mode === 'if'
+					? props.show
+						? box()
+						: null
+					: withDirectives(box(), [[vShow, props.show]]),
+			)
+	},
+})
+
 // The .vue files are untyped here (vue-app.d.ts), so props are checked on the
 // Next side only. ContractTarget still types every call made by the specs.
-const components = { ButtonCount, CartItem } satisfies Record<
-	ContractComponent,
-	unknown
->
+const components = {
+	ButtonCount,
+	CartItem,
+	ButtonSolid,
+	ButtonEmpty,
+	ButtonAddToCart,
+	ButtonGoBack,
+	ButtonQuickAdd,
+	FadeFixture,
+} satisfies Record<ContractComponent, unknown>
+
+// Vue spells the parent's class attribute `class`; the contracts use React's
+// `className`.
+const toVueProps = ({ className, ...props }: Record<string, unknown>) =>
+	className === undefined ? props : { ...props, class: className }
 
 let pinia: Pinia
+let router: Router
+
+// Any path renders nothing. Tests start on a path no button links to, so
+// no <router-link> is "active" unless a test calls goTo().
+const createTestRouter = async () => {
+	router?.options.history.destroy()
+	router = createRouter({
+		history: createWebHistory(),
+		routes: [{ path: '/:pathMatch(.*)*', component: { render: () => null } }],
+	})
+	await router.push('/contract-test')
+}
 let formStoreOf: (pinia: Pinia) => Record<string, any> // eslint-disable-line @typescript-eslint/no-explicit-any -- untyped original
 
 const store = () => cartStoreOf(pinia)
@@ -59,6 +112,7 @@ export const target: ContractTarget = {
 		localStorage.clear()
 		document.body.className = ''
 		createStore()
+		await createTestRouter()
 
 		// formStore.ts calls useCartStore() at the top of the module (line 3),
 		// so it stays tied to the Pinia that was active when it was first
@@ -70,14 +124,25 @@ export const target: ContractTarget = {
 
 	render(name, props) {
 		const component = components[name as ContractComponent]
-		const { container } = render(component, {
-			props,
-			global: { plugins: [pinia] },
+		const { container, rerender } = render(component, {
+			props: toVueProps(props),
+			global: {
+				plugins: [pinia, router],
+				// Vue Test Utils stubs <Transition> by default; use the real one.
+				stubs: { transition: false },
+			},
 		})
-		return { root: container }
+		return {
+			root: container,
+			rerender: (next) => rerender(toVueProps(next)),
+		}
 	},
 
 	settle: () => nextTick(),
+
+	goTo: async (path) => {
+		await router.push(path)
+	},
 
 	golden: recordGolden,
 
