@@ -19,7 +19,8 @@
 			}
 		],
 		"paths": {
-			"@/*": ["./src/*"]
+			"@/*": ["./src/*"],
+			"@contract-target": ["./tests/contracts/next/target.ts"]
 		}
 	},
 	"include": [

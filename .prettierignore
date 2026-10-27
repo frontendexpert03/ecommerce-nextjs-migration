@@ -6,3 +6,5 @@ test-results
 package-lock.json
 next-env.d.ts
 AGENTS.md
+# Recorded from the Vue app's output; must stay byte for byte.
+tests/contracts/__golden__
