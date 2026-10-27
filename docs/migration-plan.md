@@ -22,7 +22,7 @@ The goal is a Next.js App Router copy of the KIIIBS Vue store with the same look
 | 2   | Foundation: `public/` assets, fonts, root layout, `lib/` data + contracts        | Done   |
 | 3   | Form store + validators (Zustand) + contracts                                    | Done   |
 | 4   | UI building blocks: remaining 5 buttons + `Fade` + contracts                     | Done   |
-| 5   | Shared sections: navigation, cart modal, footer, info, category boxes, YMAL      | To do  |
+| 5   | Shared sections: navigation, cart modal, footer, info, category boxes, YMAL      | Done   |
 | 6   | Pages: 404 → landing → category → product → checkout, with metadata              | To do  |
 | 7   | Playwright specs: port Cypress suites, add routing/SEO/cart specs                | To do  |
 | 8   | Visual parity check across both apps; Lighthouse comparison                      | To do  |

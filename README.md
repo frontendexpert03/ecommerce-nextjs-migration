@@ -2,7 +2,7 @@
 
 A Next.js 16 rebuild of [KIIIBS](https://github.com/rauldotgit/E-Commerce-Store), a Vue 3 web store for mechanical keyboards, keycaps and deskmats. The port keeps the original's look and behaviour, adds unit tests for every component, and includes one Playwright suite that runs against **both** apps to prove they match.
 
-> **Status:** Phase 4 of 9 done: tooling, docs, the contract test harness, assets, font, root layout, catalog, metadata, both stores, all buttons, `Fade` and `RouterLink`. See the [migration plan](docs/migration-plan.md).
+> **Status:** Phase 5 of 9 done: tooling, docs, the contract test harness, assets, font, root layout, catalog, metadata, both stores, all buttons, `Fade`, `RouterLink` and the shared sections (navigation, cart, footer, info, categories, "You may also like"). See the [migration plan](docs/migration-plan.md).
 
 ## Tech stack
 

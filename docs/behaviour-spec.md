@@ -182,3 +182,68 @@ The reference is Vue's own `<Transition>`, used the way the app uses it: one ele
 | FADE-06 | Hiding with `v-if` keeps the element during the fade, then removes it.                                                        |
 
 The checkout success modal's `<Transition>` sits inside a component that `v-if` adds and removes as a whole, so it never animates: it appears and disappears at once. Its port must not use `Fade`.
+
+## CartModal
+
+Source: `components/Cart/cart-modal.vue` · Port: `src/components/cart/CartModal.tsx` · Test: `tests/contracts/specs/cart-modal.contract.test.ts`
+
+| ID    | Behaviour                                                                                                                           | Source                       |
+| ----- | ----------------------------------------------------------------------------------------------------------------------------------- | ---------------------------- |
+| CM-01 | When not shown (`v-show` from the navigation), it stays in the DOM with `display: none`.                                            | `navigation-global.vue` L118 |
+| CM-02 | An empty cart shows "CART (0)", "No items in cart." and "TOTAL $0", and no checkout button.                                         | L33–75                       |
+| CM-03 | With items: "CART (n)" counts units, one row per product in the order added, the total value, and a "Checkout" link to `/checkout`. | L37–85                       |
+| CM-04 | "Close" and the dark background both close the cart and unlock page scroll (`cartOff`).                                             | L16, L24                     |
+| CM-05 | "Delete All" empties the cart.                                                                                                      | L40                          |
+| CM-06 | "Checkout" also closes the cart.                                                                                                    | L83                          |
+
+## Navigation
+
+Source: `components/navigation-global.vue` · Port: `src/components/layout/Navigation.tsx` · Test: `tests/contracts/specs/navigation.contract.test.ts`
+
+| ID     | Behaviour                                                                                                                                                                                                                          | Source           |
+| ------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------- |
+| NAV-01 | Header with hamburger, "KIIIBS" logo link, desktop links, cart icon, badge, and the hidden cart modal.                                                                                                                             | L33–118          |
+| NAV-02 | `color` sets the header background: `bg-transparent` (default), `bg-black` or `bg-k-black`. The original builds `'bg-' + color`, so the default's class never makes it into its CSS; the visible result is the same (transparent). | L17–19, L36      |
+| NAV-03 | Desktop links: Home `/`, Keyboards, Keycaps, Deskmats.                                                                                                                                                                             | L71–96           |
+| NAV-04 | The cart badge is hidden (`v-show`) when the cart is empty, otherwise it shows the number of units.                                                                                                                                | L107–115         |
+| NAV-05 | Clicking the cart icon opens the cart and locks page scroll.                                                                                                                                                                       | L97–101          |
+| NAV-06 | The hamburger opens the mobile menu (`v-if`, with fade); "Close" removes it.                                                                                                                                                       | L42–47, L119–132 |
+| NAV-07 | The mobile menu hides the link to the current page and is `bg-black`, except on `/`.                                                                                                                                               | L123, L136–160   |
+| NAV-08 | On `/` the mobile menu is `bg-k-black`, and links to the current page are marked active (ADR 0011). The menu's class lists `bg-black` and then `bg-k-black`, as in the original.                                                   | L121–123         |
+| NAV-09 | Clicking a link in the mobile menu closes it.                                                                                                                                                                                      | L137–161         |
+
+The menu's open state is local to the component. Each page renders its own navigation, so the menu is closed after every page change, in both apps.
+
+## Footer
+
+Source: `components/footer-global.vue` · Port: `src/components/layout/Footer.tsx` · Test: `tests/contracts/specs/footer.contract.test.ts`
+
+| ID    | Behaviour                                                                                              | Source |
+| ----- | ------------------------------------------------------------------------------------------------------ | ------ |
+| FT-01 | Markup matches the original, including "you setup" (typo) in the about text. **Quirk**                 | L8–103 |
+| FT-02 | The logo and the four links go to `/`, `/keyboards`, `/keycaps` and `/deskmats`.                       | L27–55 |
+| FT-03 | The Facebook, Twitter and Instagram icons link to `href=""`, which reloads the current page. **Quirk** | L71–94 |
+
+## InfoSection and CategoryBox
+
+Source: `components/info-section.vue`, `components/Category-Box/*` · Port: `src/components/sections/InfoSection.tsx`, `CategoryBox.tsx`, `CategoryBoxContainer.tsx` · Test: `tests/contracts/specs/sections.contract.test.ts`
+
+| ID     | Behaviour                                                                                                                                              | Source                       |
+| ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------- |
+| IS-01  | "Bringing you the best keyboards" section; markup matches, including the image's empty `srcset=""`.                                                    | `info-section.vue`           |
+| CB-01  | A category box links to `/<category>`, shows the image with its extra classes, the alt text "<category> category box image", and "shop" with an arrow. | `category-box.vue`           |
+| CBC-01 | The container shows keyboards, keycaps and deskmats, in that order.                                                                                    | `category-box-container.vue` |
+
+## YouMayAlsoLike
+
+Source: `components/ymal-boxes.vue` · Port: `src/components/sections/YouMayAlsoLike.tsx` · Test: `tests/contracts/specs/you-may-also-like.contract.test.ts`
+
+| ID      | Behaviour                                                                                                | Source   |
+| ------- | -------------------------------------------------------------------------------------------------------- | -------- |
+| YMAL-01 | Under "You may also like", three other products (CAT-04).                                                | L247–276 |
+| YMAL-02 | Each card links its image and its "see product" button to the product page, and shows the name and type. | L259–274 |
+| YMAL-03 | With the same random numbers, the cards match the original exactly.                                      | all      |
+
+The original picks in `onBeforeMount`. The port picks after mount, so the server HTML has no cards and hydration can't mismatch (`src/components/sections/YouMayAlsoLike.test.tsx`). In the browser the cards appear right after the first paint.
+
+Known difference, to be decided with the product page (Phase 6): the original stores its picks in a plain variable, so when you go from one product to another in the same category (Vue reuses the page), the picks don't change and can include the product now on screen. The port picks again on every product page.
