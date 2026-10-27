@@ -23,7 +23,7 @@ The goal is a Next.js App Router copy of the KIIIBS Vue store with the same look
 | 3   | Form store + validators (Zustand) + contracts                                    | Done   |
 | 4   | UI building blocks: remaining 5 buttons + `Fade` + contracts                     | Done   |
 | 5   | Shared sections: navigation, cart modal, footer, info, category boxes, YMAL      | Done   |
-| 6   | Pages: 404 → landing → category → product → checkout, with metadata              | To do  |
+| 6   | Pages: 404 → landing → category → product → checkout, with metadata              | Done   |
 | 7   | Playwright specs: port Cypress suites, add routing/SEO/cart specs                | To do  |
 | 8   | Visual parity check across both apps; Lighthouse comparison                      | To do  |
 | 9   | CI (GitHub Actions), README, Vercel deployment                                   | To do  |
@@ -39,13 +39,13 @@ Each phase ends with lint, typecheck, unit and contract tests and (from Phase 6)
 
 ## Route map
 
-| URL              | Vue page file                      | Next.js route file                 |
-| ---------------- | ---------------------------------- | ---------------------------------- |
-| `/`              | `pages/Landing/landing-page.vue`   | `app/page.tsx`                     |
-| `/:category`     | `pages/Category/category-page.vue` | `app/[category]/page.tsx`          |
-| `/:category/:id` | `pages/Product/product-page.vue`   | `app/[category]/[id]/page.tsx`     |
-| `/checkout`      | `pages/Checkout/checkout-page.vue` | `app/checkout/page.tsx`            |
-| `/404`, other    | `pages/404/404-page.vue`           | `app/not-found.tsx` (see ADR 0008) |
+| URL              | Vue page file                      | Next.js route file                   |
+| ---------------- | ---------------------------------- | ------------------------------------ |
+| `/`              | `pages/Landing/landing-page.vue`   | `app/page.tsx`                       |
+| `/:category`     | `pages/Category/category-page.vue` | `app/[category]/page.tsx`            |
+| `/:category/:id` | `pages/Product/product-page.vue`   | `app/[category]/[id]/page.tsx`       |
+| `/checkout`      | `pages/Checkout/checkout-page.vue` | `app/checkout/page.tsx`              |
+| `/404`, other    | `pages/404/404-page.vue`           | `app/not-found.tsx` (ADR 0008, 0012) |
 
 ## Component map
 
@@ -93,6 +93,16 @@ These are Vue behaviours that a line-by-line translation to React would get wron
 12. **Images imported from `public/`.** `meta.ts` imports images by URL, and Vite turns each import back into that URL. The port uses the URL strings directly.
 13. **`<router-link>` extras.** It marks a link to the current page with two classes and `aria-current="page"`, and always renders `class`. `RouterLink` does the same (ADR 0011).
 14. **Class order and Prettier.** The Tailwind Prettier plugin re-sorts classes inside a string. Where the original builds classes from arrays of single names, the port uses the same arrays (`cx([...])`), so the order stays the same.
+
+### Differences users can't see
+
+- **HTTP status codes:** the port answers missing pages with 404 and unknown products with a 307 redirect; the Vue app always returns 200 (ADR 0012).
+- **og:image:** an absolute URL in the port (Next resolves it against the site URL), relative in the original.
+
+### Differences users can see (agreed)
+
+- **"You may also like" between products of one category:** the port picks again on each product page; the original keeps stale picks (behaviour spec, YouMayAlsoLike).
+- **Upper-case URLs** such as `/KEYBOARDS` show the 404 page; vue-router matches them case-insensitively (ADR 0012).
 
 ### Head differences (not visible on the page)
 

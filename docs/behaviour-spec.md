@@ -231,7 +231,7 @@ Source: `components/info-section.vue`, `components/Category-Box/*` · Port: `src
 | ID     | Behaviour                                                                                                                                              | Source                       |
 | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------- |
 | IS-01  | "Bringing you the best keyboards" section; markup matches, including the image's empty `srcset=""`.                                                    | `info-section.vue`           |
-| CB-01  | A category box links to `/<category>`, shows the image with its extra classes, the alt text "<category> category box image", and "shop" with an arrow. | `category-box.vue`           |
+| CB-01  | A category box links to `/<category>`, shows the image with its extra classes, the alt text `<category> category box image`, and "shop" with an arrow. | `category-box.vue`           |
 | CBC-01 | The container shows keyboards, keycaps and deskmats, in that order.                                                                                    | `category-box-container.vue` |
 
 ## YouMayAlsoLike
@@ -246,4 +246,80 @@ Source: `components/ymal-boxes.vue` · Port: `src/components/sections/YouMayAlso
 
 The original picks in `onBeforeMount`. The port picks after mount, so the server HTML has no cards and hydration can't mismatch (`src/components/sections/YouMayAlsoLike.test.tsx`). In the browser the cards appear right after the first paint.
 
-Known difference, to be decided with the product page (Phase 6): the original stores its picks in a plain variable, so when you go from one product to another in the same category (Vue reuses the page), the picks don't change and can include the product now on screen. The port picks again on every product page.
+**Deliberate difference (bug not copied, agreed in review):** the original stores its picks in a plain variable. When you go from one product to another in the same category, Vue reuses the page, so the picks don't change and can include the product now on screen. The port picks again on every product page. Copying the bug would mean keeping state alive across page changes, against how the App Router works.
+
+## Landing page
+
+Source: `pages/Landing/*` · Port: `src/features/landing/*`, `src/app/page.tsx` · Test: `tests/contracts/specs/landing.contract.test.ts`
+
+| ID    | Behaviour                                                                                                                                                                                                                                                                      | Source                      |
+| ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------- |
+| LH-01 | The hero: "new product", "xx99 mark II Keyboard", text and "see product" to `/keyboards/2`. Spaces around the `<br>`s that are hidden on small screens are kept, or words would run together.                                                                                  | `landing-hero.vue`          |
+| LG-01 | The grid links: ZX9 picture, "SEE PRODUCT" to `/keyboards/1`, Kraken deskmat button and picture to `/deskmats/1`, "see all" to `/keycaps`. The ZX9 picture's link renders `href=""`: the template passes `href=""` as well as `:to`, and Vue lets the attribute win. **Quirk** | `landing-grid.vue` L123–125 |
+| LG-02 | A plain click on that picture still goes to `/keyboards/1` through the router; Ctrl/⌘-click or middle-click follow `href=""` (the current page).                                                                                                                               | `landing-grid.vue` L123     |
+| LP-01 | The whole page (navigation `k-black`, hero, category boxes, grid, info, footer) matches the original.                                                                                                                                                                          | `landing-page.vue`          |
+
+## 404 page
+
+Source: `pages/404/404-page.vue` · Port: `src/features/not-found/NotFoundPage.tsx`, `src/app/not-found.tsx` · Test: `tests/contracts/specs/landing.contract.test.ts`
+
+| ID    | Behaviour                                                                              | Source |
+| ----- | -------------------------------------------------------------------------------------- | ------ |
+| NF-01 | "404", "Stare at the abyss…", and "To Safety" linking to `/`. No navigation or footer. | all    |
+
+Which URLs show it, and with which status codes: ADR 0008 and ADR 0012.
+
+## Category page
+
+Source: `pages/Category/*` · Port: `src/features/category/*`, `src/app/[category]/page.tsx` · Test: `tests/contracts/specs/category.contract.test.ts`
+
+| ID     | Behaviour                                                                                                                                                                                    | Source                                 |
+| ------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------- |
+| CSB-01 | Even product ids put the text on the right (`md:col-start-2`) and the picture on the left; new products show "new product".                                                                  | `category-show-box.vue` L60–62, L77–84 |
+| CSB-02 | Odd ids swap sides; products that aren't new have no label.                                                                                                                                  | same                                   |
+| CSB-03 | The button and the picture link to the product; quick add puts one in the cart; the page's `data-test` lands on the box.                                                                     | L99–122                                |
+| CTP-01 | The page: navigation, a black header with the category name, the category's products in catalog order (`showbox-<category>-<id>`), category boxes, info and footer, with no wrapper element. | `category-page.vue`                    |
+
+Not ported: the show box's unused `show` ref.
+
+## Product page
+
+Source: `pages/Product/*` · Port: `src/features/product/*`, `src/app/[category]/[id]/page.tsx` · Test: `tests/contracts/specs/product.contract.test.ts`
+
+| ID     | Behaviour                                                                              | Source                        |
+| ------ | -------------------------------------------------------------------------------------- | ----------------------------- |
+| PC-01  | "Go Back", "new product" when new, name and type, text and the price as "$ 599".       | `product-core.vue`            |
+| PC-02  | "add to cart" adds one more on each click.                                             | L39                           |
+| PF-01  | "FEATURES" text, and "IN THE BOX" as "1x Keyboard" rows.                               | `product-features.vue`        |
+| PIG-01 | The three-picture gallery, or nothing if any picture is missing.                       | `product-image-grid.vue` L103 |
+| PP-01  | The whole page matches the original (with fixed random picks for "You may also like"). | `product-page.vue`            |
+
+## Checkout page
+
+Source: `pages/Checkout/*` · Port: `src/features/checkout/*`, `src/app/checkout/page.tsx` · Test: `tests/contracts/specs/checkout.contract.test.ts`
+
+| ID     | Behaviour                                                                                                                                                                          | Source                       |
+| ------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------- |
+| TIF-01 | A required field's label ends in " *"; the input has the type, placeholder, `autocomplete="off"` and `required`.                                                                   | `text-input-field.vue`       |
+| TIF-02 | Optional fields (phone) have no star and never show "Required.".                                                                                                                   | L30, L51–55                  |
+| TIF-03 | Typing stores the value in the form field named by the input's id.                                                                                                                 | L34                          |
+| TIF-04 | "Required." appears only after a failed submit, while the field is empty.                                                                                                          | L51–58                       |
+| TIF-05 | An invalid value shows the field's error message and a red border.                                                                                                                 | L36–39, L61–63               |
+| CF-01  | The form matches the original, including its quirks: "Payment Method" is a `<p>` with `for="country"`, the textarea has `type=""`, the placeholder says "United Stated". **Quirk** | `checkout-form.vue`          |
+| CF-02  | e-Money is selected at first; the two payment buttons switch the highlight without submitting the form.                                                                            | L114–137                     |
+| CF-03  | The comment box stores what is typed.                                                                                                                                              | L149                         |
+| CF-04  | The "Add a comment" label points at the Country field, so clicking it focuses Country. **Quirk**                                                                                   | L140                         |
+| CSI-01 | A summary row: picture, name, "$ 599", "x2"; nothing for a count of 0.                                                                                                             | `checkout-summary-item.vue`  |
+| CS-01  | Empty cart: TOTAL $0, SHIPPING $50, VAT $10.00, GRAND TOTAL $50.                                                                                                                   | `checkout-summary.vue`       |
+| CS-02  | Shipping is struck through only when the total is above $1000 (CART-08).                                                                                                           | L37–45                       |
+| CS-03  | With items, the summary matches the original.                                                                                                                                      | all                          |
+| CS-04  | "continue & pay" with an empty cart alerts "Shopping cart is empty!" (FORM-06).                                                                                                    | L61                          |
+| SM-01  | The success modal shows the first product with its count, "and 1 other item" and the grand total as "$ 1797".                                                                      | `checkout-success-modal.vue` |
+| SM-02  | With three or more products it says "items" (the "s" is a `v-show`).                                                                                                               | L202–205                     |
+| SM-03  | With one product there is no divider or "other item" line.                                                                                                                         | L197–199                     |
+| SM-04  | Page scroll is locked while the modal is open.                                                                                                                                     | L117–125                     |
+| SM-05  | "back to home" and the dark background both empty the cart, close the modal and go home.                                                                                           | L112–115, L133–137           |
+| COP-01 | The checkout page matches the original.                                                                                                                                            | `checkout-page.vue`          |
+| COP-02 | Filling in the form and clicking "continue & pay" shows the success modal.                                                                                                         | —                            |
+
+React also writes a controlled input's value into its `value` attribute; Vue only sets the property. The page looks the same, so the checkout markup comparisons ignore `value`.
