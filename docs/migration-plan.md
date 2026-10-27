@@ -15,19 +15,27 @@ The goal is a Next.js App Router copy of the KIIIBS Vue store with the same look
 
 ## Phases
 
-| #   | Phase                                                                 | Status |
-| --- | --------------------------------------------------------------------- | ------ |
-| 0   | Scaffold, tooling, test harnesses, docs                               | Done   |
-| 1   | Foundation: `public/` assets, fonts, root layout, `lib/` data + tests | To do  |
-| 2   | Stores: cart + form (Zustand) + tests                                 | To do  |
-| 3   | UI building blocks: 6 buttons + `Fade` + tests                        | To do  |
-| 4   | Shared sections: navigation, cart, footer, info, category boxes, YMAL | To do  |
-| 5   | Pages: 404 → landing → category → product → checkout, with metadata   | To do  |
-| 6   | Playwright specs: port Cypress suites, add routing/SEO/cart specs     | To do  |
-| 7   | Visual parity check across both apps; Lighthouse comparison           | To do  |
-| 8   | CI (GitHub Actions), README, Vercel deployment                        | To do  |
+| #   | Phase                                                                            | Status |
+| --- | -------------------------------------------------------------------------------- | ------ |
+| 0   | Scaffold, tooling, test harnesses, docs                                          | Done   |
+| 1   | Contract test harness (ADR 0009); trial on cart store, `ButtonCount`, `CartItem` | Done   |
+| 2   | Foundation: `public/` assets, fonts, root layout, `lib/` data + contracts        | To do  |
+| 3   | Form store + validators (Zustand) + contracts                                    | To do  |
+| 4   | UI building blocks: remaining 5 buttons + `Fade` + contracts                     | To do  |
+| 5   | Shared sections: navigation, cart modal, footer, info, category boxes, YMAL      | To do  |
+| 6   | Pages: 404 → landing → category → product → checkout, with metadata              | To do  |
+| 7   | Playwright specs: port Cypress suites, add routing/SEO/cart specs                | To do  |
+| 8   | Visual parity check across both apps; Lighthouse comparison                      | To do  |
+| 9   | CI (GitHub Actions), README, Vercel deployment                                   | To do  |
 
-Each phase ends with lint, typecheck, unit tests and (from Phase 5) the parity suite passing, then a review before the next phase starts.
+Each phase ends with lint, typecheck, unit and contract tests and (from Phase 6) the parity suite passing, then a review before the next phase starts.
+
+### How each component is ported
+
+1. Read the Vue file and add its behaviours, with IDs, to [`behaviour-spec.md`](behaviour-spec.md).
+2. Write the contract test and run it on the Vue app (`npm run test:vue`). It must pass there first; if it fails, the test is wrong. This also records the golden markup.
+3. Build the React component until the same contract passes on Next (`npm run test:next`).
+4. Add Next-only tests for anything the original doesn't have, such as hydration.
 
 ## Route map
 
@@ -46,7 +54,7 @@ Each phase ends with lint, typecheck, unit tests and (from Phase 5) the parity s
 | `components/Buttons/button-solid.vue`         | `components/ui/ButtonSolid.tsx`                    | shared |
 | `components/Buttons/button-empty.vue`         | `components/ui/ButtonEmpty.tsx`                    | server |
 | `components/Buttons/button-add-to-cart.vue`   | `components/ui/ButtonAddToCart.tsx`                | server |
-| `components/Buttons/button-count.vue`         | `components/ui/ButtonCount.tsx`                    | client |
+| `components/Buttons/button-count.vue`         | `components/ui/ButtonCount.tsx`                    | shared |
 | `components/Buttons/button-go-back.vue`       | `components/ui/ButtonGoBack.tsx`                   | client |
 | `components/Buttons/button-quick-add.vue`     | `components/ui/ButtonQuickAdd.tsx`                 | client |
 | (Vue `<Transition>`)                          | `components/ui/Fade.tsx`                           | client |

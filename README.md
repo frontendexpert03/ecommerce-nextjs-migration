@@ -2,18 +2,19 @@
 
 A Next.js 16 rebuild of [KIIIBS](https://github.com/rauldotgit/E-Commerce-Store), a Vue 3 web store for mechanical keyboards, keycaps and deskmats. The port keeps the original's look and behaviour, adds unit tests for every component, and includes one Playwright suite that runs against **both** apps to prove they match.
 
-> **Status:** Phase 0 of 8 done: tooling, test harnesses and docs. See the [migration plan](docs/migration-plan.md).
+> **Status:** Phase 1 of 9 done: tooling, docs and the contract test harness, with the cart store, `ButtonCount` and `CartItem` ported. See the [migration plan](docs/migration-plan.md).
 
 ## Tech stack
 
-| Concern      | Choice                                                     | Why                                              |
-| ------------ | ---------------------------------------------------------- | ------------------------------------------------ |
-| Framework    | Next.js 16 App Router, React 19, TypeScript (strict)       | [ADR 0001](docs/adr/0001-nextjs-app-router.md)   |
-| Styling      | Tailwind CSS 3.3.3, same version and theme as the original | [ADR 0003](docs/adr/0003-tailwind-3-pinned.md)   |
-| State        | Zustand with `localStorage` persistence                    | [ADR 0004](docs/adr/0004-zustand-state.md)       |
-| Unit tests   | Vitest, React Testing Library, jest-dom                    | [ADR 0006](docs/adr/0006-vitest-rtl.md)          |
-| E2E / parity | Playwright, one suite run against both apps                | [ADR 0007](docs/adr/0007-shared-parity-suite.md) |
-| Quality      | ESLint (flat config), Prettier                             |                                                  |
+| Concern      | Choice                                                     | Why                                                |
+| ------------ | ---------------------------------------------------------- | -------------------------------------------------- |
+| Framework    | Next.js 16 App Router, React 19, TypeScript (strict)       | [ADR 0001](docs/adr/0001-nextjs-app-router.md)     |
+| Styling      | Tailwind CSS 3.3.3, same version and theme as the original | [ADR 0003](docs/adr/0003-tailwind-3-pinned.md)     |
+| State        | Zustand with `localStorage` persistence                    | [ADR 0004](docs/adr/0004-zustand-state.md)         |
+| Unit tests   | Vitest, React Testing Library, jest-dom                    | [ADR 0006](docs/adr/0006-vitest-rtl.md)            |
+| Contracts    | The same unit tests run against the Vue originals          | [ADR 0009](docs/adr/0009-shared-contract-tests.md) |
+| E2E / parity | Playwright, one suite run against both apps                | [ADR 0007](docs/adr/0007-shared-parity-suite.md)   |
+| Quality      | ESLint (flat config), Prettier                             |                                                    |
 
 ## Getting started
 
@@ -34,7 +35,10 @@ npm run dev          # http://localhost:3000
 | `npm run lint`          | ESLint                                               |
 | `npm run typecheck`     | Generate route types, then `tsc --noEmit`            |
 | `npm run format`        | Format with Prettier (`format:check` to verify only) |
-| `npm test`              | Unit tests                                           |
+| `npm test`              | Unit tests, and contract tests on both apps          |
+| `npm run test:vue`      | Contract tests on the Vue app; records golden markup |
+| `npm run test:next`     | Unit and contract tests on this app only             |
+| `npm run test:golden`   | Re-record all golden markup from the Vue app         |
 | `npm run test:coverage` | Unit tests with a coverage report in `coverage/`     |
 | `npm run test:e2e`      | Playwright against the Next app                      |
 | `npm run test:e2e:vue`  | Playwright against the original Vue app              |
@@ -42,7 +46,9 @@ npm run dev          # http://localhost:3000
 
 ## Testing strategy
 
-**Unit tests** sit next to each component (`Foo.tsx` + `Foo.test.tsx`) and check what the user sees and does: rendered text, links, events and store changes.
+Two layers each run the **same tests against both apps**, so passing means "behaves like the original", not just "works".
+
+**Contract tests** (`tests/contracts/`) are unit tests written once and run twice by Vitest: against the original `.vue` components (read-only from the Vue app) and against the React port. Each one must pass on Vue first, which proves it describes how the original really behaves. Contracts also compare the rendered markup with a golden copy recorded from Vue, class for class. Every test is named after a behaviour in the [behaviour spec](docs/behaviour-spec.md). Tests that only apply to the port sit next to its component (`Foo.test.tsx`).
 
 **Parity tests** run the same Playwright specs against the original Vue app and this app, at desktop (1440×900) and mobile (375×667) sizes. A spec that passes on `vue-*` but fails on `next-*` means the port doesn't match yet.
 
@@ -54,7 +60,7 @@ parent-folder/
 └─ kiiibs-next/        ← this repo
 ```
 
-Or point `VUE_APP_DIR` at it. The first run installs the Chromium browser with `npx playwright install chromium`.
+Or point `VUE_APP_DIR` at it. The first run installs the Chromium browser with `npx playwright install chromium`. Without the Vue app, `npm test` skips the Vue side and checks the port against the committed golden files.
 
 ## Project structure
 
@@ -66,6 +72,11 @@ src/
 ├─ store/          Zustand stores
 ├─ lib/            product data, pure helpers, validation
 └─ test/           Vitest setup and helpers
+tests/contracts/
+├─ specs/          contract tests (run on both apps)
+├─ vue/, next/     one adapter per app
+├─ harness/        shared types, markup serializer, golden files
+└─ __golden__/     markup recorded from the Vue app
 e2e/
 ├─ specs/          Playwright specs (shared by both apps)
 └─ pages/          page objects
@@ -77,6 +88,7 @@ docs/
 ## Documentation
 
 - [Migration plan](docs/migration-plan.md): phases, route and component maps, known quirks
+- [Behaviour spec](docs/behaviour-spec.md): every behaviour of the original, with its test ID
 - [Architecture decision records](docs/adr/README.md)
 
 ## Credits
