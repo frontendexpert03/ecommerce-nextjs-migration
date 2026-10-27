@@ -1,0 +1,9 @@
+<div class="translate-all flex h-7 w-7 cursor-pointer flex-col justify-center rounded-full bg-gray-300 text-center font-semibold text-k-black duration-100 active:translate-y-0.5 active:opacity-100">
+  -
+</div>
+<p class="h-full text-center font-bold text-k-black">
+  2
+</p>
+<div class="translate-all flex h-7 w-7 cursor-pointer flex-col justify-center rounded-full bg-gray-300 text-center font-semibold text-k-black duration-100 active:translate-y-0.5 active:opacity-100">
+  +
+</div>
