@@ -21,10 +21,7 @@ describe('ButtonSolid', () => {
 			'text-white',
 			'w-52',
 		)
-		// Vue also renders to="" on the <div>, which does nothing; not copied.
-		await expectMarkup(root, 'button-solid-default', {
-			ignoreAttributes: ['to'],
-		})
+		await expectMarkup(root, 'button-solid-default')
 	})
 
 	test('BS-02 with `to`, the outer element is a link to that path', () => {
@@ -49,9 +46,7 @@ describe('ButtonSolid', () => {
 			'font-bold',
 			'mt-8',
 		)
-		await expectMarkup(root, 'button-solid-light-small', {
-			ignoreAttributes: ['to'],
-		})
+		await expectMarkup(root, 'button-solid-light-small')
 	})
 
 	test('BS-04 a link’s class, data-test and click handler go on the outer element', async () => {
@@ -94,9 +89,7 @@ describe('ButtonSolid', () => {
 		)
 
 		expect(onClick).toHaveBeenCalledOnce()
-		await expectMarkup(root, 'button-solid-checkout-pay', {
-			ignoreAttributes: ['to'],
-		})
+		await expectMarkup(root, 'button-solid-checkout-pay')
 	})
 
 	test('BS-06 a link to the current page is marked active, as <router-link> does', async () => {

@@ -24,6 +24,16 @@ import Footer from '@vue-app/components/footer-global.vue'
 import InfoSection from '@vue-app/components/info-section.vue'
 import Navigation from '@vue-app/components/navigation-global.vue'
 import YouMayAlsoLike from '@vue-app/components/ymal-boxes.vue'
+import NotFoundPage from '@vue-app/pages/404/404-page.vue'
+import CategoryShowBox from '@vue-app/pages/Category/Components/category-show-box.vue'
+import CategoryPage from '@vue-app/pages/Category/category-page.vue'
+import LandingGrid from '@vue-app/pages/Landing/Components/landing-grid.vue'
+import LandingHero from '@vue-app/pages/Landing/Components/landing-hero.vue'
+import LandingPage from '@vue-app/pages/Landing/landing-page.vue'
+import ProductCore from '@vue-app/pages/Product/Components/product-core.vue'
+import ProductFeatures from '@vue-app/pages/Product/Components/product-features.vue'
+import ProductImageGrid from '@vue-app/pages/Product/Components/product-image-grid.vue'
+import ProductPage from '@vue-app/pages/Product/product-page.vue'
 import {
 	get404PageMeta,
 	getCategoryPageMeta,
@@ -72,9 +82,58 @@ const CartModalFixture = defineComponent({
 	},
 })
 
+// The checkout components import formStore.ts, so like the store they are
+// imported again for each test (see reset()).
+type CheckoutComponent =
+	| 'TextInputField'
+	| 'CheckoutForm'
+	| 'CheckoutSummaryItem'
+	| 'CheckoutSummary'
+	| 'CheckoutSuccessModal'
+	| 'CheckoutGrid'
+	| 'CheckoutPage'
+
+// Same (untyped) type as the statically imported .vue files.
+type VueComponent = typeof ButtonCount
+
+const importCheckout = async (): Promise<
+	Record<CheckoutComponent, VueComponent>
+> => {
+	const [input, form, item, summary, modal, grid, page] = await Promise.all([
+		import('@vue-app/pages/Checkout/Components/text-input-field.vue'),
+		import('@vue-app/pages/Checkout/Components/checkout-form.vue'),
+		import('@vue-app/pages/Checkout/Components/checkout-summary-item.vue'),
+		import('@vue-app/pages/Checkout/Components/checkout-summary.vue'),
+		import('@vue-app/pages/Checkout/Components/checkout-success-modal.vue'),
+		import('@vue-app/pages/Checkout/Components/checkout-grid.vue'),
+		import('@vue-app/pages/Checkout/checkout-page.vue'),
+	])
+	return {
+		TextInputField: input.default,
+		CheckoutForm: form.default,
+		CheckoutSummaryItem: item.default,
+		CheckoutSummary: summary.default,
+		CheckoutSuccessModal: modal.default,
+		CheckoutGrid: grid.default,
+		CheckoutPage: page.default,
+	}
+}
+
+let checkoutComponents: Record<CheckoutComponent, VueComponent>
+
 // The .vue files are untyped here (vue-app.d.ts), so props are checked on the
 // Next side only. ContractTarget still types every call made by the specs.
 const components = {
+	LandingHero,
+	LandingGrid,
+	LandingPage,
+	CategoryShowBox,
+	CategoryPage,
+	ProductCore,
+	ProductFeatures,
+	ProductImageGrid,
+	ProductPage,
+	NotFoundPage,
 	ButtonCount,
 	CartItem,
 	ButtonSolid,
@@ -90,7 +149,7 @@ const components = {
 	CategoryBox,
 	CategoryBoxContainer,
 	YouMayAlsoLike,
-} satisfies Record<ContractComponent, unknown>
+} satisfies Record<Exclude<ContractComponent, CheckoutComponent>, unknown>
 
 // Vue spells the parent's class attribute `class`; the contracts use React's
 // `className`.
@@ -152,11 +211,14 @@ export const target: ContractTarget = {
 		vi.resetModules()
 		;({ useFormStore: formStoreOf } =
 			await import('@vue-app/pinia/formStore.ts'))
+		checkoutComponents = await importCheckout()
 	},
 
 	render(name, props) {
-		const component = components[name as ContractComponent]
-		const { container, rerender } = render(component, {
+		const component = { ...components, ...checkoutComponents }[
+			name as ContractComponent
+		]
+		const { container, rerender, unmount } = render(component, {
 			props: toVueProps(props),
 			global: {
 				plugins: [pinia, router],
@@ -167,6 +229,7 @@ export const target: ContractTarget = {
 		return {
 			root: container,
 			rerender: (next) => rerender(toVueProps(next)),
+			unmount,
 		}
 	},
 
@@ -175,6 +238,8 @@ export const target: ContractTarget = {
 	goTo: async (path) => {
 		await router.push(path)
 	},
+
+	currentPath: () => router.currentRoute.value.fullPath,
 
 	golden: recordGolden,
 

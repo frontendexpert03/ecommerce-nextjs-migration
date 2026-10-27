@@ -1,6 +1,6 @@
 import type { Product } from '@/lib/types'
 
-// Two products copied from the Vue app's catalog (src/data/products.ts).
+// Three products copied from the Vue app's catalog (src/data/products.ts).
 // Tests that need other prices derive them with withPrice().
 
 export const keyboard: Product = {
@@ -42,6 +42,23 @@ export const deskmat: Product = {
 		{ count: 1, content: 'Deskmat' },
 		{ count: 1, content: 'Carrying Pouch' },
 	],
+	price: 599,
+}
+
+export const keycap: Product = {
+	id: 0,
+	category: 'keycaps',
+	src: '/products/keycaps/cap2-2.webp',
+	topSrc: '/products/keycaps/cap2-3.webp',
+	botSrc: '/products/keycaps/cap2.webp',
+	rightSrc: '/products/keycaps/caps1-show.webp',
+	nu: true,
+	header: 'XX01 Metal',
+	subheader: 'Keycap',
+	text: 'The new XX99 Mark II keyboard is the pinnacle of pristine typing. It redefines your premium keyboard experience by providing a balanced depth and precision to each press of a key.',
+	features:
+		'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Vitae semper quis lectus nulla. Mi bibendum neque egestas congue quisque egestas diam in arcu. Metus aliquam eleifend mi in nulla posuere sollicitudin aliquam ultrices. Rutrum quisque non tellus orci ac auctor augue mauris augue.',
+	inthebox: [{ count: 1, content: 'Metal Keycap' }],
 	price: 599,
 }
 

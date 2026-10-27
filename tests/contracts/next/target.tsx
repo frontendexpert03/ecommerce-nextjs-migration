@@ -8,6 +8,23 @@ import { CategoryBox } from '@/components/sections/CategoryBox'
 import { CategoryBoxContainer } from '@/components/sections/CategoryBoxContainer'
 import { InfoSection } from '@/components/sections/InfoSection'
 import { YouMayAlsoLike } from '@/components/sections/YouMayAlsoLike'
+import { CategoryPage } from '@/features/category/CategoryPage'
+import { CategoryShowBox } from '@/features/category/components/CategoryShowBox'
+import { CheckoutPage } from '@/features/checkout/CheckoutPage'
+import { CheckoutForm } from '@/features/checkout/components/CheckoutForm'
+import { CheckoutGrid } from '@/features/checkout/components/CheckoutGrid'
+import { CheckoutSuccessModal } from '@/features/checkout/components/CheckoutSuccessModal'
+import { CheckoutSummary } from '@/features/checkout/components/CheckoutSummary'
+import { CheckoutSummaryItem } from '@/features/checkout/components/CheckoutSummaryItem'
+import { TextInputField } from '@/features/checkout/components/TextInputField'
+import { LandingPage } from '@/features/landing/LandingPage'
+import { LandingGrid } from '@/features/landing/components/LandingGrid'
+import { LandingHero } from '@/features/landing/components/LandingHero'
+import { NotFoundPage } from '@/features/not-found/NotFoundPage'
+import { ProductPage } from '@/features/product/ProductPage'
+import { ProductCore } from '@/features/product/components/ProductCore'
+import { ProductFeatures } from '@/features/product/components/ProductFeatures'
+import { ProductImageGrid } from '@/features/product/components/ProductImageGrid'
 import { ButtonAddToCart } from '@/components/ui/ButtonAddToCart'
 import { ButtonCount } from '@/components/ui/ButtonCount'
 import { ButtonEmpty } from '@/components/ui/ButtonEmpty'
@@ -50,7 +67,7 @@ import {
 	selectShowBanner,
 	useFormStore,
 } from '@/store/form-store'
-import { setPathname } from '@/test/navigation'
+import { getPathname, setPathname } from '@/test/navigation'
 import { compareGolden } from '../harness/golden'
 import type { ContractProps, ContractTarget } from '../harness/types'
 
@@ -83,6 +100,23 @@ const components: {
 	CategoryBox,
 	CategoryBoxContainer,
 	YouMayAlsoLike,
+	LandingHero,
+	LandingGrid,
+	LandingPage,
+	CategoryShowBox,
+	CategoryPage,
+	ProductCore,
+	ProductFeatures,
+	ProductImageGrid,
+	ProductPage,
+	TextInputField,
+	CheckoutForm,
+	CheckoutSummaryItem,
+	CheckoutSummary,
+	CheckoutSuccessModal,
+	CheckoutGrid,
+	CheckoutPage,
+	NotFoundPage,
 }
 
 const initialState = useCartStore.getState()
@@ -109,10 +143,13 @@ export const target: ContractTarget = {
 
 	render(name, props) {
 		const component = components[name] as ComponentType<typeof props>
-		const { container, rerender } = render(createElement(component, props))
+		const { container, rerender, unmount } = render(
+			createElement(component, props),
+		)
 		return {
 			root: container,
 			rerender: async (next) => rerender(createElement(component, next)),
+			unmount,
 		}
 	},
 
@@ -121,6 +158,8 @@ export const target: ContractTarget = {
 	goTo: async (path) => {
 		setPathname(path)
 	},
+
+	currentPath: () => getPathname(),
 
 	golden: compareGolden,
 

@@ -44,6 +44,34 @@ export interface ContractProps {
 	CategoryBox: { src: string; category: string; imgClass: string | string[] }
 	CategoryBoxContainer: Record<string, never>
 	YouMayAlsoLike: { productCategory: string; productId: number }
+	LandingHero: Record<string, never>
+	LandingGrid: Record<string, never>
+	LandingPage: Record<string, never>
+	CategoryShowBox: { category: string; item: Product; 'data-test'?: string }
+	CategoryPage: { category: string }
+	ProductCore: { item: Product }
+	ProductFeatures: { features: string; inthebox: Product['inthebox'] }
+	ProductImageGrid: { topSrc: string; botSrc: string; rightSrc: string }
+	ProductPage: { category: string; productId: number }
+	TextInputField: {
+		type: 'email' | 'tel' | 'text'
+		validator: FieldStatus
+		id: FormField
+		label: string
+		containerClass?: string
+		placeholder?: string
+		maxLength?: number
+		autocomplete?: 'off'
+		required?: boolean
+		errorMessage: string
+	}
+	CheckoutForm: Record<string, never>
+	CheckoutSummaryItem: { cartItem: Product; itemCount: number }
+	CheckoutSummary: Record<string, never>
+	CheckoutSuccessModal: Record<string, never>
+	CheckoutGrid: Record<string, never>
+	CheckoutPage: Record<string, never>
+	NotFoundPage: Record<string, never>
 }
 
 export type ContractComponent = keyof ContractProps
@@ -118,6 +146,7 @@ export interface Rendered<K extends ContractComponent> {
 	root: Element
 	/** Render again with new props; resolves once the DOM is updated. */
 	rerender(props: ContractProps[K]): Promise<void>
+	unmount(): void
 }
 
 /** One app under test: the Vue original or the Next.js port. */
@@ -140,6 +169,8 @@ export interface ContractTarget {
 	 * Each test starts on /contract-test, a page nothing links to.
 	 */
 	goTo(path: string): Promise<void>
+	/** The current page's path, after any navigation a click caused. */
+	currentPath(): string
 	/**
 	 * Check `content` against `__golden__/<file>`. The Vue target records the
 	 * file; the Next target only compares. Specs use expectMarkup and

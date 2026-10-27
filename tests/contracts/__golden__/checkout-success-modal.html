@@ -1,0 +1,60 @@
+<div class="fixed z-40 flex h-full w-full flex-col items-center backdrop-blur-sm" data-test="checkout-success-modal">
+  <a class="absolute h-screen w-full bg-black opacity-40" href="/">
+  </a>
+  <div class="relative z-10 mx-4 mt-6 flex flex-col rounded-md bg-white p-10 md:mt-20 md:p-12">
+    <div class="absolute right-10 flex h-10 w-10 flex-shrink-0 flex-row items-center justify-center rounded-full bg-k-main md:static lg:h-20 lg:w-20">
+      <svg class="h-8 w-8 lg:h-14 lg:w-14" fill="none" stroke-width="1.5" stroke="black" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path d="M4.5 12.75l6 6 9-13.5" stroke-linecap="round" stroke-linejoin="round">
+        </path>
+      </svg>
+    </div>
+    <h2 class="text-2xl font-bold uppercase text-black md:mt-6 lg:mt-8 lg:text-3xl">
+      "thank you "
+      <br>
+      " for your order"
+    </h2>
+    <p class="text-md mt-4 font-semibold text-black opacity-60 lg:mt-6 lg:text-lg">
+      "You will receive an email confirmation shortly."
+    </p>
+    <div class="mb-4 mt-6 flex h-full w-full flex-col overflow-hidden rounded-lg lg:mb-6 lg:mt-8 lg:flex-row lg:items-center">
+      <div class="flex h-full w-full flex-col justify-center bg-k-grey px-4 py-6 lg:basis-4/6">
+        <div class="flex h-full w-full flex-row items-center">
+          <img alt="" class="aspect-square h-24" loading="lazy" src="/products/keyboards/pulsar-show.webp">
+          <div class="ml-3 flex flex-col items-start justify-center">
+            <p class="text-lg font-bold text-black">
+              "XX59"
+            </p>
+            <p class="text-lg font-bold text-black opacity-60">
+              "$599"
+            </p>
+          </div>
+          <p class="ml-auto place-self-center text-lg font-bold text-black opacity-60">
+            "x2"
+          </p>
+        </div>
+        <hr>
+        <p class="mt-2 text-center font-semibold text-black opacity-70">
+          "and 1 other item"
+          <span style="display: none;">
+            "s"
+          </span>
+        </p>
+      </div>
+      <div class="flex flex-col justify-center bg-black px-6 py-6 lg:h-full lg:basis-2/6">
+        <div>
+          <p class="text-md font-semibold uppercase tracking-wide opacity-90">
+            "Grand Total"
+          </p>
+          <p class="text-md font-semibold lg:text-lg">
+            "$ 1797"
+          </p>
+        </div>
+      </div>
+    </div>
+    <a class="w-fit mt-6 self-center font-bold" data-test="checkout-success-modal-button" href="/">
+      <button class="rounded-sm border-2 uppercase tracking-wide text-k-black shadow-md transition duration-100 hover:translate-y-0.5 active:translate-y-1 bg-k-main text-k-black border-k-main hover:border-k-black w-52 py-3">
+        "back to home"
+      </button>
+    </a>
+  </div>
+</div>
