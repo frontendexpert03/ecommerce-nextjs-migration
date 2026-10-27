@@ -36,6 +36,14 @@ export interface ContractProps {
 	 * as the app uses it, and the same <div> inside the port's <Fade>.
 	 */
 	FadeFixture: { show: boolean; mode: 'show' | 'if' }
+	/** `show` is the v-show that navigation-global.vue puts on <Cart>. */
+	CartModal: { show: boolean }
+	Navigation: { color?: 'black' | 'transparent' | 'k-black' }
+	Footer: Record<string, never>
+	InfoSection: Record<string, never>
+	CategoryBox: { src: string; category: string; imgClass: string | string[] }
+	CategoryBoxContainer: Record<string, never>
+	YouMayAlsoLike: { productCategory: string; productId: number }
 }
 
 export type ContractComponent = keyof ContractProps

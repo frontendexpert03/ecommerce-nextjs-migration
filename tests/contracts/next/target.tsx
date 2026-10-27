@@ -1,6 +1,13 @@
 import { render } from '@testing-library/react'
 import { act, createElement, type ComponentType } from 'react'
 import { CartItem } from '@/components/cart/CartItem'
+import { CartModal } from '@/components/cart/CartModal'
+import { Footer } from '@/components/layout/Footer'
+import { Navigation } from '@/components/layout/Navigation'
+import { CategoryBox } from '@/components/sections/CategoryBox'
+import { CategoryBoxContainer } from '@/components/sections/CategoryBoxContainer'
+import { InfoSection } from '@/components/sections/InfoSection'
+import { YouMayAlsoLike } from '@/components/sections/YouMayAlsoLike'
 import { ButtonAddToCart } from '@/components/ui/ButtonAddToCart'
 import { ButtonCount } from '@/components/ui/ButtonCount'
 import { ButtonEmpty } from '@/components/ui/ButtonEmpty'
@@ -69,6 +76,13 @@ const components: {
 	ButtonGoBack,
 	ButtonQuickAdd,
 	FadeFixture,
+	CartModal,
+	Navigation,
+	Footer,
+	InfoSection,
+	CategoryBox,
+	CategoryBoxContainer,
+	YouMayAlsoLike,
 }
 
 const initialState = useCartStore.getState()

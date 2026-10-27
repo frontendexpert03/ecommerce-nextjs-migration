@@ -17,6 +17,13 @@ import ButtonGoBack from '@vue-app/components/Buttons/button-go-back.vue'
 import ButtonQuickAdd from '@vue-app/components/Buttons/button-quick-add.vue'
 import ButtonSolid from '@vue-app/components/Buttons/button-solid.vue'
 import CartItem from '@vue-app/components/Cart/cart-item.vue'
+import CartModal from '@vue-app/components/Cart/cart-modal.vue'
+import CategoryBox from '@vue-app/components/Category-Box/category-box.vue'
+import CategoryBoxContainer from '@vue-app/components/Category-Box/category-box-container.vue'
+import Footer from '@vue-app/components/footer-global.vue'
+import InfoSection from '@vue-app/components/info-section.vue'
+import Navigation from '@vue-app/components/navigation-global.vue'
+import YouMayAlsoLike from '@vue-app/components/ymal-boxes.vue'
 import {
 	get404PageMeta,
 	getCategoryPageMeta,
@@ -57,6 +64,14 @@ const FadeFixture = defineComponent({
 	},
 })
 
+// <Cart v-show="cartStore.showCart" /> from navigation-global.vue.
+const CartModalFixture = defineComponent({
+	props: { show: Boolean },
+	setup(props) {
+		return () => withDirectives(h(CartModal), [[vShow, props.show]])
+	},
+})
+
 // The .vue files are untyped here (vue-app.d.ts), so props are checked on the
 // Next side only. ContractTarget still types every call made by the specs.
 const components = {
@@ -68,6 +83,13 @@ const components = {
 	ButtonGoBack,
 	ButtonQuickAdd,
 	FadeFixture,
+	CartModal: CartModalFixture,
+	Navigation,
+	Footer,
+	InfoSection,
+	CategoryBox,
+	CategoryBoxContainer,
+	YouMayAlsoLike,
 } satisfies Record<ContractComponent, unknown>
 
 // Vue spells the parent's class attribute `class`; the contracts use React's
@@ -78,13 +100,23 @@ const toVueProps = ({ className, ...props }: Record<string, unknown>) =>
 let pinia: Pinia
 let router: Router
 
-// Any path renders nothing. Tests start on a path no button links to, so
-// no <router-link> is "active" unless a test calls goTo().
+// Every route renders nothing. The product routes have the names the app
+// gives them in src/routes/route-utils.ts, because components link to
+// { name: category, params: { id } }. Tests start on a path no button links
+// to, so no <router-link> is "active" unless a test calls goTo().
+const empty = { render: () => null }
 const createTestRouter = async () => {
 	router?.options.history.destroy()
 	router = createRouter({
 		history: createWebHistory(),
-		routes: [{ path: '/:pathMatch(.*)*', component: { render: () => null } }],
+		routes: [
+			...['keyboards', 'keycaps', 'deskmats'].map((name) => ({
+				path: `/${name}/:id`,
+				name,
+				component: empty,
+			})),
+			{ path: '/:pathMatch(.*)*', component: empty },
+		],
 	})
 	await router.push('/contract-test')
 }
