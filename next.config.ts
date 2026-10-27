@@ -1,9 +1,8 @@
-import type { NextConfig } from "next";
+import type { NextConfig } from 'next'
 
-const nextConfig: NextConfig = {
-  /* config options here */
-  cacheComponents: true,
-  partialPrefetching: true,
-};
+// cacheComponents/partialPrefetching are deliberately left off: the catalog
+// is fully static, and <Activity>-preserved routes would diverge from the
+// Vue app's unmount-on-navigate behaviour. See docs/adr/0002.
+const nextConfig: NextConfig = {}
 
-export default nextConfig;
+export default nextConfig
