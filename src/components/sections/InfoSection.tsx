@@ -15,9 +15,8 @@ export function InfoSection() {
 						We have a large showroom and luxury demonstration rooms available
 						for you to browse and experience a wide range of our products.{' '}
 						<br />
-						<br />
-						Stop by our store to meet some of the fantastic people who make
-						KIIIBS the best place to buy your PC setup equipment.
+						<br /> Stop by our store to meet some of the fantastic people who
+						make KIIIBS the best place to buy your PC setup equipment.
 					</p>
 				</div>
 				<div className="order-first aspect-square h-full w-full overflow-hidden rounded-md md:order-last md:aspect-auto">

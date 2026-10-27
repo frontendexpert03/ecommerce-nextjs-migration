@@ -19,7 +19,13 @@ const VOID_ELEMENTS = new Set([
  * - comment nodes (Vue's `<!--v-if-->` placeholders)
  * - attribute order
  * - how text is split into nodes (`$ {price}` in JSX is two text nodes)
- * - runs of whitespace, and whitespace at the edges of a text run
+ * - runs of whitespace (collapsed to one space)
+ * - whitespace at the start or end of an element's content
+ *
+ * Whitespace next to a sibling element is kept: in
+ * `exceptional <br class="hidden md:inline" /> build` the space is all that
+ * separates the words when the <br> is hidden. Text lines are quoted so
+ * such spaces show in the golden files.
  *
  * `ignoreAttributes` drops named attributes too. Use it only for Vue
  * artifacts the port deliberately doesn't copy, and say why in the spec.
@@ -43,22 +49,29 @@ function writeChildren(
 	lines: string[],
 	ignored: Set<string>,
 ) {
-	let text = ''
-	const flushText = () => {
-		const normalised = collapse(text)
-		if (normalised) lines.push(indent(depth) + normalised)
-		text = ''
-	}
-
+	// Merge adjacent text (across comments) into runs between elements.
+	const parts: (string | Element)[] = []
 	for (const node of parent.childNodes) {
 		if (node.nodeType === Node.TEXT_NODE) {
-			text += node.textContent
+			const last = parts.at(-1)
+			if (typeof last === 'string')
+				parts[parts.length - 1] = last + node.textContent
+			else parts.push(node.textContent ?? '')
 		} else if (node.nodeType === Node.ELEMENT_NODE) {
-			flushText()
-			writeElement(node as Element, depth, lines, ignored)
+			parts.push(node as Element)
 		}
 	}
-	flushText()
+
+	parts.forEach((part, i) => {
+		if (typeof part !== 'string') {
+			writeElement(part, depth, lines, ignored)
+			return
+		}
+		let text = part.replace(/\s+/g, ' ')
+		if (i === 0) text = text.trimStart()
+		if (i === parts.length - 1) text = text.trimEnd()
+		if (text) lines.push(indent(depth) + JSON.stringify(text))
+	})
 }
 
 function writeElement(
