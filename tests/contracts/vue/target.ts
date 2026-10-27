@@ -1,5 +1,6 @@
 import { render } from '@testing-library/vue'
 import { createPinia, setActivePinia, type Pinia } from 'pinia'
+import { vi } from 'vitest'
 import { nextTick } from 'vue'
 import ButtonCount from '@vue-app/components/Buttons/button-count.vue'
 import CartItem from '@vue-app/components/Cart/cart-item.vue'
@@ -34,8 +35,10 @@ const components = { ButtonCount, CartItem } satisfies Record<
 >
 
 let pinia: Pinia
+let formStoreOf: (pinia: Pinia) => Record<string, any> // eslint-disable-line @typescript-eslint/no-explicit-any -- untyped original
 
 const store = () => cartStoreOf(pinia)
+const formStore = () => formStoreOf(pinia)
 
 // Pinia state is reactive; copy it so tests compare plain objects.
 const plain = <T>(value: T): T =>
@@ -52,10 +55,17 @@ const createStore = () => {
 export const target: ContractTarget = {
 	name: 'vue',
 
-	reset() {
+	async reset() {
 		localStorage.clear()
 		document.body.className = ''
 		createStore()
+
+		// formStore.ts calls useCartStore() at the top of the module (line 3),
+		// so it stays tied to the Pinia that was active when it was first
+		// imported. Import it again for each test, after this test's Pinia.
+		vi.resetModules()
+		;({ useFormStore: formStoreOf } =
+			await import('@vue-app/pinia/formStore.ts'))
 	},
 
 	render(name, props) {
@@ -110,5 +120,43 @@ export const target: ContractTarget = {
 		// A new Pinia instance creates a new store, which reads localStorage
 		// again through useStorage.
 		reload: async () => createStore(),
+	},
+
+	form: {
+		// v-model in text-input-field.vue assigns formStore[id] directly.
+		setField: (field, value) => {
+			formStore()[field] = value
+		},
+		setCash: (event) => formStore().setCash(event),
+		setElectronic: (event) => formStore().setElectronic(event),
+		bannerOn: () => formStore().bannerOn(),
+		bannerOff: () => formStore().bannerOff(),
+		submit: () => formStore().submit(),
+
+		read() {
+			const s = formStore()
+			return {
+				bannerState: s.bannerState,
+				name: s.name,
+				email: s.email,
+				phone: s.phone,
+				address: s.address,
+				zip: s.zip,
+				city: s.city,
+				country: s.country,
+				payment: s.payment,
+				comment: s.comment,
+				showErrors: s.showErrors,
+				showBanner: s.showBanner,
+				choseCash: s.choseCash,
+				isValidName: s.isValidName,
+				isValidEmail: s.isValidEmail,
+				isValidPhone: s.isValidPhone,
+				isValidAddress: s.isValidAddress,
+				isValidZip: s.isValidZip,
+				isValidCity: s.isValidCity,
+				isValidCountry: s.isValidCountry,
+			}
+		},
 	},
 }

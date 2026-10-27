@@ -1,6 +1,8 @@
 import type { PageMeta } from '@/lib/metadata'
 import type { Catalog, Product } from '@/lib/types'
+import type { FieldStatus } from '@/lib/validation'
 import type { Cart, CartEntry } from '@/store/cart-store'
+import type { FormField } from '@/store/form-store'
 
 /**
  * Props for every component under contract. Vue events are passed as
@@ -43,6 +45,33 @@ export interface CartDriver {
 	reload(): Promise<void>
 }
 
+/** Checkout form state, with the Vue store's getters as plain values. */
+export interface FormSnapshot extends Record<FormField, string> {
+	bannerState: 'show' | 'hide'
+	payment: string
+	showErrors: boolean
+	showBanner: boolean
+	choseCash: boolean
+	isValidName: FieldStatus
+	isValidEmail: FieldStatus
+	isValidPhone: FieldStatus
+	isValidAddress: FieldStatus
+	isValidZip: FieldStatus
+	isValidCity: FieldStatus
+	isValidCountry: FieldStatus
+}
+
+export interface FormDriver {
+	/** Type into a field, as the Vue inputs' v-model does. */
+	setField(field: FormField, value: string): void
+	setCash(event: Pick<Event, 'preventDefault'>): void
+	setElectronic(event: Pick<Event, 'preventDefault'>): void
+	bannerOn(): void
+	bannerOff(): void
+	submit(): void
+	read(): FormSnapshot
+}
+
 /** Catalog data and helpers, under the Vue app's function names. */
 export interface Lib {
 	products: Catalog
@@ -60,8 +89,8 @@ export interface Lib {
 /** One app under test: the Vue original or the Next.js port. */
 export interface ContractTarget {
 	name: 'vue' | 'next'
-	/** Clear localStorage, the <body> classes and the store before each test. */
-	reset(): void
+	/** Clear localStorage, the <body> classes and the stores before each test. */
+	reset(): void | Promise<void>
 	/**
 	 * Render a component. `root` is the element whose children are exactly
 	 * what the component rendered.
@@ -79,5 +108,6 @@ export interface ContractTarget {
 	 */
 	golden(file: string, content: string): Promise<void>
 	cart: CartDriver
+	form: FormDriver
 	lib: Lib
 }

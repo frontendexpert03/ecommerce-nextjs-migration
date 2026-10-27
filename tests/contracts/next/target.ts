@@ -13,6 +13,15 @@ import {
 import { getProduct, getProductsOfType, getSelection } from '@/lib/products'
 import { capitalize } from '@/lib/utils'
 import {
+	isValidAddress,
+	isValidCity,
+	isValidCountry,
+	isValidEmail,
+	isValidName,
+	isValidPhone,
+	isValidZip,
+} from '@/lib/validation'
+import {
 	selectCartLength,
 	selectCartValue,
 	selectFirstItem,
@@ -23,6 +32,11 @@ import {
 	startCartSync,
 	useCartStore,
 } from '@/store/cart-store'
+import {
+	selectChoseCash,
+	selectShowBanner,
+	useFormStore,
+} from '@/store/form-store'
 import { compareGolden } from '../harness/golden'
 import type { ContractProps, ContractTarget } from '../harness/types'
 
@@ -37,8 +51,10 @@ const components: {
 }
 
 const initialState = useCartStore.getState()
+const initialFormState = useFormStore.getState()
 
 const store = () => useCartStore.getState()
+const formStore = () => useFormStore.getState()
 
 let stopCartSync = () => {}
 
@@ -49,6 +65,7 @@ export const target: ContractTarget = {
 	reset() {
 		stopCartSync()
 		useCartStore.setState(initialState, true)
+		useFormStore.setState(initialFormState, true)
 		localStorage.clear()
 		document.body.className = ''
 		stopCartSync = startCartSync()
@@ -106,6 +123,41 @@ export const target: ContractTarget = {
 		// store first would overwrite the saved cart with an empty one.
 		reload: async () => {
 			await useCartStore.persist.rehydrate()
+		},
+	},
+
+	form: {
+		setField: (field, value) => act(() => formStore().setField(field, value)),
+		setCash: (event) => act(() => formStore().setCash(event)),
+		setElectronic: (event) => act(() => formStore().setElectronic(event)),
+		bannerOn: () => act(() => formStore().bannerOn()),
+		bannerOff: () => act(() => formStore().bannerOff()),
+		submit: () => act(() => formStore().submit()),
+
+		read() {
+			const s = formStore()
+			return {
+				bannerState: s.bannerState,
+				name: s.name,
+				email: s.email,
+				phone: s.phone,
+				address: s.address,
+				zip: s.zip,
+				city: s.city,
+				country: s.country,
+				payment: s.payment,
+				comment: s.comment,
+				showErrors: s.showErrors,
+				showBanner: selectShowBanner(s),
+				choseCash: selectChoseCash(s),
+				isValidName: isValidName(s.name),
+				isValidEmail: isValidEmail(s.email),
+				isValidPhone: isValidPhone(s.phone),
+				isValidAddress: isValidAddress(s.address),
+				isValidZip: isValidZip(s.zip),
+				isValidCity: isValidCity(s.city),
+				isValidCountry: isValidCountry(s.country),
+			}
 		},
 	},
 }
