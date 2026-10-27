@@ -1,36 +1,84 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# KIIIBS: Next.js port
 
-## Getting Started
+A Next.js 16 rebuild of [KIIIBS](https://github.com/rauldotgit/E-Commerce-Store), a Vue 3 web store for mechanical keyboards, keycaps and deskmats. The port keeps the original's look and behaviour, adds unit tests for every component, and includes one Playwright suite that runs against **both** apps to prove they match.
 
-First, run the development server:
+> **Status:** Phase 0 of 8 done: tooling, test harnesses and docs. See the [migration plan](docs/migration-plan.md).
+
+## Tech stack
+
+| Concern      | Choice                                                     | Why                                              |
+| ------------ | ---------------------------------------------------------- | ------------------------------------------------ |
+| Framework    | Next.js 16 App Router, React 19, TypeScript (strict)       | [ADR 0001](docs/adr/0001-nextjs-app-router.md)   |
+| Styling      | Tailwind CSS 3.3.3, same version and theme as the original | [ADR 0003](docs/adr/0003-tailwind-3-pinned.md)   |
+| State        | Zustand with `localStorage` persistence                    | [ADR 0004](docs/adr/0004-zustand-state.md)       |
+| Unit tests   | Vitest, React Testing Library, jest-dom                    | [ADR 0006](docs/adr/0006-vitest-rtl.md)          |
+| E2E / parity | Playwright, one suite run against both apps                | [ADR 0007](docs/adr/0007-shared-parity-suite.md) |
+| Quality      | ESLint (flat config), Prettier                             |                                                  |
+
+## Getting started
+
+Requires Node.js 22.12+ or 24 (`.nvmrc` pins 24).
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+npm run dev          # http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Scripts
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+| Script                  | What it does                                         |
+| ----------------------- | ---------------------------------------------------- |
+| `npm run dev`           | Development server                                   |
+| `npm run build`         | Production build                                     |
+| `npm run start`         | Serve the production build                           |
+| `npm run lint`          | ESLint                                               |
+| `npm run typecheck`     | Generate route types, then `tsc --noEmit`            |
+| `npm run format`        | Format with Prettier (`format:check` to verify only) |
+| `npm test`              | Unit tests                                           |
+| `npm run test:coverage` | Unit tests with a coverage report in `coverage/`     |
+| `npm run test:e2e`      | Playwright against the Next app                      |
+| `npm run test:e2e:vue`  | Playwright against the original Vue app              |
+| `npm run test:parity`   | Playwright against both apps                         |
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Testing strategy
 
-## Learn More
+**Unit tests** sit next to each component (`Foo.tsx` + `Foo.test.tsx`) and check what the user sees and does: rendered text, links, events and store changes.
 
-To learn more about Next.js, take a look at the following resources:
+**Parity tests** run the same Playwright specs against the original Vue app and this app, at desktop (1440×900) and mobile (375×667) sizes. A spec that passes on `vue-*` but fails on `next-*` means the port doesn't match yet.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+For parity runs, clone the original next to this repo:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```
+parent-folder/
+├─ E-Commerce-Store/   ← original Vue app (run `npm ci` once)
+└─ kiiibs-next/        ← this repo
+```
 
-## Deploy on Vercel
+Or point `VUE_APP_DIR` at it. The first run installs the Chromium browser with `npx playwright install chromium`.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Project structure
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```
+src/
+├─ app/            routing only: layouts, pages, metadata
+├─ components/     shared UI (ui, layout, cart, sections)
+├─ features/       components used by one page only
+├─ store/          Zustand stores
+├─ lib/            product data, pure helpers, validation
+└─ test/           Vitest setup and helpers
+e2e/
+├─ specs/          Playwright specs (shared by both apps)
+└─ pages/          page objects
+docs/
+├─ migration-plan.md
+└─ adr/            architecture decision records
+```
+
+## Documentation
+
+- [Migration plan](docs/migration-plan.md): phases, route and component maps, known quirks
+- [Architecture decision records](docs/adr/README.md)
+
+## Credits
+
+Original design, product images and Vue implementation by [Raul Nikolaus](https://github.com/rauldotgit).
