@@ -1,3 +1,4 @@
+import type { Metadata } from 'next'
 import type { Product } from '@/lib/types'
 import { capitalize } from '@/lib/utils'
 
@@ -80,4 +81,17 @@ export function getCheckoutPageMeta(): PageMeta {
 
 export function get404PageMeta(): PageMeta {
 	return fofPageMeta
+}
+
+/**
+ * The tags the original sets with useSeoMeta: title, description,
+ * og:title, og:description and og:image. Next makes og:image an absolute
+ * URL; the original leaves it relative.
+ */
+export function toMetadata({ title, description, image }: PageMeta): Metadata {
+	return {
+		title,
+		description,
+		openGraph: { title, description, images: image },
+	}
 }

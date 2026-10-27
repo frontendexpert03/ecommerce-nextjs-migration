@@ -1,4 +1,9 @@
-// Placeholder until the landing page is ported in Phase 5.
-export default function Home() {
-	return <main className="font-Manrope text-k-main">KIIIBS</main>
+import type { Metadata } from 'next'
+import { LandingPage } from '@/features/landing/LandingPage'
+import { getLandingPageMeta, toMetadata } from '@/lib/metadata'
+
+export const metadata: Metadata = toMetadata(getLandingPageMeta())
+
+export default function Page() {
+	return <LandingPage />
 }

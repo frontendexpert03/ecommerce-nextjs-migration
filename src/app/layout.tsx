@@ -14,13 +14,16 @@ export const metadata: Metadata = {
 	icons: { icon: '/icons/KIIIBS.png' },
 }
 
-// The wrapper <div> is the Vue app's App.vue.
+// <div id="app"> is the Vue app's mount point in index.html; the inner
+// <div> is App.vue.
 export default function RootLayout({ children }: LayoutProps<'/'>) {
 	return (
 		<html lang="en" className={manrope.variable}>
 			<body>
 				<CartSync />
-				<div className="select-none font-Manrope">{children}</div>
+				<div id="app">
+					<div className="select-none font-Manrope">{children}</div>
+				</div>
 			</body>
 		</html>
 	)

@@ -1,0 +1,85 @@
+import { ButtonEmpty } from '@/components/ui/ButtonEmpty'
+import { ButtonSolid } from '@/components/ui/ButtonSolid'
+import { RouterLink } from '@/components/ui/RouterLink'
+import { productHref } from '@/lib/routes'
+
+// Port of src/pages/Landing/Components/landing-grid.vue. "phenominally" is
+// the original's spelling. Its "see all" button links to { path: 'keycaps' },
+// which vue-router resolves from / to /keycaps. The ZX9 picture's link also
+// has href="", which wins over the router's href (see RouterLink).
+
+export function LandingGrid() {
+	return (
+		<section className="mt-20 flex h-full w-full flex-col items-center md:-mb-10 md:h-[70rem]">
+			<div className="md:grid-rows-7 flex h-full w-4/5 max-w-6xl flex-col items-center gap-4 md:grid md:w-11/12 md:grid-cols-6 md:gap-8 lg:w-4/5">
+				<div
+					id="yellowBox"
+					className="flex flex-col items-center overflow-hidden rounded-md bg-k-main text-black md:col-span-full md:row-span-3 md:h-[31rem]"
+				>
+					<div className="group order-1 flex h-full w-full flex-col items-center justify-center md:order-none md:grid md:grid-cols-7">
+						<RouterLink
+							href={productHref('keyboards', 1)}
+							hrefAttribute=""
+							className="relative flex h-full w-full flex-col items-center justify-center overflow-hidden md:col-span-4 md:px-10"
+						>
+							<img
+								src="/display/cow-front-new.webp"
+								alt=""
+								className="z-20 my-5 aspect-auto translate-x-3 translate-y-3 scale-110 md:my-0 md:translate-x-0 md:translate-y-0 md:scale-125 md:transition md:duration-700 md:group-hover:translate-x-6 md:group-hover:translate-y-6"
+							/>
+							<img
+								src="/display/cow-back-new.webp"
+								alt=""
+								className="absolute z-10 aspect-auto -translate-x-3 -translate-y-3 scale-110 md:translate-x-0 md:translate-y-0 md:scale-100 md:transition md:duration-700 md:group-hover:-translate-x-6 md:group-hover:-translate-y-6"
+							/>
+							<div className="absolute h-[12rem] w-[12rem] rounded-full border border-black opacity-40 transition duration-700 group-hover:scale-125 md:h-[18rem] md:w-[18rem]"></div>
+							<div className="absolute h-[20rem] w-[20rem] rounded-full border border-black opacity-40 transition duration-700 group-hover:scale-110 md:h-[26rem] md:w-[26rem]"></div>
+							<div className="absolute h-[26rem] w-[26rem] rounded-full border border-black opacity-40 transition duration-700 group-hover:scale-90 md:h-[36rem] md:w-[36rem]"></div>
+							<div className="absolute h-[32rem] w-[32rem] rounded-full border border-black opacity-40 transition duration-700 group-hover:scale-125 md:h-[46rem] md:w-[46rem]"></div>
+						</RouterLink>
+						<div className="relative z-10 col-span-3 flex h-full w-full flex-col justify-center bg-k-main md:pl-4 md:pr-20 lg:pl-6 lg:pr-24">
+							<h2 className="text-center text-5xl font-semibold uppercase md:text-start lg:text-6xl">
+								ZX9 <br /> Keyboard
+							</h2>
+							<p className="mb-8 mt-4 text-center tracking-wide md:mb-10 md:text-start">
+								Upgrade to premium keys that are phenominally built to deliver a
+								truly remarkable typing feel.
+							</p>
+							<ButtonSolid
+								to={productHref('keyboards', 1)}
+								content="SEE PRODUCT"
+								add="font-semibold hover:rotate-x-3"
+								className="mb-10 self-center md:mb-0 md:self-start"
+							/>
+						</div>
+					</div>
+				</div>
+				<div className="order-3 flex w-full flex-col items-center justify-center gap-6 rounded-md bg-k-grey p-6 text-black md:order-none md:col-span-2 md:row-span-2 md:h-full md:items-start md:bg-white md:px-6">
+					<h2 className="text-3xl font-semibold uppercase">Kraken deskmat</h2>
+					<ButtonEmpty to={productHref('deskmats', 1)} content="see product" />
+				</div>
+				<RouterLink
+					href={productHref('deskmats', 1)}
+					className="order-2 flex h-64 flex-col items-center justify-center overflow-hidden rounded-md bg-k-grey text-black md:order-none md:col-span-4 md:row-span-2 md:block md:h-full"
+				>
+					<img
+						className="scale-150 object-cover grayscale duration-200"
+						src="/products/deskmats/deskmat-kraken.webp"
+						alt=""
+					/>
+				</RouterLink>
+				<div className="order-4 col-span-3 row-span-2 overflow-hidden rounded-md bg-k-grey text-black md:order-none md:h-full">
+					<img
+						className="scale-150 object-cover"
+						src="/display/keycaps.webp"
+						alt=""
+					/>
+				</div>
+				<div className="order-5 col-span-3 row-span-2 flex w-full flex-col items-center justify-center gap-6 rounded-md bg-k-grey p-6 text-black md:order-none md:h-full md:items-start md:px-16">
+					<h2 className="text-3xl font-semibold uppercase">Keycaps</h2>
+					<ButtonEmpty to="/keycaps" content="see all" />
+				</div>
+			</div>
+		</section>
+	)
+}
