@@ -6,16 +6,23 @@ import path from 'node:path'
  *   next (default) | vue | next,vue
  * Running both side by side is how we prove the Next.js port behaves like
  * the original Vue app. See docs/adr/0007.
+ *
+ * With both apps, the visual-* projects also compare screenshots of the two
+ * apps (docs/adr/0014).
  */
 type Target = 'next' | 'vue'
 
 const VUE_APP_DIR =
 	process.env.VUE_APP_DIR ?? path.resolve(__dirname, '../E-Commerce-Store')
 
+// Both apps are tested as production builds (next build + next start,
+// vite build + vite preview), never as dev servers. The ports are not the
+// dev servers' defaults (3000 and 5173), so a running `npm run dev` can't be
+// picked up by reuseExistingServer by mistake.
 const apps: Record<Target, { port: number; command: string; cwd: string }> = {
 	next: {
-		port: 3000,
-		command: 'npm run build && npm run start -- --port 3000',
+		port: 3100,
+		command: 'npm run build && npm run start -- --port 3100',
 		cwd: __dirname,
 	},
 	vue: {
@@ -24,6 +31,8 @@ const apps: Record<Target, { port: number; command: string; cwd: string }> = {
 		cwd: VUE_APP_DIR,
 	},
 }
+
+const url = (target: Target) => `http://localhost:${apps[target].port}`
 
 // Same viewports the original Cypress suite used (macbook-15 and iphone-7).
 const viewports = {
@@ -36,15 +45,29 @@ const targets = (process.env.E2E_TARGETS ?? 'next')
 	.map((t) => t.trim())
 	.filter((t): t is Target => t === 'next' || t === 'vue')
 
-const projects: Project[] = targets.flatMap((target) =>
+const VISUAL_SPEC = /visual\.spec\.ts/
+
+const behaviourProjects: Project[] = targets.flatMap((target) =>
 	Object.entries(viewports).map(([device, viewport]) => ({
 		name: `${target}-${device}`,
-		use: {
-			baseURL: `http://localhost:${apps[target].port}`,
-			viewport,
-		},
+		testIgnore: VISUAL_SPEC,
+		use: { baseURL: url(target), viewport },
 	})),
 )
+
+const visualProjects: Project[] =
+	targets.includes('next') && targets.includes('vue')
+		? Object.entries(viewports).map(([device, viewport]) => ({
+				name: `visual-${device}`,
+				testMatch: VISUAL_SPEC,
+				use: { viewport },
+				metadata: { parity: { vue: url('vue'), next: url('next') } },
+				// The expected images are this run's Vue screenshots, so they
+				// live with the other test output, not in the repo.
+				snapshotPathTemplate:
+					'{testDir}/../../test-results/parity/{projectName}/{arg}{ext}',
+			}))
+		: []
 
 export default defineConfig({
 	testDir: './e2e/specs',
@@ -58,11 +81,11 @@ export default defineConfig({
 		testIdAttribute: 'data-test',
 		trace: 'on-first-retry',
 	},
-	projects,
+	projects: [...behaviourProjects, ...visualProjects],
 	webServer: targets.map((target) => ({
 		command: apps[target].command,
 		cwd: apps[target].cwd,
-		url: `http://localhost:${apps[target].port}`,
+		url: url(target),
 		reuseExistingServer: !process.env.CI,
 		timeout: 180_000,
 	})),
