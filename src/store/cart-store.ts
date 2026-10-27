@@ -107,6 +107,23 @@ export const useCartStore = create<CartState>()(
 	),
 )
 
+/**
+ * Loads the saved cart, then reloads it whenever another tab saves one, as
+ * VueUse's useStorage does in the original. Call once in the browser; the
+ * returned function stops listening.
+ */
+export function startCartSync() {
+	void useCartStore.persist.rehydrate()
+
+	const onStorage = (event: StorageEvent) => {
+		if (event.storageArea === localStorage && event.key === 'cart') {
+			void useCartStore.persist.rehydrate()
+		}
+	}
+	window.addEventListener('storage', onStorage)
+	return () => window.removeEventListener('storage', onStorage)
+}
+
 export const selectCartValue = ({ cart }: PersistedCart) =>
 	Object.values(cart).reduce(
 		(total, { product, amount }) => total + amount * product.price,
