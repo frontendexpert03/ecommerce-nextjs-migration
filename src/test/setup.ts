@@ -8,10 +8,11 @@ import { setPathname } from './navigation'
 configure({ testIdAttribute: 'data-test' })
 
 vi.mock('next/navigation', async (importOriginal) => {
-	const { getPathname } = await import('./navigation')
+	const { getPathname, testRouter } = await import('./navigation')
 	return {
 		...(await importOriginal<typeof import('next/navigation')>()),
 		usePathname: () => getPathname(),
+		useRouter: () => testRouter,
 	}
 })
 
