@@ -21,9 +21,10 @@ Each record explains one decision: the context, what we chose, and what it costs
 | [0015](0015-webpack-builds.md)         | Build with webpack to keep CSS precision                        | Accepted           |
 | [0016](0016-lighthouse.md)             | Lighthouse audit, performance fixes and accessibility additions | Amended by 0020    |
 | [0017](0017-frozen-vue-reference.md)   | Test against reference data recorded once from the Vue app      | Accepted           |
-| [0018](0018-continuous-integration.md) | Continuous integration with GitHub Actions                      | Accepted           |
+| [0018](0018-continuous-integration.md) | Continuous integration with GitHub Actions                      | Amended by 0021    |
 | [0019](0019-bundle-analysis.md)        | Bundle analysis with @next/bundle-analyzer                      | Accepted           |
 | [0020](0020-recompressed-images.md)    | Recompress the three largest home-page images                   | Accepted           |
+| [0021](0021-dependabot-npm-monthly.md) | Dependabot for npm packages only, once a month                  | Accepted           |
 
 ## Template
 

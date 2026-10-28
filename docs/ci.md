@@ -78,16 +78,13 @@ The required checks can only be selected once they have run once, which happens 
 
 ## Dependabot
 
-[`.github/dependabot.yml`](../.github/dependabot.yml) opens weekly pull requests, which CI then checks like any other:
-
-- npm minor and patch updates, grouped into one pull request;
-- GitHub Actions versions.
+[`.github/dependabot.yml`](../.github/dependabot.yml) opens at most one pull request a month: the npm packages in `package.json` with a new minor or patch version, grouped together. CI checks it like any other pull request. GitHub Actions versions are updated by hand ([ADR 0021](adr/0021-dependabot-npm-monthly.md)).
 
 It never proposes:
 
 - `tailwindcss` and `autoprefixer`: they decide the generated CSS and stay at the Vue app's versions ([ADR 0003](adr/0003-tailwind-3-pinned.md));
 - `@playwright/test`: the expected screenshots were taken with its Chromium; a new version needs them recorded again from the Vue app, and the CI image tag changed with it ([ADR 0017](adr/0017-frozen-vue-reference.md));
-- major versions of anything: those are planned changes.
+- major versions: those are planned changes.
 
 ## Pull requests
 
