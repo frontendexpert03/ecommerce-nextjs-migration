@@ -140,12 +140,12 @@ jobs:
       pull-requests: write
     steps:
       - uses: actions/checkout@v5
-      - uses: actions/download-artifact@v5
+      - uses: actions/download-artifact@v8
         continue-on-error: true
         with:
           name: lighthouse-reports
           path: reports/lighthouse
-      - uses: actions/download-artifact@v5
+      - uses: actions/download-artifact@v8
         continue-on-error: true
         with:
           name: bundle-analysis
