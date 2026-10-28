@@ -4,6 +4,7 @@
 //   npm run lighthouse -- --runs=3                 median of three runs
 //   npm run lighthouse -- --warn=performance       report that category's
 //                                                  misses without failing
+//   BASE_URL=https://… npm run lighthouse          audit a deployment
 //
 // Starts `next start` on port 3100 (as the Playwright suite does), audits
 // each page on mobile and desktop with Playwright's Chromium, writes HTML
@@ -23,7 +24,9 @@ import lighthouse from 'lighthouse'
 import desktopConfig from 'lighthouse/core/config/desktop-config.js'
 
 const PORT = 3100
-const BASE_URL = `http://localhost:${PORT}`
+// BASE_URL=https://… audits a deployment instead of a local `next start`.
+const DEPLOYMENT_URL = process.env.BASE_URL?.replace(/\/$/, '')
+const BASE_URL = DEPLOYMENT_URL ?? `http://localhost:${PORT}`
 const OUT_DIR = 'lighthouse-reports'
 
 const PAGES = [
@@ -110,7 +113,7 @@ function median(results) {
 	return sorted[Math.floor(sorted.length / 2)]
 }
 
-const server = await startServer()
+const server = DEPLOYMENT_URL ? null : await startServer()
 // On Linux, Chrome's sandbox needs user namespaces, which Ubuntu's AppArmor
 // (GitHub's runners) and Docker deny to normal users, so Chrome would not
 // start. Playwright turns the sandbox off itself; chrome-launcher doesn't.
@@ -151,7 +154,7 @@ try {
 	}
 } finally {
 	await chrome.kill()
-	server.kill()
+	server?.kill()
 }
 
 const header = `| Form factor | Page | ${CATEGORIES.join(' | ')} |`

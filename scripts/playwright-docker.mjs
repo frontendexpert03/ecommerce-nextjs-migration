@@ -46,6 +46,8 @@ const { status } = spawnSync(
 		'kiiibs-next-build:/work/.next',
 		'-w',
 		'/work',
+		// Passed on when set, to test a deployment (playwright.config.ts).
+		...(process.env.BASE_URL ? ['-e', 'BASE_URL'] : []),
 		image,
 		'bash',
 		'-c',
