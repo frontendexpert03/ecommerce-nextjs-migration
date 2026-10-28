@@ -9,17 +9,17 @@ import { getCategoryPageMeta, toMetadata } from '@/lib/metadata'
 export const dynamicParams = false
 
 export function generateStaticParams() {
-	return Object.keys(products).map((category) => ({ category }))
+  return Object.keys(products).map((category) => ({ category }))
 }
 
 export async function generateMetadata({
-	params,
+  params,
 }: PageProps<'/[category]'>): Promise<Metadata> {
-	const { category } = await params
-	return toMetadata(getCategoryPageMeta(category)!)
+  const { category } = await params
+  return toMetadata(getCategoryPageMeta(category)!)
 }
 
 export default async function Page({ params }: PageProps<'/[category]'>) {
-	const { category } = await params
-	return <CategoryPage category={category} />
+  const { category } = await params
+  return <CategoryPage category={category} />
 }

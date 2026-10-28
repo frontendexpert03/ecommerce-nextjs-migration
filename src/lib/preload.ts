@@ -8,5 +8,5 @@ import { preload } from 'react-dom'
  * own markup is unchanged. See docs/adr/0016.
  */
 export function preloadMainImage(src: string) {
-	preload(src, { as: 'image', fetchPriority: 'high' })
+  preload(src, { as: 'image', fetchPriority: 'high' })
 }

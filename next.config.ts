@@ -11,8 +11,8 @@ const nextConfig: NextConfig = {}
 // analyzer is a webpack plugin, which is fine: builds use webpack anyway
 // (docs/adr/0015).
 const withBundleAnalyzer = bundleAnalyzer({
-	enabled: process.env.ANALYZE === 'true',
-	openAnalyzer: false,
+  enabled: process.env.ANALYZE === 'true',
+  openAnalyzer: false,
 })
 
 export default withBundleAnalyzer(nextConfig)

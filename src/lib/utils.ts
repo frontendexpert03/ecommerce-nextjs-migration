@@ -10,12 +10,12 @@ type ClassValue = string | false | null | undefined | ClassValue[]
  * from re-sorting them.
  */
 export function cx(...classes: ClassValue[]): string {
-	return classes
-		.map((value) => (Array.isArray(value) ? cx(...value) : value))
-		.filter(Boolean)
-		.join(' ')
+  return classes
+    .map((value) => (Array.isArray(value) ? cx(...value) : value))
+    .filter(Boolean)
+    .join(' ')
 }
 
 export function capitalize(str: string): string {
-	return str.charAt(0).toUpperCase() + str.slice(1)
+  return str.charAt(0).toUpperCase() + str.slice(1)
 }

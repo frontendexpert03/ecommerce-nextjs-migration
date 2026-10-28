@@ -12,27 +12,27 @@ import { getProduct } from '@/lib/products'
 // product exists before rendering this page, as the original's guard does.
 
 interface ProductPageProps {
-	category: string
-	productId: number
+  category: string
+  productId: number
 }
 
 export function ProductPage({ category, productId }: ProductPageProps) {
-	const item = getProduct(category, productId)!
-	preloadMainImage(item.src)
+  const item = getProduct(category, productId)!
+  preloadMainImage(item.src)
 
-	return (
-		<main className="flex h-full w-screen flex-col items-center bg-white">
-			<Navigation color="black" />
-			<ProductCore item={item} />
-			<ProductFeatures features={item.features} inthebox={item.inthebox} />
-			<ProductImageGrid
-				topSrc={item.topSrc}
-				botSrc={item.botSrc}
-				rightSrc={item.rightSrc}
-			/>
-			<YouMayAlsoLike productCategory={category} productId={productId} />
-			<InfoSection />
-			<Footer />
-		</main>
-	)
+  return (
+    <main className="flex h-full w-screen flex-col items-center bg-white">
+      <Navigation color="black" />
+      <ProductCore item={item} />
+      <ProductFeatures features={item.features} inthebox={item.inthebox} />
+      <ProductImageGrid
+        topSrc={item.topSrc}
+        botSrc={item.botSrc}
+        rightSrc={item.rightSrc}
+      />
+      <YouMayAlsoLike productCategory={category} productId={productId} />
+      <InfoSection />
+      <Footer />
+    </main>
+  )
 }

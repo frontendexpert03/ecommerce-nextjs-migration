@@ -8,25 +8,25 @@ import { ButtonGoBack } from './ButtonGoBack'
 // the keyboard access the port adds (docs/adr/0016).
 
 describe('ButtonGoBack accessibility', () => {
-	afterEach(() => {
-		vi.restoreAllMocks()
-	})
+  afterEach(() => {
+    vi.restoreAllMocks()
+  })
 
-	test('is a focusable button named "Go Back"', async () => {
-		render(<ButtonGoBack />)
+  test('is a focusable button named "Go Back"', async () => {
+    render(<ButtonGoBack />)
 
-		await userEvent.tab()
+    await userEvent.tab()
 
-		expect(screen.getByRole('button', { name: 'Go Back' })).toHaveFocus()
-	})
+    expect(screen.getByRole('button', { name: 'Go Back' })).toHaveFocus()
+  })
 
-	test.each(['{Enter}', ' '])('pressing %j goes back one page', async (key) => {
-		const go = vi.spyOn(window.history, 'go').mockImplementation(() => {})
-		render(<ButtonGoBack />)
+  test.each(['{Enter}', ' '])('pressing %j goes back one page', async (key) => {
+    const go = vi.spyOn(window.history, 'go').mockImplementation(() => {})
+    render(<ButtonGoBack />)
 
-		screen.getByRole('button', { name: 'Go Back' }).focus()
-		await userEvent.keyboard(key)
+    screen.getByRole('button', { name: 'Go Back' }).focus()
+    await userEvent.keyboard(key)
 
-		expect(go).toHaveBeenCalledExactlyOnceWith(-1)
-	})
+    expect(go).toHaveBeenCalledExactlyOnceWith(-1)
+  })
 })

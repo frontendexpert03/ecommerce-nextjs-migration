@@ -5,16 +5,16 @@
 let pathname = '/'
 
 export const setPathname = (path: string) => {
-	pathname = path
+  pathname = path
 }
 
 export const getPathname = () => pathname
 
 export const testRouter = {
-	push: (href: string) => setPathname(href),
-	replace: (href: string) => setPathname(href),
-	back: () => {},
-	forward: () => {},
-	refresh: () => {},
-	prefetch: () => {},
+  push: (href: string) => setPathname(href),
+  replace: (href: string) => setPathname(href),
+  back: () => {},
+  forward: () => {},
+  refresh: () => {},
+  prefetch: () => {},
 }

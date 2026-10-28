@@ -42,7 +42,7 @@ Read `docs/migration-plan.md` (phases, component map, known quirks) and `docs/ad
 
 ## Conventions
 
-- Prettier: tabs, no semicolons, single quotes, trailing commas.
+- Prettier: 2-space indentation, no semicolons, single quotes, trailing commas.
 - Component files are PascalCase (`ButtonSolid.tsx`); everything else kebab-case.
 - Conventional commits (`feat(cart): …`, `test(nav): …`, `docs: …`), one concern per commit.
 - A new structural decision gets a new ADR in `docs/adr/`.

@@ -1,13 +1,13 @@
 const VOID_ELEMENTS = new Set([
-	'area',
-	'br',
-	'col',
-	'hr',
-	'img',
-	'input',
-	'link',
-	'meta',
-	'source',
+  'area',
+  'br',
+  'col',
+  'hr',
+  'img',
+  'input',
+  'link',
+  'meta',
+  'source',
 ])
 
 /**
@@ -31,65 +31,65 @@ const VOID_ELEMENTS = new Set([
  * artifacts the port deliberately doesn't copy, and say why in the spec.
  */
 export function serialize(
-	root: Element,
-	{ ignoreAttributes = [] }: SerializeOptions = {},
+  root: Element,
+  { ignoreAttributes = [] }: SerializeOptions = {},
 ): string {
-	const lines: string[] = []
-	writeChildren(root, 0, lines, new Set(ignoreAttributes))
-	return lines.map((line) => line + '\n').join('')
+  const lines: string[] = []
+  writeChildren(root, 0, lines, new Set(ignoreAttributes))
+  return lines.map((line) => line + '\n').join('')
 }
 
 export interface SerializeOptions {
-	ignoreAttributes?: string[]
+  ignoreAttributes?: string[]
 }
 
 function writeChildren(
-	parent: Element,
-	depth: number,
-	lines: string[],
-	ignored: Set<string>,
+  parent: Element,
+  depth: number,
+  lines: string[],
+  ignored: Set<string>,
 ) {
-	// Merge adjacent text (across comments) into runs between elements.
-	const parts: (string | Element)[] = []
-	for (const node of parent.childNodes) {
-		if (node.nodeType === Node.TEXT_NODE) {
-			const last = parts.at(-1)
-			if (typeof last === 'string')
-				parts[parts.length - 1] = last + node.textContent
-			else parts.push(node.textContent ?? '')
-		} else if (node.nodeType === Node.ELEMENT_NODE) {
-			parts.push(node as Element)
-		}
-	}
+  // Merge adjacent text (across comments) into runs between elements.
+  const parts: (string | Element)[] = []
+  for (const node of parent.childNodes) {
+    if (node.nodeType === Node.TEXT_NODE) {
+      const last = parts.at(-1)
+      if (typeof last === 'string')
+        parts[parts.length - 1] = last + node.textContent
+      else parts.push(node.textContent ?? '')
+    } else if (node.nodeType === Node.ELEMENT_NODE) {
+      parts.push(node as Element)
+    }
+  }
 
-	parts.forEach((part, i) => {
-		if (typeof part !== 'string') {
-			writeElement(part, depth, lines, ignored)
-			return
-		}
-		let text = part.replace(/\s+/g, ' ')
-		if (i === 0) text = text.trimStart()
-		if (i === parts.length - 1) text = text.trimEnd()
-		if (text) lines.push(indent(depth) + JSON.stringify(text))
-	})
+  parts.forEach((part, i) => {
+    if (typeof part !== 'string') {
+      writeElement(part, depth, lines, ignored)
+      return
+    }
+    let text = part.replace(/\s+/g, ' ')
+    if (i === 0) text = text.trimStart()
+    if (i === parts.length - 1) text = text.trimEnd()
+    if (text) lines.push(indent(depth) + JSON.stringify(text))
+  })
 }
 
 function writeElement(
-	element: Element,
-	depth: number,
-	lines: string[],
-	ignored: Set<string>,
+  element: Element,
+  depth: number,
+  lines: string[],
+  ignored: Set<string>,
 ) {
-	const tag = element.tagName.toLowerCase()
-	const attributes = [...element.attributes]
-		.filter(({ name }) => !ignored.has(name))
-		.map(({ name, value }) => ` ${name}="${collapse(value)}"`)
-		.sort()
-		.join('')
+  const tag = element.tagName.toLowerCase()
+  const attributes = [...element.attributes]
+    .filter(({ name }) => !ignored.has(name))
+    .map(({ name, value }) => ` ${name}="${collapse(value)}"`)
+    .sort()
+    .join('')
 
-	lines.push(`${indent(depth)}<${tag}${attributes}>`)
-	writeChildren(element, depth + 1, lines, ignored)
-	if (!VOID_ELEMENTS.has(tag)) lines.push(`${indent(depth)}</${tag}>`)
+  lines.push(`${indent(depth)}<${tag}${attributes}>`)
+  writeChildren(element, depth + 1, lines, ignored)
+  if (!VOID_ELEMENTS.has(tag)) lines.push(`${indent(depth)}</${tag}>`)
 }
 
 const collapse = (value: string) => value.replace(/\s+/g, ' ').trim()

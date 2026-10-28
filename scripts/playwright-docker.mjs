@@ -14,10 +14,10 @@ import path from 'node:path'
 const root = path.resolve(import.meta.dirname, '..')
 
 const { version } = JSON.parse(
-	readFileSync(
-		path.join(root, 'node_modules/@playwright/test/package.json'),
-		'utf8',
-	),
+  readFileSync(
+    path.join(root, 'node_modules/@playwright/test/package.json'),
+    'utf8',
+  ),
 )
 const image = `mcr.microsoft.com/playwright:v${version}-noble`
 
@@ -25,36 +25,36 @@ const image = `mcr.microsoft.com/playwright:v${version}-noble`
 const script = `
 set -e
 if ! sha256sum --status -c node_modules/.lock.sha256 2>/dev/null; then
-	npm ci --no-audit --no-fund
-	sha256sum package-lock.json > node_modules/.lock.sha256
+  npm ci --no-audit --no-fund
+  sha256sum package-lock.json > node_modules/.lock.sha256
 fi
 npx playwright test "$@"
 `
 
 const { status } = spawnSync(
-	'docker',
-	[
-		'run',
-		'--rm',
-		'--init',
-		'--ipc=host',
-		'-v',
-		`${root}:/work`,
-		'-v',
-		'kiiibs-next-node-modules:/work/node_modules',
-		'-v',
-		'kiiibs-next-build:/work/.next',
-		'-w',
-		'/work',
-		// Passed on when set, to test a deployment (playwright.config.ts).
-		...(process.env.BASE_URL ? ['-e', 'BASE_URL'] : []),
-		image,
-		'bash',
-		'-c',
-		script,
-		'playwright-docker',
-		...process.argv.slice(2),
-	],
-	{ stdio: 'inherit' },
+  'docker',
+  [
+    'run',
+    '--rm',
+    '--init',
+    '--ipc=host',
+    '-v',
+    `${root}:/work`,
+    '-v',
+    'kiiibs-next-node-modules:/work/node_modules',
+    '-v',
+    'kiiibs-next-build:/work/.next',
+    '-w',
+    '/work',
+    // Passed on when set, to test a deployment (playwright.config.ts).
+    ...(process.env.BASE_URL ? ['-e', 'BASE_URL'] : []),
+    image,
+    'bash',
+    '-c',
+    script,
+    'playwright-docker',
+    ...process.argv.slice(2),
+  ],
+  { stdio: 'inherit' },
 )
 process.exit(status ?? 1)

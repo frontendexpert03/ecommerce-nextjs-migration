@@ -9,18 +9,18 @@ import { preloadMainImage } from '@/lib/preload'
 // Port of src/pages/Landing/landing-page.vue.
 
 export function LandingPage() {
-	preloadMainImage('/products/keyboards/up-nobg.webp')
+  preloadMainImage('/products/keyboards/up-nobg.webp')
 
-	return (
-		<div className="main-container flex h-full w-screen flex-col items-center bg-white">
-			<Navigation color="k-black" />
-			<main className="h-full w-screen">
-				<LandingHero />
-				<CategoryBoxContainer />
-				<LandingGrid />
-				<InfoSection />
-			</main>
-			<Footer />
-		</div>
-	)
+  return (
+    <div className="main-container flex h-full w-screen flex-col items-center bg-white">
+      <Navigation color="k-black" />
+      <main className="h-full w-screen">
+        <LandingHero />
+        <CategoryBoxContainer />
+        <LandingGrid />
+        <InfoSection />
+      </main>
+      <Footer />
+    </div>
+  )
 }

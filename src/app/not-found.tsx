@@ -7,5 +7,5 @@ import { get404PageMeta, toMetadata } from '@/lib/metadata'
 export const metadata: Metadata = toMetadata(get404PageMeta())
 
 export default function NotFound() {
-	return <NotFoundPage />
+  return <NotFoundPage />
 }

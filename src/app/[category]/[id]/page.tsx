@@ -12,30 +12,30 @@ import { getProduct, isCategory } from '@/lib/products'
 // - the id is read with parseInt, so /keyboards/1abc shows product 1.
 
 export function generateStaticParams() {
-	return Object.values(products)
-		.flat()
-		.map((product) => ({ category: product.category, id: String(product.id) }))
+  return Object.values(products)
+    .flat()
+    .map((product) => ({ category: product.category, id: String(product.id) }))
 }
 
 async function resolve(params: PageProps<'/[category]/[id]'>['params']) {
-	const { category, id } = await params
-	if (!isCategory(category)) notFound()
+  const { category, id } = await params
+  if (!isCategory(category)) notFound()
 
-	const productId = parseInt(id)
-	const product = getProduct(category, productId)
-	if (!product) redirect('/404')
+  const productId = parseInt(id)
+  const product = getProduct(category, productId)
+  if (!product) redirect('/404')
 
-	return { category, productId, product }
+  return { category, productId, product }
 }
 
 export async function generateMetadata({
-	params,
+  params,
 }: PageProps<'/[category]/[id]'>): Promise<Metadata> {
-	const { product } = await resolve(params)
-	return toMetadata(getProductPageMeta(product))
+  const { product } = await resolve(params)
+  return toMetadata(getProductPageMeta(product))
 }
 
 export default async function Page({ params }: PageProps<'/[category]/[id]'>) {
-	const { category, productId } = await resolve(params)
-	return <ProductPage category={category} productId={productId} />
+  const { category, productId } = await resolve(params)
+  return <ProductPage category={category} productId={productId} />
 }
