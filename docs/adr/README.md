@@ -22,6 +22,7 @@ Each record explains one decision: the context, what we chose, and what it costs
 | [0016](0016-lighthouse.md)             | Lighthouse audit, performance fixes and accessibility additions | Accepted           |
 | [0017](0017-frozen-vue-reference.md)   | Test against reference data recorded once from the Vue app      | Accepted           |
 | [0018](0018-continuous-integration.md) | Continuous integration with GitHub Actions                      | Accepted           |
+| [0019](0019-bundle-analysis.md)        | Bundle analysis with @next/bundle-analyzer                      | Accepted           |
 
 ## Template
 

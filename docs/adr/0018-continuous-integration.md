@@ -1,6 +1,6 @@
 # 0018. Continuous integration with GitHub Actions
 
-- Status: Accepted
+- Status: Accepted; extended by [0019](0019-bundle-analysis.md) (a sixth, report-only job)
 - Date: 2026-10-28
 
 ## Context
@@ -21,7 +21,7 @@ Every check the project relies on runs locally through npm scripts: lint, types 
 ## Consequences
 
 - A pull request can only be merged when the port still behaves and looks like the original.
-- A run takes about six minutes, the length of the Playwright job.
+- A run takes about 4.5 minutes, the length of the Lighthouse job (24 audits in a row); the Playwright job takes about 2.
 - The dependency audit is not a required check: an advisory published for an existing dependency would otherwise block unrelated pull requests. It shows red until a dependency update fixes it.
 - Performance regressions are visible in each run's summary but don't block a merge; checking them is part of review.
 - Branch protection can't be applied from the repository's files; an admin imports the ruleset once (docs/ci.md).

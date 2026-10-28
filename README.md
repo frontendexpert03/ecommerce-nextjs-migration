@@ -21,7 +21,7 @@ A Next.js 16 rebuild of [KIIIBS](https://github.com/rauldotgit/E-Commerce-Store)
 | Visual     | Screenshots compared pixel by pixel with the original's    | [ADR 0014](docs/adr/0014-visual-parity-tests.md)    |
 | Reference  | Data recorded once from the Vue app; no Vue code here      | [ADR 0017](docs/adr/0017-frozen-vue-reference.md)   |
 | Quality    | ESLint (flat config), Prettier                             |                                                     |
-| CI         | GitHub Actions: five parallel jobs, Dependabot             | [ADR 0018](docs/adr/0018-continuous-integration.md) |
+| CI         | GitHub Actions: six parallel jobs, Dependabot              | [ADR 0018](docs/adr/0018-continuous-integration.md) |
 
 ## Getting started
 
@@ -34,23 +34,24 @@ npm run dev          # http://localhost:3000
 
 ## Scripts
 
-| Script                    | What it does                                                                                                         |
-| ------------------------- | -------------------------------------------------------------------------------------------------------------------- |
-| `npm run dev`             | Development server                                                                                                   |
-| `npm run build`           | Production build                                                                                                     |
-| `npm run start`           | Serve the production build                                                                                           |
-| `npm run lint`            | ESLint                                                                                                               |
-| `npm run typecheck`       | Generate route types, then `tsc --noEmit`                                                                            |
-| `npm run format`          | Format with Prettier (`format:check` to verify only)                                                                 |
-| `npm test`                | Unit tests and contract tests                                                                                        |
-| `npm run test:coverage`   | Unit tests with a coverage report in `coverage/`                                                                     |
-| `npm run test:e2e`        | Playwright behaviour tests on the production build                                                                   |
-| `npm run test:visual`     | Visual tests against the original's screenshots, in the Playwright Docker image                                      |
-| `npm run test:e2e:docker` | Every Playwright test in the Playwright Docker image, as CI runs them                                                |
-| `npm run test:e2e:ui`     | Playwright UI mode: watch and step through the tests                                                                 |
-| `npm run test:e2e:headed` | Tests in a visible browser, slowed down                                                                              |
-| `npm run e2e:codegen`     | Record test code while clicking through the running app                                                              |
-| `npm run lighthouse`      | Lighthouse audit of the production build, with budgets (`-- --runs=3` for medians; `-- --warn=performance` as in CI) |
+| Script                    | What it does                                                                                                                                      |
+| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `npm run dev`             | Development server                                                                                                                                |
+| `npm run build`           | Production build                                                                                                                                  |
+| `npm run start`           | Serve the production build                                                                                                                        |
+| `npm run lint`            | ESLint                                                                                                                                            |
+| `npm run typecheck`       | Generate route types, then `tsc --noEmit`                                                                                                         |
+| `npm run format`          | Format with Prettier (`format:check` to verify only)                                                                                              |
+| `npm test`                | Unit tests and contract tests                                                                                                                     |
+| `npm run test:coverage`   | Unit tests with a coverage report in `coverage/`                                                                                                  |
+| `npm run test:e2e`        | Playwright behaviour tests on the production build                                                                                                |
+| `npm run test:visual`     | Visual tests against the original's screenshots, in the Playwright Docker image                                                                   |
+| `npm run test:e2e:docker` | Every Playwright test in the Playwright Docker image, as CI runs them                                                                             |
+| `npm run test:e2e:ui`     | Playwright UI mode: watch and step through the tests                                                                                              |
+| `npm run test:e2e:headed` | Tests in a visible browser, slowed down                                                                                                           |
+| `npm run e2e:codegen`     | Record test code while clicking through the running app                                                                                           |
+| `npm run lighthouse`      | Lighthouse audit of the production build, with budgets (`-- --runs=3` for medians; `-- --warn=performance` as in CI)                              |
+| `npm run analyze`         | Production build with the bundle analyzer: treemaps in `.next/analyze/` and first-load JS per page ([ADR 0019](docs/adr/0019-bundle-analysis.md)) |
 
 ## Testing strategy
 
@@ -68,7 +69,7 @@ All Playwright runs use the production build (`next build` + `next start` on por
 
 ## Continuous integration
 
-Every pull request and every push to `main` runs five parallel jobs on GitHub Actions: lint, types and formatting; unit and contract tests; the Playwright behaviour and visual tests (in the Playwright Docker image); Lighthouse budgets; and a dependency audit. Each job runs the same npm script as locally. `main` is protected by a ruleset that requires a pull request and the first four checks. Details, and how to run each check locally: [docs/ci.md](docs/ci.md).
+Every pull request and every push to `main` runs six parallel jobs on GitHub Actions: lint, types and formatting; unit and contract tests; the Playwright behaviour and visual tests (in the Playwright Docker image); Lighthouse budgets; bundle analysis; and a dependency audit. Each job runs the same npm script as locally. `main` is protected by a ruleset that requires a pull request and the first four checks. Details, and how to run each check locally: [docs/ci.md](docs/ci.md).
 
 ## Lighthouse
 
@@ -100,6 +101,7 @@ tests/contracts/
 └─ __golden__/     markup and data recorded from the Vue app
 scripts/
 ├─ lighthouse.mjs  Lighthouse audit with budgets
+├─ bundle-size.mjs  first-load JS per page
 └─ playwright-docker.mjs  Playwright in the Playwright Docker image
 e2e/
 ├─ specs/          Playwright specs

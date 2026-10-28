@@ -4,15 +4,16 @@ GitHub Actions runs [`.github/workflows/ci.yml`](../.github/workflows/ci.yml) on
 
 ## Jobs
 
-The five jobs run in parallel; a run takes about as long as the slowest one (the Playwright job, about 6 minutes).
+The six jobs run in parallel, so a run takes about as long as the slowest one: Lighthouse, about 4.5 minutes (24 audits one after another: 4 pages × 2 screen sizes × 3 runs).
 
-| Job (check name)                      | Runs                                                                 | Fails when                                                                                | On failure, look at                                                       |
-| ------------------------------------- | -------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- | ------------------------------------------------------------------------- |
-| **Lint, types, format**               | `npm run lint`, `typecheck`, `format:check`                          | A lint error, a type error, an unformatted file                                           | The step's log                                                            |
-| **Unit and contract tests**           | `npm run test:coverage`                                              | A contract differs from the Vue golden files, a golden file is missing, a unit test fails | The step's log; the `coverage` artifact has the report                    |
-| **Playwright (behaviour and visual)** | `npx playwright test` in the Playwright Docker image                 | A behaviour test fails, or a page no longer matches the original's screenshot             | The `playwright-report` artifact: traces, and expected/actual/diff images |
-| **Lighthouse budgets**                | `npm run build`, `npm run lighthouse -- --runs=3 --warn=performance` | Accessibility, best practices or SEO below budget                                         | The run's summary page (score table); the `lighthouse-reports` artifact   |
-| **Dependency audit**                  | `npm audit --audit-level=high`                                       | A high or critical advisory in any dependency                                             | The step's log                                                            |
+| Job (check name)                      | Runs                                                                 | Fails when                                                                                | On failure, look at                                                                     |
+| ------------------------------------- | -------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| **Lint, types, format**               | `npm run lint`, `typecheck`, `format:check`                          | A lint error, a type error, an unformatted file                                           | The step's log                                                                          |
+| **Unit and contract tests**           | `npm run test:coverage`                                              | A contract differs from the Vue golden files, a golden file is missing, a unit test fails | The step's log; the `coverage` artifact has the report                                  |
+| **Playwright (behaviour and visual)** | `npx playwright test` in the Playwright Docker image                 | A behaviour test fails, or a page no longer matches the original's screenshot             | The `playwright-report` artifact: traces, and expected/actual/diff images               |
+| **Lighthouse budgets**                | `npm run build`, `npm run lighthouse -- --runs=3 --warn=performance` | Accessibility, best practices or SEO below budget                                         | The run's summary page (score table); the `lighthouse-reports` artifact                 |
+| **Bundle analysis**                   | `npm run analyze`                                                    | Never on size (report only); only if the build fails                                      | The run's summary page (first-load JS table); the `bundle-analysis` artifact (treemaps) |
+| **Dependency audit**                  | `npm audit --audit-level=high`                                       | A high or critical advisory in any dependency                                             | The step's log                                                                          |
 
 Notes:
 
@@ -20,6 +21,21 @@ Notes:
 - **Lighthouse performance only warns.** GitHub's runners are shared machines, and performance scores vary by 10–20 points between runs, so a hard budget would fail at random. Misses are listed on the run's summary page. The other three categories are deterministic and fail the job.
 - **Artifacts** are kept for 14 days. Download them from the run's page (**Summary → Artifacts**). For the Playwright report, unzip it and run `npx playwright show-report <folder>`.
 - **A new push cancels the run still going** for the same branch or pull request.
+
+## Where to see the reports
+
+Open the run (the pull request's **Checks** tab → **CI**, or **Actions** → the run).
+
+| Report                                                      | Where                                                                                                |
+| ----------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| Lighthouse scores, first-load JS per page                   | **Summary** page of the run, below the job graph                                                     |
+| Full Lighthouse reports (one HTML per page and screen size) | **Summary → Artifacts → `lighthouse-reports`**; unzip and open any `.html`                           |
+| Bundle treemaps (`client.html`, `nodejs.html`, `edge.html`) | **Summary → Artifacts → `bundle-analysis`**; unzip and open `client.html` for what browsers download |
+| Coverage                                                    | **Summary → Artifacts → `coverage`**; open `index.html`                                              |
+| Playwright report (only when a test failed)                 | **Summary → Artifacts → `playwright-report`**; `npx playwright show-report <folder>`                 |
+| Any job's output                                            | Click the job on the left, then expand its steps                                                     |
+
+Artifacts need a signed-in GitHub account to download.
 
 ## Run the same checks locally
 
@@ -29,6 +45,7 @@ Notes:
 | Unit and contract tests           | `npm run test:coverage`                                              |
 | Playwright (behaviour and visual) | `npm run test:e2e:docker` (needs Docker; same image as CI)           |
 | Lighthouse budgets                | `npm run build && npm run lighthouse -- --runs=3 --warn=performance` |
+| Bundle analysis                   | `npm run analyze` (treemaps in `.next/analyze/`)                     |
 | Dependency audit                  | `npm audit --audit-level=high`                                       |
 
 ## Protecting `main`
@@ -49,7 +66,7 @@ The ruleset applies to the default branch (`main`):
 | Block force pushes              | `main`'s history can't be rewritten                                                                                                                                  |
 | Restrict deletions              | `main` can't be deleted                                                                                                                                              |
 
-**Dependency audit** is deliberately not required: a new advisory can appear in an existing dependency at any time, unrelated to the pull request. It still shows red, and is fixed in its own pull request (Dependabot usually opens one).
+**Dependency audit** is deliberately not required: a new advisory can appear in an existing dependency at any time, unrelated to the pull request. It still shows red, and is fixed in its own pull request (Dependabot usually opens one). **Bundle analysis** is not required either: it reports sizes and fails only if the build does, which **Lighthouse budgets** already checks.
 
 The required checks can only be selected once they have run once, which happens on the first pull request after the workflow reaches GitHub.
 
