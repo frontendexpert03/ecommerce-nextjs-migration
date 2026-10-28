@@ -1,24 +1,27 @@
 # KIIIBS: Next.js port
 
+[![CI](https://github.com/frontendexpert03/ecommerce-nextjs-migration/actions/workflows/ci.yml/badge.svg)](https://github.com/frontendexpert03/ecommerce-nextjs-migration/actions/workflows/ci.yml)
+
 A Next.js 16 rebuild of [KIIIBS](https://github.com/rauldotgit/E-Commerce-Store), a Vue 3 web store for mechanical keyboards, keycaps and deskmats. The port keeps the original's look and behaviour, adds unit tests for every component, and checks the port against behaviour, markup and screenshots recorded from the original.
 
-> **Status:** Phase 9a done: every page is ported and checked against the Vue app at three levels (unit contracts, Playwright behaviour specs, pixel-by-pixel screenshots), audited with Lighthouse, and the repo runs without the Vue app. CI and deployment are next. See the [migration plan](docs/migration-plan.md).
+> **Status:** every page is ported and checked against the Vue app at three levels (unit contracts, Playwright behaviour specs, pixel-by-pixel screenshots), audited with Lighthouse, and checked by CI on every pull request. Deployment is next. See the [migration plan](docs/migration-plan.md).
 
 ## Tech stack
 
-| Concern    | Choice                                                     | Why                                                |
-| ---------- | ---------------------------------------------------------- | -------------------------------------------------- |
-| Framework  | Next.js 16 App Router, React 19, TypeScript (strict)       | [ADR 0001](docs/adr/0001-nextjs-app-router.md)     |
-| Styling    | Tailwind CSS 3.3.3, same version and theme as the original | [ADR 0003](docs/adr/0003-tailwind-3-pinned.md)     |
-| Font       | Manrope, the exact files Google serves, self-hosted        | [ADR 0013](docs/adr/0013-manrope-exact-files.md)   |
-| Build      | `next build --webpack`, to keep Tailwind's CSS precision   | [ADR 0015](docs/adr/0015-webpack-builds.md)        |
-| State      | Zustand with `localStorage` persistence                    | [ADR 0004](docs/adr/0004-zustand-state.md)         |
-| Unit tests | Vitest, React Testing Library, jest-dom                    | [ADR 0006](docs/adr/0006-vitest-rtl.md)            |
-| Contracts  | Unit tests that passed on the Vue originals first          | [ADR 0009](docs/adr/0009-shared-contract-tests.md) |
-| E2E        | Playwright, Page Object Model                              | [ADR 0007](docs/adr/0007-shared-parity-suite.md)   |
-| Visual     | Screenshots compared pixel by pixel with the original's    | [ADR 0014](docs/adr/0014-visual-parity-tests.md)   |
-| Reference  | Data recorded once from the Vue app; no Vue code here      | [ADR 0017](docs/adr/0017-frozen-vue-reference.md)  |
-| Quality    | ESLint (flat config), Prettier                             |                                                    |
+| Concern    | Choice                                                     | Why                                                 |
+| ---------- | ---------------------------------------------------------- | --------------------------------------------------- |
+| Framework  | Next.js 16 App Router, React 19, TypeScript (strict)       | [ADR 0001](docs/adr/0001-nextjs-app-router.md)      |
+| Styling    | Tailwind CSS 3.3.3, same version and theme as the original | [ADR 0003](docs/adr/0003-tailwind-3-pinned.md)      |
+| Font       | Manrope, the exact files Google serves, self-hosted        | [ADR 0013](docs/adr/0013-manrope-exact-files.md)    |
+| Build      | `next build --webpack`, to keep Tailwind's CSS precision   | [ADR 0015](docs/adr/0015-webpack-builds.md)         |
+| State      | Zustand with `localStorage` persistence                    | [ADR 0004](docs/adr/0004-zustand-state.md)          |
+| Unit tests | Vitest, React Testing Library, jest-dom                    | [ADR 0006](docs/adr/0006-vitest-rtl.md)             |
+| Contracts  | Unit tests that passed on the Vue originals first          | [ADR 0009](docs/adr/0009-shared-contract-tests.md)  |
+| E2E        | Playwright, Page Object Model                              | [ADR 0007](docs/adr/0007-shared-parity-suite.md)    |
+| Visual     | Screenshots compared pixel by pixel with the original's    | [ADR 0014](docs/adr/0014-visual-parity-tests.md)    |
+| Reference  | Data recorded once from the Vue app; no Vue code here      | [ADR 0017](docs/adr/0017-frozen-vue-reference.md)   |
+| Quality    | ESLint (flat config), Prettier                             |                                                     |
+| CI         | GitHub Actions: five parallel jobs, Dependabot             | [ADR 0018](docs/adr/0018-continuous-integration.md) |
 
 ## Getting started
 
@@ -31,23 +34,23 @@ npm run dev          # http://localhost:3000
 
 ## Scripts
 
-| Script                    | What it does                                                                       |
-| ------------------------- | ---------------------------------------------------------------------------------- |
-| `npm run dev`             | Development server                                                                 |
-| `npm run build`           | Production build                                                                   |
-| `npm run start`           | Serve the production build                                                         |
-| `npm run lint`            | ESLint                                                                             |
-| `npm run typecheck`       | Generate route types, then `tsc --noEmit`                                          |
-| `npm run format`          | Format with Prettier (`format:check` to verify only)                               |
-| `npm test`                | Unit tests and contract tests                                                      |
-| `npm run test:coverage`   | Unit tests with a coverage report in `coverage/`                                   |
-| `npm run test:e2e`        | Playwright behaviour tests on the production build                                 |
-| `npm run test:visual`     | Visual tests against the original's screenshots, in the Playwright Docker image    |
-| `npm run test:e2e:docker` | Every Playwright test in the Playwright Docker image, as CI runs them              |
-| `npm run test:e2e:ui`     | Playwright UI mode: watch and step through the tests                               |
-| `npm run test:e2e:headed` | Tests in a visible browser, slowed down                                            |
-| `npm run e2e:codegen`     | Record test code while clicking through the running app                            |
-| `npm run lighthouse`      | Lighthouse audit of the production build, with budgets (`-- --runs=3` for medians) |
+| Script                    | What it does                                                                                                         |
+| ------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| `npm run dev`             | Development server                                                                                                   |
+| `npm run build`           | Production build                                                                                                     |
+| `npm run start`           | Serve the production build                                                                                           |
+| `npm run lint`            | ESLint                                                                                                               |
+| `npm run typecheck`       | Generate route types, then `tsc --noEmit`                                                                            |
+| `npm run format`          | Format with Prettier (`format:check` to verify only)                                                                 |
+| `npm test`                | Unit tests and contract tests                                                                                        |
+| `npm run test:coverage`   | Unit tests with a coverage report in `coverage/`                                                                     |
+| `npm run test:e2e`        | Playwright behaviour tests on the production build                                                                   |
+| `npm run test:visual`     | Visual tests against the original's screenshots, in the Playwright Docker image                                      |
+| `npm run test:e2e:docker` | Every Playwright test in the Playwright Docker image, as CI runs them                                                |
+| `npm run test:e2e:ui`     | Playwright UI mode: watch and step through the tests                                                                 |
+| `npm run test:e2e:headed` | Tests in a visible browser, slowed down                                                                              |
+| `npm run e2e:codegen`     | Record test code while clicking through the running app                                                              |
+| `npm run lighthouse`      | Lighthouse audit of the production build, with budgets (`-- --runs=3` for medians; `-- --warn=performance` as in CI) |
 
 ## Testing strategy
 
@@ -62,6 +65,10 @@ Three layers each check the port **against the original app**, so passing means 
 **Visual tests** open every page and key states (cart, mobile menu, checkout errors, order confirmation) and compare them pixel by pixel with screenshots of the original. Screenshots depend on the operating system's font rendering, so they were recorded in the Playwright Docker image and are compared in it (`npm run test:visual`, needs Docker).
 
 All Playwright runs use the production build (`next build` + `next start` on port 3100), never the dev server. The first run installs the Chromium browser with `npx playwright install chromium`.
+
+## Continuous integration
+
+Every pull request and every push to `main` runs five parallel jobs on GitHub Actions: lint, types and formatting; unit and contract tests; the Playwright behaviour and visual tests (in the Playwright Docker image); Lighthouse budgets; and a dependency audit. Each job runs the same npm script as locally. `main` is protected by a ruleset that requires a pull request and the first four checks. Details, and how to run each check locally: [docs/ci.md](docs/ci.md).
 
 ## Lighthouse
 
@@ -99,8 +106,12 @@ e2e/
 ├─ pages/          page objects, one class per page
 ├─ fixtures.ts     page objects as fixtures
 └─ __screenshots__/  expected images, recorded from the Vue app
+.github/
+├─ workflows/ci.yml  CI
+├─ rulesets/       branch protection for main, to import
+└─ dependabot.yml
 docs/
-├─ migration-plan.md
+├─ migration-plan.md, testing.md, ci.md
 └─ adr/            architecture decision records
 ```
 
@@ -108,6 +119,7 @@ docs/
 
 - [Migration plan](docs/migration-plan.md): phases, route and component maps, known quirks
 - [Testing guide](docs/testing.md): the contract, Playwright and visual tests, and how their reference data was recorded
+- [CI](docs/ci.md): the GitHub Actions jobs, branch protection and Dependabot
 - [Behaviour spec](docs/behaviour-spec.md): every behaviour of the original, with its test ID
 - [Architecture decision records](docs/adr/README.md)
 
