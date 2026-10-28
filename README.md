@@ -69,7 +69,7 @@ All Playwright runs use the production build (`next build` + `next start` on por
 
 ## Continuous integration
 
-Every pull request and every push to `main` runs six parallel jobs on GitHub Actions: lint, types and formatting; unit and contract tests; the Playwright behaviour and visual tests (in the Playwright Docker image); Lighthouse budgets; bundle analysis; and a dependency audit. Each job runs the same npm script as locally. `main` is protected by a ruleset that requires a pull request and the first five checks. Pages over the 150 kB first-load JS budget fail the bundle check. Details, and how to run each check locally: [docs/ci.md](docs/ci.md).
+Every pull request and every push to `main` runs six parallel jobs on GitHub Actions: lint, types and formatting; unit and contract tests; the Playwright behaviour and visual tests (in the Playwright Docker image); Lighthouse budgets; bundle analysis; and a dependency audit. Each job runs the same npm script as locally. `main` is protected by a ruleset that requires a pull request and the first five checks. Pages over the 150 kB first-load JS budget fail the bundle check. On pull requests, a comment shows the Lighthouse scores and bundle sizes, updated on every push. Details, and how to run each check locally: [docs/ci.md](docs/ci.md).
 
 ## Lighthouse
 

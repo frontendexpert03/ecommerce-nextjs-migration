@@ -16,6 +16,7 @@ Every check the project relies on runs locally through npm scripts: lint, types 
 - **Lighthouse performance is reported, not enforced, in CI** (`--warn=performance`). Shared runners make performance scores vary by 10–20 points between runs. Accessibility, best practices and SEO are deterministic and stay hard budgets. Locally, all four are enforced.
 - **`npm audit --audit-level=high`** runs on all dependencies; since ADR 0017 there are no accepted advisories.
 - **Branch protection** is a ruleset kept in `.github/rulesets/protect-main.json`, imported once by a repository admin. It requires a pull request and the quality, unit, Playwright and Lighthouse checks; it blocks force pushes and deletion of `main`.
+- **A pull request comment** with the Lighthouse and bundle reports, posted by a `PR report` job with the built-in `gh` CLI and updated in place on every push (no third-party action). It is the only job with write access (`pull-requests: write`).
 - **Dependabot** proposes weekly minor and patch updates and GitHub Actions updates, except the packages pinned on purpose (Tailwind, Autoprefixer, Playwright).
 
 ## Consequences

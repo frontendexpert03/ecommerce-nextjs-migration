@@ -4,16 +4,17 @@ GitHub Actions runs [`.github/workflows/ci.yml`](../.github/workflows/ci.yml) on
 
 ## Jobs
 
-The six jobs run in parallel, so a run takes about as long as the slowest one: Lighthouse, about 4.5 minutes (24 audits one after another: 4 pages × 2 screen sizes × 3 runs).
+The six check jobs run in parallel, so a run takes about as long as the slowest one: Lighthouse, about 4.5 minutes (24 audits one after another: 4 pages × 2 screen sizes × 3 runs).
 
-| Job (check name)                      | Runs                                                                 | Fails when                                                                                | On failure, look at                                                                                                       |
-| ------------------------------------- | -------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
-| **Lint, types, format**               | `npm run lint`, `typecheck`, `format:check`                          | A lint error, a type error, an unformatted file                                           | The step's log                                                                                                            |
-| **Unit and contract tests**           | `npm run test:coverage`                                              | A contract differs from the Vue golden files, a golden file is missing, a unit test fails | The step's log; the `coverage` artifact has the report                                                                    |
-| **Playwright (behaviour and visual)** | `npx playwright test` in the Playwright Docker image                 | A behaviour test fails, or a page no longer matches the original's screenshot             | The `playwright-report` artifact: traces, and expected/actual/diff images                                                 |
-| **Lighthouse budgets**                | `npm run build`, `npm run lighthouse -- --runs=3 --warn=performance` | Accessibility, best practices or SEO below budget                                         | The run's summary page (score table); the `lighthouse-reports` artifact                                                   |
-| **Bundle analysis**                   | `npm run analyze`                                                    | A page's gzipped first-load JS is over the budget (150 kB), or the build fails            | The run's summary page (first-load JS table, pages over budget); the `bundle-analysis` artifact (treemaps show what grew) |
-| **Dependency audit**                  | `npm audit --audit-level=high`                                       | A high or critical advisory in any dependency                                             | The step's log                                                                                                            |
+| Job (check name)                      | Runs                                                                                 | Fails when                                                                                | On failure, look at                                                                                                       |
+| ------------------------------------- | ------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| **Lint, types, format**               | `npm run lint`, `typecheck`, `format:check`                                          | A lint error, a type error, an unformatted file                                           | The step's log                                                                                                            |
+| **Unit and contract tests**           | `npm run test:coverage`                                                              | A contract differs from the Vue golden files, a golden file is missing, a unit test fails | The step's log; the `coverage` artifact has the report                                                                    |
+| **Playwright (behaviour and visual)** | `npx playwright test` in the Playwright Docker image                                 | A behaviour test fails, or a page no longer matches the original's screenshot             | The `playwright-report` artifact: traces, and expected/actual/diff images                                                 |
+| **Lighthouse budgets**                | `npm run build`, `npm run lighthouse -- --runs=3 --warn=performance`                 | Accessibility, best practices or SEO below budget                                         | The run's summary page (score table); the `lighthouse-reports` artifact                                                   |
+| **Bundle analysis**                   | `npm run analyze`                                                                    | A page's gzipped first-load JS is over the budget (150 kB), or the build fails            | The run's summary page (first-load JS table, pages over budget); the `bundle-analysis` artifact (treemaps show what grew) |
+| **Dependency audit**                  | `npm audit --audit-level=high`                                                       | A high or critical advisory in any dependency                                             | The step's log                                                                                                            |
+| **PR report**                         | `scripts/pr-comment.sh`, after Lighthouse and Bundle analysis, on pull requests only | Only if the comment can't be posted                                                       | The step's log                                                                                                            |
 
 Notes:
 
@@ -24,6 +25,10 @@ Notes:
 - **A new push cancels the run still going** for the same branch or pull request.
 
 ## Where to see the reports
+
+On a pull request, the **PR report** job posts one comment, **CI reports**, with the Lighthouse scores and the first-load JS of each page, and a link to the run. Each new push updates that same comment, so it always shows the latest commit and the pull request doesn't fill up with old reports. It is posted even when a check failed, so the comment shows what failed. Pull requests from forks and from Dependabot get no comment: GitHub gives their runs a read-only token.
+
+Everything else is on the run itself.
 
 Open the run (the pull request's **Checks** tab → **CI**, or **Actions** → the run).
 

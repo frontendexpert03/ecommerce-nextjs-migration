@@ -167,17 +167,30 @@ const table = [
 await writeFile(path.join(OUT_DIR, 'summary.md'), `${table}\n`)
 console.log(table)
 
+// The same report goes to the run's summary page and, through report.md,
+// to the pull request comment (docs/ci.md).
+const status = failures.length
+	? '❌ Below budget'
+	: warnings.length
+		? '⚠️ Within budget, with performance warnings'
+		: '✅ All scores within budget'
+const report = [
+	`## Lighthouse (median of ${runs})`,
+	'',
+	status,
+	'',
+	table,
+	...(failures.length
+		? ['', 'Below budget (fails):', ...failures.map((f) => `- ${f}`)]
+		: []),
+	...(warnings.length
+		? ['', 'Below budget (warning only):', ...warnings.map((w) => `- ${w}`)]
+		: []),
+	'',
+].join('\n')
+await writeFile(path.join(OUT_DIR, 'report.md'), report)
 if (process.env.GITHUB_STEP_SUMMARY) {
-	const notes = [...failures, ...warnings].map((miss) => `- ${miss}`)
-	await appendFile(
-		process.env.GITHUB_STEP_SUMMARY,
-		[
-			`## Lighthouse (median of ${runs})`,
-			table,
-			...(notes.length ? ['', 'Below budget:', ...notes] : []),
-			'',
-		].join('\n'),
-	)
+	await appendFile(process.env.GITHUB_STEP_SUMMARY, report)
 }
 
 if (warnings.length) {

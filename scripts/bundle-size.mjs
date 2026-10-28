@@ -94,20 +94,26 @@ await mkdir(OUT_DIR, { recursive: true })
 await writeFile(path.join(OUT_DIR, 'summary.md'), `${table}\n`)
 console.log(table)
 
+// The same report goes to the run's summary page and, through report.md,
+// to the pull request comment (docs/ci.md).
+const report = [
+	'## Bundle size',
+	'',
+	failures.length
+		? `❌ Over the ${BUDGET_KB} kB budget`
+		: `✅ All pages within the ${BUDGET_KB} kB budget`,
+	'',
+	table,
+	...(failures.length
+		? ['', 'Over budget:', ...failures.map((f) => `- ${f}`)]
+		: []),
+	'',
+	'Treemaps of every bundle: the `bundle-analysis` artifact (`client.html`, `nodejs.html`, `edge.html`).',
+	'',
+].join('\n')
+await writeFile(path.join(OUT_DIR, 'report.md'), report)
 if (process.env.GITHUB_STEP_SUMMARY) {
-	await appendFile(
-		process.env.GITHUB_STEP_SUMMARY,
-		[
-			'## Bundle size',
-			table,
-			...(failures.length
-				? ['', 'Over budget:', ...failures.map((f) => `- ${f}`)]
-				: []),
-			'',
-			'Treemaps of every bundle: the `bundle-analysis` artifact (`client.html`, `nodejs.html`, `edge.html`).',
-			'',
-		].join('\n'),
-	)
+	await appendFile(process.env.GITHUB_STEP_SUMMARY, report)
 }
 
 console.log(`\nTreemaps: ${OUT_DIR}/client.html, nodejs.html, edge.html`)

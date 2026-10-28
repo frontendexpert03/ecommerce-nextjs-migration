@@ -124,6 +124,40 @@ jobs:
           path: .next/analyze/
           retention-days: 14
 
+  report:
+    name: PR report
+    needs: [lighthouse, bundle]
+    # Also after a failed check, so the comment shows what failed. Not for
+    # pull requests from forks or Dependabot: their token can't comment.
+    if: >-
+      ${{ !cancelled() && github.event_name == 'pull_request' &&
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      github.actor != 'dependabot[bot]' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/download-artifact@v5
+        continue-on-error: true
+        with:
+          name: lighthouse-reports
+          path: reports/lighthouse
+      - uses: actions/download-artifact@v5
+        continue-on-error: true
+        with:
+          name: bundle-analysis
+          path: reports/bundle
+      - run: bash scripts/pr-comment.sh
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          PR: ${{ github.event.pull_request.number }}
+          SHA: ${{ github.event.pull_request.head.sha }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
   audit:
     name: Dependency audit
     runs-on: ubuntu-latest
