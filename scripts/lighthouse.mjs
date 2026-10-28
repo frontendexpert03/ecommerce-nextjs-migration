@@ -33,21 +33,21 @@ const CATEGORIES = ['performance', 'accessibility', 'best-practices', 'seo']
 /**
  * Minimum scores (0-100) per category and form factor, a little below the
  * medians measured on 2026-10-28, so a real regression fails but run-to-run
- * noise does not. Accessibility and SEO are capped by findings inherited
- * from the original (docs/adr/0016).
+ * noise does not. Accessibility stays below 100 because of the brand
+ * yellow's colour contrast, kept as in the original (docs/adr/0016).
  */
 const BUDGETS = {
 	mobile: {
 		performance: 70,
-		accessibility: 84,
+		accessibility: 95,
 		'best-practices': 100,
-		seo: 91,
+		seo: 100,
 	},
 	desktop: {
 		performance: 90,
-		accessibility: 91,
+		accessibility: 95,
 		'best-practices': 100,
-		seo: 91,
+		seo: 100,
 	},
 }
 
