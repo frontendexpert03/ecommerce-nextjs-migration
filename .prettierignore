@@ -10,3 +10,4 @@ AGENTS.md
 tests/contracts/__golden__
 # Generated from Google Fonts verbatim; see the header comment.
 src/app/fonts.css
+lighthouse-reports
