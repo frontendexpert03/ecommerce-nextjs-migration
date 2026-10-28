@@ -42,18 +42,20 @@ parent-folder/
 
 Or point `VUE_APP_DIR` at it. Install Playwright's browser once: `npx playwright install chromium`.
 
-| Command                 | What it runs                                                                |
-| ----------------------- | --------------------------------------------------------------------------- |
-| `npm test`              | All Vitest tests: contracts on both apps + Next-only unit tests             |
-| `npm run test:vue`      | Contracts on the Vue app only (also records missing golden files)           |
-| `npm run test:next`     | Contracts on the Next app + Next-only unit tests                            |
-| `npm run test:golden`   | Re-records every golden file from the Vue app                               |
-| `npm run test:coverage` | Vitest with a coverage report in `coverage/`                                |
-| `npm run test:e2e`      | Playwright behaviour tests on the Next app only                             |
-| `npm run test:e2e:vue`  | Playwright behaviour tests on the Vue app only                              |
-| `npm run test:parity`   | Playwright on both apps + the visual comparison                             |
-| `npm run test:visual`   | Only the visual comparison                                                  |
-| `npm run lighthouse`    | Lighthouse budgets on the Next production build (run `npm run build` first) |
+| Command                   | What it runs                                                                       |
+| ------------------------- | ---------------------------------------------------------------------------------- |
+| `npm test`                | All Vitest tests: contracts on both apps + Next-only unit tests                    |
+| `npm run test:vue`        | Contracts on the Vue app only (also records missing golden files)                  |
+| `npm run test:next`       | Contracts on the Next app + Next-only unit tests                                   |
+| `npm run test:golden`     | Re-records every golden file from the Vue app                                      |
+| `npm run test:coverage`   | Vitest with a coverage report in `coverage/`                                       |
+| `npm run test:e2e`        | Playwright behaviour tests on the Next app only                                    |
+| `npm run test:e2e:vue`    | Playwright behaviour tests on the Vue app only                                     |
+| `npm run test:e2e:ui`     | Playwright UI mode: watch and step through tests ([more](#watching-the-tests-run)) |
+| `npm run test:e2e:headed` | Tests in a visible browser, slowed down ([more](#watching-the-tests-run))          |
+| `npm run test:parity`     | Playwright on both apps + the visual comparison                                    |
+| `npm run test:visual`     | Only the visual comparison                                                         |
+| `npm run lighthouse`      | Lighthouse budgets on the Next production build (run `npm run build` first)        |
 
 `npx playwright show-report` opens the last Playwright run, including screenshots and diffs.
 
@@ -260,6 +262,25 @@ E2E_TARGETS=next,vue    →  all four  +  visual-desktop, visual-mobile         
 - **Production builds only, never dev servers.** The ports deliberately differ from the dev servers' defaults (3000 and 5173), so `reuseExistingServer` can never pick up a running `npm run dev` by mistake.
 - **Two screen sizes**, the original Cypress suite's: desktop 1440×900 and mobile 375×667. Every behaviour spec runs in both.
 - **Same specs for every target.** A spec that passes on `vue-*` but fails on `next-*` means the port doesn't match yet.
+
+### Watching the tests run
+
+| Command                       | What you see                                                                                                                                          |
+| ----------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `npm run test:e2e:ui`         | **Playwright UI mode** (best for exploring): pick tests from a list, run them, and step through every action with before/after snapshots of the page. |
+| `npm run test:parity:ui`      | UI mode with both apps, so the same test can be watched on `vue-*` and `next-*`, plus the visual tests                                                |
+| `npm run test:e2e:headed`     | A real Chromium window runs the Next tests one at a time, with a 300ms pause before each action                                                       |
+| `npm run test:e2e:vue:headed` | The same on the original Vue app                                                                                                                      |
+| `npm run test:parity:headed`  | The same on both apps, then the visual tests                                                                                                          |
+| `npm run e2e:codegen`         | **Playwright codegen**: opens the Next app and writes test code as you click (start the app first: `npm run build && npm run start -- --port 3100`)   |
+
+Extra Playwright options go after `--`. For example, one test on one project:
+
+```bash
+npm run test:e2e:headed -- --project=next-desktop -g "badge counts"
+```
+
+`SLOW_MO` sets the pause in milliseconds (`cross-env SLOW_MO=1000 npm run test:e2e:headed`). Code recorded with codegen is a starting point: move its locators into the page objects before adding it as a spec.
 
 ### Page Object Model
 

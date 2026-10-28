@@ -30,24 +30,27 @@ npm run dev          # http://localhost:3000
 
 ## Scripts
 
-| Script                  | What it does                                                                       |
-| ----------------------- | ---------------------------------------------------------------------------------- |
-| `npm run dev`           | Development server                                                                 |
-| `npm run build`         | Production build                                                                   |
-| `npm run start`         | Serve the production build                                                         |
-| `npm run lint`          | ESLint                                                                             |
-| `npm run typecheck`     | Generate route types, then `tsc --noEmit`                                          |
-| `npm run format`        | Format with Prettier (`format:check` to verify only)                               |
-| `npm test`              | Unit tests, and contract tests on both apps                                        |
-| `npm run test:vue`      | Contract tests on the Vue app; records golden markup                               |
-| `npm run test:next`     | Unit and contract tests on this app only                                           |
-| `npm run test:golden`   | Re-record all golden markup from the Vue app                                       |
-| `npm run test:coverage` | Unit tests with a coverage report in `coverage/`                                   |
-| `npm run test:e2e`      | Playwright against the Next app (production build)                                 |
-| `npm run test:e2e:vue`  | Playwright against the original Vue app                                            |
-| `npm run test:parity`   | Playwright against both apps, plus visual comparison                               |
-| `npm run test:visual`   | Only the visual comparison of both apps                                            |
-| `npm run lighthouse`    | Lighthouse audit of the production build, with budgets (`-- --runs=3` for medians) |
+| Script                    | What it does                                                                                                |
+| ------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| `npm run dev`             | Development server                                                                                          |
+| `npm run build`           | Production build                                                                                            |
+| `npm run start`           | Serve the production build                                                                                  |
+| `npm run lint`            | ESLint                                                                                                      |
+| `npm run typecheck`       | Generate route types, then `tsc --noEmit`                                                                   |
+| `npm run format`          | Format with Prettier (`format:check` to verify only)                                                        |
+| `npm test`                | Unit tests, and contract tests on both apps                                                                 |
+| `npm run test:vue`        | Contract tests on the Vue app; records golden markup                                                        |
+| `npm run test:next`       | Unit and contract tests on this app only                                                                    |
+| `npm run test:golden`     | Re-record all golden markup from the Vue app                                                                |
+| `npm run test:coverage`   | Unit tests with a coverage report in `coverage/`                                                            |
+| `npm run test:e2e`        | Playwright against the Next app (production build)                                                          |
+| `npm run test:e2e:vue`    | Playwright against the original Vue app                                                                     |
+| `npm run test:parity`     | Playwright against both apps, plus visual comparison                                                        |
+| `npm run test:visual`     | Only the visual comparison of both apps                                                                     |
+| `npm run test:e2e:ui`     | Playwright UI mode: watch and step through the tests                                                        |
+| `npm run test:e2e:headed` | Tests in a visible browser, slowed down (`test:e2e:vue:headed`, `test:parity:headed` for the other targets) |
+| `npm run e2e:codegen`     | Record test code while clicking through the running app                                                     |
+| `npm run lighthouse`      | Lighthouse audit of the production build, with budgets (`-- --runs=3` for medians)                          |
 
 ## Testing strategy
 

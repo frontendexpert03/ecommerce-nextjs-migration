@@ -18,8 +18,14 @@
 		"test:coverage": "vitest run --coverage",
 		"test:e2e": "playwright test",
 		"test:e2e:vue": "cross-env E2E_TARGETS=vue playwright test",
+		"test:e2e:headed": "cross-env SLOW_MO=300 playwright test --headed --workers=1",
+		"test:e2e:vue:headed": "cross-env E2E_TARGETS=vue SLOW_MO=300 playwright test --headed --workers=1",
+		"test:e2e:ui": "playwright test --ui",
 		"test:parity": "cross-env E2E_TARGETS=next,vue playwright test",
+		"test:parity:headed": "cross-env E2E_TARGETS=next,vue SLOW_MO=300 playwright test --headed --workers=1",
+		"test:parity:ui": "cross-env E2E_TARGETS=next,vue playwright test --ui",
 		"test:visual": "cross-env E2E_TARGETS=next,vue playwright test --project=visual-desktop --project=visual-mobile",
+		"e2e:codegen": "playwright codegen --test-id-attribute=data-test http://localhost:3100",
 		"lighthouse": "node scripts/lighthouse.mjs"
 	},
 	"engines": {

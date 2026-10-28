@@ -25,4 +25,6 @@ Specs never build locators. Every locator lives in a page class and uses Playwri
 | `npm run test:parity`  | all four, plus `visual-desktop` and `visual-mobile` |
 | `npm run test:visual`  | `visual-desktop`, `visual-mobile`                   |
 
+To watch tests run: `npm run test:e2e:ui` (Playwright UI mode), or `npm run test:e2e:headed` / `test:e2e:vue:headed` / `test:parity:headed` (a visible browser, slowed down). `npm run e2e:codegen` records test code while you click through the running app. See [Watching the tests run](../docs/testing.md#watching-the-tests-run).
+
 The first run needs `npx playwright install chromium`; `npx playwright show-report` opens the last report.

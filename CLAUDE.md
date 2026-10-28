@@ -13,6 +13,7 @@ Read `docs/migration-plan.md` (phases, component map, known quirks) and `docs/ad
 - `npm test`: Vitest unit and contract tests on both apps (`npm run test:coverage` for coverage)
 - `npm run test:vue` / `npm run test:next`: contract tests on one app; `npm run test:golden` re-records golden markup from Vue
 - `npm run test:e2e`: Playwright against the Next production build (:3100)
+- `npm run test:e2e:ui` / `npm run test:e2e:headed`: watch the Playwright tests run (UI mode, or a visible browser with `SLOW_MO`)
 - `npm run lighthouse`: Lighthouse audit of the production build with budgets (`-- --runs=3` for medians; run `npm run build` first)
 - `npm run test:parity`: Playwright against both apps (Vue preview on :4173), plus the visual comparison; `npm run test:visual` for the visual part only
 

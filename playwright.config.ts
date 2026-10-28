@@ -80,6 +80,9 @@ export default defineConfig({
 		// Selectors use the data-test attributes that already exist in the Vue app.
 		testIdAttribute: 'data-test',
 		trace: 'on-first-retry',
+		// SLOW_MO=300 pauses 300ms before each action, so a headed run can be
+		// followed by eye (the *:headed scripts set it).
+		launchOptions: { slowMo: Number(process.env.SLOW_MO ?? 0) },
 	},
 	projects: [...behaviourProjects, ...visualProjects],
 	webServer: targets.map((target) => ({
