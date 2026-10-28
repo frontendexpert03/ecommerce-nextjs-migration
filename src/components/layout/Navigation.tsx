@@ -51,6 +51,7 @@ export function Navigation({ color = 'transparent' }: NavigationProps) {
 			<div className="relative flex w-4/5 max-w-6xl flex-row items-center justify-between border-b border-zinc-500 py-6 md:w-11/12 lg:w-4/5">
 				<button
 					id="hamburger"
+					aria-label="Open menu"
 					className="select-none lg:hidden"
 					onClick={showHamburger}
 					data-test="hamburger"

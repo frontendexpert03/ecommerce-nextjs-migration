@@ -41,6 +41,8 @@ export function YouMayAlsoLike({
 					>
 						<RouterLink
 							href={productHref(item.category, item.id)}
+							// Picture-only link: named for screen readers (docs/adr/0016).
+							aria-label={`${item.header} ${item.subheader}`}
 							className="overflow-hidden rounded"
 						>
 							<img

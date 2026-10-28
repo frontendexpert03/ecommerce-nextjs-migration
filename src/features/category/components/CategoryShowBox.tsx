@@ -64,6 +64,8 @@ export function CategoryShowBox({
 			</div>
 			<RouterLink
 				href={href}
+				// Picture-only link: named for screen readers (docs/adr/0016).
+				aria-label={`${item.header} ${item.subheader}`}
 				className={cx(
 					'order-first col-span-1 cursor-pointer overflow-hidden rounded active:translate-y-1 md:-order-none',
 					flip === true ? 'col-start-2' : 'col-start-1',

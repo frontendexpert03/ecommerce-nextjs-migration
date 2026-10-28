@@ -11,10 +11,12 @@ const LINKS = [
 	{ href: '/deskmats', label: 'Deskmats' },
 ]
 
-const SOCIAL_ICONS = [
-	'/icons/facebook.svg',
-	'/icons/twitter.svg',
-	'/icons/instagram.svg',
+// The labels name the icon-only links for screen readers; the original
+// has none (docs/adr/0016).
+const SOCIAL_LINKS = [
+	{ icon: '/icons/facebook.svg', label: 'Facebook' },
+	{ icon: '/icons/twitter.svg', label: 'Twitter' },
+	{ icon: '/icons/instagram.svg', label: 'Instagram' },
 ]
 
 export function Footer() {
@@ -64,9 +66,10 @@ export function Footer() {
 						week.
 					</p>
 					<nav className="flex flex-row gap-4 md:self-end">
-						{SOCIAL_ICONS.map((icon) => (
+						{SOCIAL_LINKS.map(({ icon, label }) => (
 							<a
 								key={icon}
+								aria-label={label}
 								className="transition duration-300 hover:-translate-y-0.5"
 								href=""
 							>

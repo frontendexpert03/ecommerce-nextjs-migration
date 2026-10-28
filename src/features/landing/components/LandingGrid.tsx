@@ -7,6 +7,8 @@ import { productHref } from '@/lib/routes'
 // the original's spelling. Its "see all" button links to { path: 'keycaps' },
 // which vue-router resolves from / to /keycaps. The ZX9 picture's link also
 // has href="", which wins over the router's href (see RouterLink).
+// The two picture-only links have an aria-label the original lacks
+// (docs/adr/0016).
 
 export function LandingGrid() {
 	return (
@@ -20,6 +22,7 @@ export function LandingGrid() {
 						<RouterLink
 							href={productHref('keyboards', 1)}
 							hrefAttribute=""
+							aria-label="ZX9 Keyboard"
 							className="relative flex h-full w-full flex-col items-center justify-center overflow-hidden md:col-span-4 md:px-10"
 						>
 							<img
@@ -60,6 +63,7 @@ export function LandingGrid() {
 				</div>
 				<RouterLink
 					href={productHref('deskmats', 1)}
+					aria-label="Kraken deskmat"
 					className="order-2 flex h-64 flex-col items-center justify-center overflow-hidden rounded-md bg-k-grey text-black md:order-none md:col-span-4 md:row-span-2 md:block md:h-full"
 				>
 					<img

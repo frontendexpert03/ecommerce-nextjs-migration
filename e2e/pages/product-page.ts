@@ -5,7 +5,8 @@ export class ProductPage extends StorePage {
 	readonly addToCartButton = this.page.getByRole('button', {
 		name: 'add to cart',
 	})
-	// The original's "Go Back" is an <a> without href, so it has no link role.
+	// By text: in the original "Go Back" is a bare <a> (no href, no role);
+	// the port adds role="button" (docs/adr/0016).
 	readonly goBack = this.page.getByText('Go Back', { exact: true })
 	readonly youMayAlsoLike = this.page.getByRole('heading', {
 		name: 'You may also like',
