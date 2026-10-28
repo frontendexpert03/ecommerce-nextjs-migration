@@ -25,6 +25,7 @@ Each record explains one decision: the context, what we chose, and what it costs
 | [0019](0019-bundle-analysis.md)        | Bundle analysis with @next/bundle-analyzer                      | Accepted           |
 | [0020](0020-recompressed-images.md)    | Recompress the three largest home-page images                   | Accepted           |
 | [0021](0021-dependabot-npm-monthly.md) | Dependabot for npm packages only, once a month                  | Accepted           |
+| [0022](0022-vercel-deployment.md)      | Deploy to Vercel through its Git integration                    | Accepted           |
 
 ## Template
 

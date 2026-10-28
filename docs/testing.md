@@ -238,6 +238,7 @@ After each phase, a few realistic bugs were put into the port on purpose, and th
 
 - **Production build only, never the dev server.** Playwright starts `npm run build && npm run start -- --port 3100`. The port deliberately differs from the dev server's default (3000), so `reuseExistingServer` can never pick up a running `npm run dev` by mistake.
 - **Two screen sizes**, the original Cypress suite's: desktop 1440×900 and mobile 375×667.
+- **A deployment can be tested instead.** With `BASE_URL` set, no local server is started and every test, visual ones included, runs against that URL: production on Vercel, or a pull request's preview ([ADR 0022](adr/0022-vercel-deployment.md)). For example, `BASE_URL=https://ecommerce-nextjs-migration.vercel.app npm run test:e2e:docker`. `npm run lighthouse` takes `BASE_URL` too.
 
 ### Watching the tests run
 

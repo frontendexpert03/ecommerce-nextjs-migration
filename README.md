@@ -4,7 +4,21 @@
 
 A Next.js 16 rebuild of [KIIIBS](https://github.com/rauldotgit/E-Commerce-Store), a Vue 3 web store for mechanical keyboards, keycaps and deskmats. The port keeps the original's look and behaviour, adds unit tests for every component, and checks the port against behaviour, markup and screenshots recorded from the original.
 
-> **Status:** every page is ported and checked against the Vue app at three levels (unit contracts, Playwright behaviour specs, pixel-by-pixel screenshots), audited with Lighthouse, and checked by CI on every pull request. Deployment is next. See the [migration plan](docs/migration-plan.md).
+**Live:** https://ecommerce-nextjs-migration.vercel.app
+
+> **Status:** complete. Every page is ported, checked against the Vue app at three levels (unit contracts, Playwright behaviour specs, pixel-by-pixel screenshots), audited with Lighthouse, checked by CI on every pull request, and deployed on Vercel. See the [migration plan](docs/migration-plan.md).
+
+## How it was verified
+
+| Check                                                        | Result                                                   |
+| ------------------------------------------------------------ | -------------------------------------------------------- |
+| Unit and contract tests (each contract passed on Vue first)  | 186 passing                                              |
+| Playwright behaviour tests, desktop and mobile               | 99 passing, on the local build and on the live site      |
+| Screenshots compared with the original's, desktop and mobile | 33 matching, on the local build and on the live site     |
+| Lighthouse, mobile / desktop (production build, median of 3) | performance 90–100 / 100; accessibility 95–96; SEO 100   |
+| First-load JavaScript per page                               | 139–143 kB gzipped, under a 150 kB budget enforced by CI |
+
+For a quick review: the [testing guide](docs/testing.md) explains how the port is compared with the original, and the [decision records](docs/adr/README.md) explain every choice that departs from a plain copy.
 
 ## Tech stack
 
@@ -22,6 +36,7 @@ A Next.js 16 rebuild of [KIIIBS](https://github.com/rauldotgit/E-Commerce-Store)
 | Reference  | Data recorded once from the Vue app; no Vue code here      | [ADR 0017](docs/adr/0017-frozen-vue-reference.md)   |
 | Quality    | ESLint (flat config), Prettier                             |                                                     |
 | CI         | GitHub Actions: six parallel jobs, Dependabot              | [ADR 0018](docs/adr/0018-continuous-integration.md) |
+| Hosting    | Vercel, deployed from GitHub; previews for pull requests   | [ADR 0022](docs/adr/0022-vercel-deployment.md)      |
 
 ## Getting started
 
@@ -34,24 +49,24 @@ npm run dev          # http://localhost:3000
 
 ## Scripts
 
-| Script                    | What it does                                                                                                                                      |
-| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `npm run dev`             | Development server                                                                                                                                |
-| `npm run build`           | Production build                                                                                                                                  |
-| `npm run start`           | Serve the production build                                                                                                                        |
-| `npm run lint`            | ESLint                                                                                                                                            |
-| `npm run typecheck`       | Generate route types, then `tsc --noEmit`                                                                                                         |
-| `npm run format`          | Format with Prettier (`format:check` to verify only)                                                                                              |
-| `npm test`                | Unit tests and contract tests                                                                                                                     |
-| `npm run test:coverage`   | Unit tests with a coverage report in `coverage/`                                                                                                  |
-| `npm run test:e2e`        | Playwright behaviour tests on the production build                                                                                                |
-| `npm run test:visual`     | Visual tests against the original's screenshots, in the Playwright Docker image                                                                   |
-| `npm run test:e2e:docker` | Every Playwright test in the Playwright Docker image, as CI runs them                                                                             |
-| `npm run test:e2e:ui`     | Playwright UI mode: watch and step through the tests                                                                                              |
-| `npm run test:e2e:headed` | Tests in a visible browser, slowed down                                                                                                           |
-| `npm run e2e:codegen`     | Record test code while clicking through the running app                                                                                           |
-| `npm run lighthouse`      | Lighthouse audit of the production build, with budgets (`-- --runs=3` for medians; `-- --warn=performance` as in CI)                              |
-| `npm run analyze`         | Production build with the bundle analyzer: treemaps in `.next/analyze/` and first-load JS per page ([ADR 0019](docs/adr/0019-bundle-analysis.md)) |
+| Script                    | What it does                                                                                                                                        |
+| ------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `npm run dev`             | Development server                                                                                                                                  |
+| `npm run build`           | Production build                                                                                                                                    |
+| `npm run start`           | Serve the production build                                                                                                                          |
+| `npm run lint`            | ESLint                                                                                                                                              |
+| `npm run typecheck`       | Generate route types, then `tsc --noEmit`                                                                                                           |
+| `npm run format`          | Format with Prettier (`format:check` to verify only)                                                                                                |
+| `npm test`                | Unit tests and contract tests                                                                                                                       |
+| `npm run test:coverage`   | Unit tests with a coverage report in `coverage/`                                                                                                    |
+| `npm run test:e2e`        | Playwright behaviour tests on the production build                                                                                                  |
+| `npm run test:visual`     | Visual tests against the original's screenshots, in the Playwright Docker image                                                                     |
+| `npm run test:e2e:docker` | Every Playwright test in the Playwright Docker image, as CI runs them                                                                               |
+| `npm run test:e2e:ui`     | Playwright UI mode: watch and step through the tests                                                                                                |
+| `npm run test:e2e:headed` | Tests in a visible browser, slowed down                                                                                                             |
+| `npm run e2e:codegen`     | Record test code while clicking through the running app                                                                                             |
+| `npm run lighthouse`      | Lighthouse audit of the production build, with budgets (`-- --runs=3` for medians; `-- --warn=performance` as in CI; `BASE_URL=…` for a deployment) |
+| `npm run analyze`         | Production build with the bundle analyzer: treemaps in `.next/analyze/` and first-load JS per page ([ADR 0019](docs/adr/0019-bundle-analysis.md))   |
 
 ## Testing strategy
 
@@ -65,19 +80,28 @@ Three layers each check the port **against the original app**, so passing means 
 
 **Visual tests** open every page and key states (cart, mobile menu, checkout errors, order confirmation) and compare them pixel by pixel with screenshots of the original. Screenshots depend on the operating system's font rendering, so they were recorded in the Playwright Docker image and are compared in it (`npm run test:visual`, needs Docker).
 
-All Playwright runs use the production build (`next build` + `next start` on port 3100), never the dev server. The first run installs the Chromium browser with `npx playwright install chromium`.
+All Playwright runs use the production build (`next build` + `next start` on port 3100), never the dev server. The first run installs the Chromium browser with `npx playwright install chromium`. With `BASE_URL` set, the same tests run against a deployment instead, such as the live site or a pull request's preview.
 
 ## Continuous integration
 
 Every pull request and every push to `main` runs six parallel jobs on GitHub Actions: lint, types and formatting; unit and contract tests; the Playwright behaviour and visual tests (in the Playwright Docker image); Lighthouse budgets; bundle analysis; and a dependency audit. Each job runs the same npm script as locally. `main` is protected by a ruleset that requires a pull request and the first five checks. Pages over the 150 kB first-load JS budget fail the bundle check. On pull requests, a comment shows the Lighthouse scores and bundle sizes, updated on every push. Details, and how to run each check locally: [docs/ci.md](docs/ci.md).
 
+## Deployment
+
+[Vercel](https://vercel.com) deploys the repository through its GitHub integration ([ADR 0022](docs/adr/0022-vercel-deployment.md)):
+
+- every push to `main` goes to production, https://ecommerce-nextjs-migration.vercel.app;
+- every pull request gets its own preview URL, posted on the pull request.
+
+There is no Vercel configuration file: Vercel detects Next.js, runs `npm run build` (`next build --webpack`), and takes the Node.js version from `engines` in `package.json`. No environment variables are needed.
+
 ## Lighthouse
 
-Median of three runs on the production build ([ADR 0016](docs/adr/0016-lighthouse.md)):
+Median of three runs on the production build ([ADRs 0016](docs/adr/0016-lighthouse.md) and [0020](docs/adr/0020-recompressed-images.md)):
 
 | Category       | Mobile | Desktop |
 | -------------- | ------ | ------- |
-| Performance    | 76–100 | 97–100  |
+| Performance    | 90–100 | 100     |
 | Accessibility  | 95–96  | 95–96   |
 | Best practices | 100    | 100     |
 | SEO            | 100    | 100     |

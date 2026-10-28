@@ -27,8 +27,8 @@ The goal is a Next.js App Router copy of the KIIIBS Vue store with the same look
 | 7   | Playwright specs (Cypress suites ported, cart, routing, SEO) + visual parity     | Done   |
 | 8   | Lighthouse on the Next app: performance and accessibility fixes, budgets         | Done   |
 | 9a  | Isolate from Vue: tests run against recorded reference data (ADR 0017)           | Done   |
-| 9b  | CI: GitHub Actions, branch protection ruleset, Dependabot (ADR 0018)             | Done   |
-| 9c  | Vercel deployment, final README                                                  | To do  |
+| 9b  | CI: GitHub Actions, branch protection ruleset, Dependabot (ADRs 0018, 0021)      | Done   |
+| 9c  | Vercel deployment (ADR 0022), final README                                       | Done   |
 
 Each phase ends with lint, typecheck, unit and contract tests and (from Phase 6) the parity suite passing, then a review before the next phase starts.
 
