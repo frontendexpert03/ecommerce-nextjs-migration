@@ -15,21 +15,21 @@ const PORT_ACCESSIBILITY = ['aria-label', 'role', 'tabindex']
 
 /** The rendered markup matches what the Vue component rendered. */
 export const expectMarkup = (
-	root: Element,
-	name: string,
-	options: SerializeOptions = {},
+  root: Element,
+  name: string,
+  options: SerializeOptions = {},
 ) =>
-	target.golden(
-		`${name}.html`,
-		serialize(root, {
-			ignoreAttributes: [
-				...VUE_ARTIFACTS,
-				...PORT_ACCESSIBILITY,
-				...(options.ignoreAttributes ?? []),
-			],
-		}),
-	)
+  target.golden(
+    `${name}.html`,
+    serialize(root, {
+      ignoreAttributes: [
+        ...VUE_ARTIFACTS,
+        ...PORT_ACCESSIBILITY,
+        ...(options.ignoreAttributes ?? []),
+      ],
+    }),
+  )
 
 /** The value matches what the Vue app returned, compared as JSON. */
 export const expectData = (value: unknown, name: string) =>
-	target.golden(`${name}.json`, JSON.stringify(value, null, 2) + '\n')
+  target.golden(`${name}.json`, JSON.stringify(value, null, 2) + '\n')

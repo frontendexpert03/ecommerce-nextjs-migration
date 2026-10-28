@@ -10,15 +10,15 @@ import { selectShowBanner, useFormStore } from '@/store/form-store'
 // Port of src/pages/Checkout/checkout-page.vue.
 
 export function CheckoutPage() {
-	const showBanner = useFormStore(selectShowBanner)
+  const showBanner = useFormStore(selectShowBanner)
 
-	return (
-		<main className="flex h-full w-screen flex-col items-center bg-k-grey">
-			<Navigation color="black" />
-			<ButtonGoBack />
-			{showBanner && <CheckoutSuccessModal />}
-			<CheckoutGrid />
-			<Footer />
-		</main>
-	)
+  return (
+    <main className="flex h-full w-screen flex-col items-center bg-k-grey">
+      <Navigation color="black" />
+      <ButtonGoBack />
+      {showBanner && <CheckoutSuccessModal />}
+      <CheckoutGrid />
+      <Footer />
+    </main>
+  )
 }

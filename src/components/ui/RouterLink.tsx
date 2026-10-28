@@ -17,55 +17,55 @@ import { cx } from '@/lib/utils'
 // (docs/adr/0016).
 
 type RouterLinkProps = Omit<ComponentProps<typeof Link>, 'href'> & {
-	href: string
-	/**
-	 * An href attribute that differs from where the link goes. In Vue a
-	 * parent's attributes win over the component's own, so
-	 * <router-link :to="x" href=""> renders href="" yet still navigates to x
-	 * on a plain click (landing-grid.vue).
-	 */
-	hrefAttribute?: string
+  href: string
+  /**
+   * An href attribute that differs from where the link goes. In Vue a
+   * parent's attributes win over the component's own, so
+   * <router-link :to="x" href=""> renders href="" yet still navigates to x
+   * on a plain click (landing-grid.vue).
+   */
+  hrefAttribute?: string
 }
 
 export function RouterLink({
-	href,
-	hrefAttribute,
-	className,
-	onClick,
-	...props
+  href,
+  hrefAttribute,
+  className,
+  onClick,
+  ...props
 }: RouterLinkProps) {
-	const router = useRouter()
-	const active = usePathname() === href
-	const linkProps = {
-		'aria-current': active ? ('page' as const) : undefined,
-		className: cx(
-			active && 'router-link-active router-link-exact-active',
-			className,
-		),
-	}
+  const router = useRouter()
+  const active = usePathname() === href
+  const linkProps = {
+    'aria-current': active ? ('page' as const) : undefined,
+    className: cx(
+      active && 'router-link-active router-link-exact-active',
+      className,
+    ),
+  }
 
-	if (hrefAttribute === undefined) {
-		return (
-			<Link
-				href={href}
-				prefetch={false}
-				onClick={onClick}
-				{...linkProps}
-				{...props}
-			/>
-		)
-	}
+  if (hrefAttribute === undefined) {
+    return (
+      <Link
+        href={href}
+        prefetch={false}
+        onClick={onClick}
+        {...linkProps}
+        {...props}
+      />
+    )
+  }
 
-	// vue-router's guardEvent: leave modified, non-left and already handled
-	// clicks to the browser, which then follows the href attribute.
-	const navigate = (event: MouseEvent<HTMLAnchorElement>) => {
-		onClick?.(event)
-		const modified =
-			event.metaKey || event.altKey || event.ctrlKey || event.shiftKey
-		if (modified || event.button !== 0 || event.defaultPrevented) return
-		event.preventDefault()
-		router.push(href)
-	}
+  // vue-router's guardEvent: leave modified, non-left and already handled
+  // clicks to the browser, which then follows the href attribute.
+  const navigate = (event: MouseEvent<HTMLAnchorElement>) => {
+    onClick?.(event)
+    const modified =
+      event.metaKey || event.altKey || event.ctrlKey || event.shiftKey
+    if (modified || event.button !== 0 || event.defaultPrevented) return
+    event.preventDefault()
+    router.push(href)
+  }
 
-	return <a href={hrefAttribute} onClick={navigate} {...linkProps} {...props} />
+  return <a href={hrefAttribute} onClick={navigate} {...linkProps} {...props} />
 }

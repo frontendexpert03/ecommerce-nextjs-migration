@@ -112,23 +112,23 @@ import { expectMarkup } from '../harness/assertions'
 // Spec: docs/behaviour-spec.md#buttoncount
 
 describe('ButtonCount', () => {
-	beforeEach(() => target.reset())
+  beforeEach(() => target.reset())
 
-	// The ID links the test to a row of the behaviour spec.
-	test('BC-02 clicking "+" fires increaseCart once', async () => {
-		const onIncreaseCart = vi.fn()
-		target.render('ButtonCount', { itemCount: 1, onIncreaseCart })
+  // The ID links the test to a row of the behaviour spec.
+  test('BC-02 clicking "+" fires increaseCart once', async () => {
+    const onIncreaseCart = vi.fn()
+    target.render('ButtonCount', { itemCount: 1, onIncreaseCart })
 
-		await userEvent.click(screen.getByText('+'))
+    await userEvent.click(screen.getByText('+'))
 
-		expect(onIncreaseCart).toHaveBeenCalledTimes(1)
-	})
+    expect(onIncreaseCart).toHaveBeenCalledTimes(1)
+  })
 
-	test('BC-04 markup matches the Vue original', async () => {
-		const { root } = target.render('ButtonCount', { itemCount: 2 })
+  test('BC-04 markup matches the Vue original', async () => {
+    const { root } = target.render('ButtonCount', { itemCount: 2 })
 
-		await expectMarkup(root, 'button-count') // compared with __golden__/button-count.html
-	})
+    await expectMarkup(root, 'button-count') // compared with __golden__/button-count.html
+  })
 })
 ```
 
@@ -277,18 +277,18 @@ BasePage
 
 ```ts
 test('"Checkout" goes to the checkout page and closes the cart', async ({
-	categoryPage,
-	checkoutPage,
+  categoryPage,
+  checkoutPage,
 }) => {
-	await categoryPage.open('/keycaps')
-	await categoryPage.quickAdd('keycaps', 1)
-	await categoryPage.openCart()
+  await categoryPage.open('/keycaps')
+  await categoryPage.quickAdd('keycaps', 1)
+  await categoryPage.openCart()
 
-	await categoryPage.cartCheckoutButton.click()
+  await categoryPage.cartCheckoutButton.click()
 
-	await expect(checkoutPage.page).toHaveURL('/checkout')
-	await expect(checkoutPage.cartModal).toBeHidden()
-	await expect(checkoutPage.summary).toContainText('XX02 Metal')
+  await expect(checkoutPage.page).toHaveURL('/checkout')
+  await expect(checkoutPage.cartModal).toBeHidden()
+  await expect(checkoutPage.summary).toContainText('XX02 Metal')
 })
 ```
 

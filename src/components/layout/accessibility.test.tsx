@@ -7,36 +7,36 @@ import { Navigation } from './Navigation'
 // The rest of these components is covered by the contract tests.
 
 describe('layout accessibility', () => {
-	test('the hamburger button is named "Open menu"', () => {
-		render(<Navigation />)
+  test('the hamburger button is named "Open menu"', () => {
+    render(<Navigation />)
 
-		expect(
-			screen.getByRole('button', { name: 'Open menu' }),
-		).toBeInTheDocument()
-	})
+    expect(
+      screen.getByRole('button', { name: 'Open menu' }),
+    ).toBeInTheDocument()
+  })
 
-	test('the footer social icons are named after their networks', () => {
-		render(<Footer />)
+  test('the footer social icons are named after their networks', () => {
+    render(<Footer />)
 
-		// Testing Library gives <a href=""> no link role (browsers do), so the
-		// links are found by their labels.
-		for (const network of ['Facebook', 'Twitter', 'Instagram']) {
-			const link = screen.getByLabelText(network)
-			expect(link.tagName).toBe('A')
-			expect(link).toHaveAttribute('href', '')
-		}
-	})
+    // Testing Library gives <a href=""> no link role (browsers do), so the
+    // links are found by their labels.
+    for (const network of ['Facebook', 'Twitter', 'Instagram']) {
+      const link = screen.getByLabelText(network)
+      expect(link.tagName).toBe('A')
+      expect(link).toHaveAttribute('href', '')
+    }
+  })
 
-	test('every link in the navigation and footer has a name', () => {
-		render(
-			<>
-				<Navigation />
-				<Footer />
-			</>,
-		)
+  test('every link in the navigation and footer has a name', () => {
+    render(
+      <>
+        <Navigation />
+        <Footer />
+      </>,
+    )
 
-		for (const link of screen.getAllByRole('link')) {
-			expect(link).toHaveAccessibleName()
-		}
-	})
+    for (const link of screen.getAllByRole('link')) {
+      expect(link).toHaveAccessibleName()
+    }
+  })
 })

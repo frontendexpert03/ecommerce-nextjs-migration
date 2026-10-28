@@ -10,14 +10,14 @@ import { expect } from 'vitest'
 // Not `new URL(..., import.meta.url)`: Vite rewrites that pattern as an asset
 // import, and every name then resolved to the same file.
 const goldenPath = (file: string) =>
-	path.join(import.meta.dirname, '..', '__golden__', file)
+  path.join(import.meta.dirname, '..', '__golden__', file)
 
 export async function compareGolden(file: string, content: string) {
-	const golden = goldenPath(file)
-	if (!existsSync(golden)) {
-		throw new Error(
-			`No golden file "${file}". Record it from the Vue app with the parity recorder (docs/testing.md).`,
-		)
-	}
-	expect(content).toBe(readFileSync(golden, 'utf8'))
+  const golden = goldenPath(file)
+  if (!existsSync(golden)) {
+    throw new Error(
+      `No golden file "${file}". Record it from the Vue app with the parity recorder (docs/testing.md).`,
+    )
+  }
+  expect(content).toBe(readFileSync(golden, 'utf8'))
 }

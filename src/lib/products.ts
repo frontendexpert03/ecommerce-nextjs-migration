@@ -10,29 +10,29 @@ import type { Product } from '@/lib/types'
  * the same picks from the same Math.random() values.
  */
 export function getSelection(
-	productCategory: string,
-	productId: number,
+  productCategory: string,
+  productId: number,
 ): Product[] {
-	const items = Object.values(products)
-		.flat()
-		.filter(
-			(item) => !(item.id === productId && item.category === productCategory),
-		)
+  const items = Object.values(products)
+    .flat()
+    .filter(
+      (item) => !(item.id === productId && item.category === productCategory),
+    )
 
-	items.sort(() => Math.random() - 0.5)
-	return items.slice(0, 3)
+  items.sort(() => Math.random() - 0.5)
+  return items.slice(0, 3)
 }
 
 export function getProductsOfType(category: string): Product[] {
-	return products[category] ?? []
+  return products[category] ?? []
 }
 
 export const isCategory = (category: string) =>
-	Object.hasOwn(products, category)
+  Object.hasOwn(products, category)
 
 // The original throws for an unknown category, which its routes never pass.
 // The [category]/[id] route can, so this returns null instead.
 export function getProduct(category: string, id: number): Product | null {
-	if (!isCategory(category)) return null
-	return products[category].find((item) => item.id === id) ?? null
+  if (!isCategory(category)) return null
+  return products[category].find((item) => item.id === id) ?? null
 }

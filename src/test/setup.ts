@@ -8,16 +8,16 @@ import { setPathname } from './navigation'
 configure({ testIdAttribute: 'data-test' })
 
 vi.mock('next/navigation', async (importOriginal) => {
-	const { getPathname, testRouter } = await import('./navigation')
-	return {
-		...(await importOriginal<typeof import('next/navigation')>()),
-		usePathname: () => getPathname(),
-		useRouter: () => testRouter,
-	}
+  const { getPathname, testRouter } = await import('./navigation')
+  return {
+    ...(await importOriginal<typeof import('next/navigation')>()),
+    usePathname: () => getPathname(),
+    useRouter: () => testRouter,
+  }
 })
 
 // Vitest runs without globals, so RTL cannot register its own cleanup.
 afterEach(() => {
-	cleanup()
-	setPathname('/')
+  cleanup()
+  setPathname('/')
 })

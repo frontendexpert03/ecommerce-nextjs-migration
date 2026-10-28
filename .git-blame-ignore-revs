@@ -1,0 +1,5 @@
+# Commits that only reformat code. GitHub's blame view skips them; locally:
+#   git config blame.ignoreRevsFile .git-blame-ignore-revs
+
+# style: indent with 2 spaces instead of tabs
+a62d00d94badeb2e1efaf544ef616307f6e1e1ab

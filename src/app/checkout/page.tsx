@@ -5,5 +5,5 @@ import { getCheckoutPageMeta, toMetadata } from '@/lib/metadata'
 export const metadata: Metadata = toMetadata(getCheckoutPageMeta())
 
 export default function Page() {
-	return <CheckoutPage />
+  return <CheckoutPage />
 }
