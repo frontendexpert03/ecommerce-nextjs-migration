@@ -51,6 +51,8 @@ npm run dev          # http://localhost:3000
 
 ## Testing strategy
 
+The full explanation, with diagrams, is in the [testing guide](docs/testing.md).
+
 Three layers each check the port **against the original app**, so passing means "behaves and looks like the original", not just "works".
 
 **Contract tests** (`tests/contracts/`) are unit tests written once and run twice by Vitest: against the original `.vue` components (read-only from the Vue app) and against the React port. Each one must pass on Vue first, which proves it describes how the original really behaves. Contracts also compare the rendered markup with a golden copy recorded from Vue, class for class. Every test is named after a behaviour in the [behaviour spec](docs/behaviour-spec.md). Tests that only apply to the port sit next to its component (`Foo.test.tsx`).
@@ -114,6 +116,7 @@ docs/
 ## Documentation
 
 - [Migration plan](docs/migration-plan.md): phases, route and component maps, known quirks
+- [Testing guide](docs/testing.md): how the contract, Playwright and visual tests run against both apps
 - [Behaviour spec](docs/behaviour-spec.md): every behaviour of the original, with its test ID
 - [Architecture decision records](docs/adr/README.md)
 
