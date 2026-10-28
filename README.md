@@ -16,7 +16,7 @@ A Next.js 16 rebuild of [KIIIBS](https://github.com/rauldotgit/E-Commerce-Store)
 | Playwright behaviour tests, desktop and mobile               | 99 passing, on the local build and on the live site      |
 | Screenshots compared with the original's, desktop and mobile | 33 matching, on the local build and on the live site     |
 | Lighthouse, mobile / desktop (production build, median of 3) | performance 90–100 / 100; accessibility 95–96; SEO 100   |
-| First-load JavaScript per page                               | 139–143 kB gzipped, under a 150 kB budget enforced by CI |
+| First-load JavaScript per page                               | 141–145 kB gzipped, under a 150 kB budget enforced by CI |
 
 For a quick review: the [testing guide](docs/testing.md) explains how the port is compared with the original, and the [decision records](docs/adr/README.md) explain every choice that departs from a plain copy.
 
@@ -37,6 +37,7 @@ For a quick review: the [testing guide](docs/testing.md) explains how the port i
 | Quality    | ESLint (flat config), Prettier                             |                                                     |
 | CI         | GitHub Actions: six parallel jobs, Dependabot              | [ADR 0018](docs/adr/0018-continuous-integration.md) |
 | Hosting    | Vercel, deployed from GitHub; previews for pull requests   | [ADR 0022](docs/adr/0022-vercel-deployment.md)      |
+| Monitoring | Vercel Web Analytics and Speed Insights (on Vercel only)   | [ADR 0023](docs/adr/0023-vercel-analytics.md)       |
 
 ## Getting started
 
