@@ -4,10 +4,13 @@ import { CategoryBoxContainer } from '@/components/sections/CategoryBoxContainer
 import { InfoSection } from '@/components/sections/InfoSection'
 import { LandingGrid } from '@/features/landing/components/LandingGrid'
 import { LandingHero } from '@/features/landing/components/LandingHero'
+import { preloadMainImage } from '@/lib/preload'
 
 // Port of src/pages/Landing/landing-page.vue.
 
 export function LandingPage() {
+	preloadMainImage('/products/keyboards/up-nobg.webp')
+
 	return (
 		<div className="main-container flex h-full w-screen flex-col items-center bg-white">
 			<Navigation color="k-black" />

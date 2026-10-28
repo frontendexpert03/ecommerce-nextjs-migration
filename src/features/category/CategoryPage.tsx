@@ -3,6 +3,7 @@ import { Navigation } from '@/components/layout/Navigation'
 import { CategoryBoxContainer } from '@/components/sections/CategoryBoxContainer'
 import { InfoSection } from '@/components/sections/InfoSection'
 import { CategoryShowBox } from '@/features/category/components/CategoryShowBox'
+import { preloadMainImage } from '@/lib/preload'
 import { getProductsOfType } from '@/lib/products'
 
 // Port of src/pages/Category/category-page.vue. Like the original it has
@@ -10,6 +11,7 @@ import { getProductsOfType } from '@/lib/products'
 
 export function CategoryPage({ category }: { category: string }) {
 	const products = getProductsOfType(category)
+	if (products[0]) preloadMainImage(products[0].src)
 
 	return (
 		<>

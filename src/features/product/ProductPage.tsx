@@ -5,6 +5,7 @@ import { YouMayAlsoLike } from '@/components/sections/YouMayAlsoLike'
 import { ProductCore } from '@/features/product/components/ProductCore'
 import { ProductFeatures } from '@/features/product/components/ProductFeatures'
 import { ProductImageGrid } from '@/features/product/components/ProductImageGrid'
+import { preloadMainImage } from '@/lib/preload'
 import { getProduct } from '@/lib/products'
 
 // Port of src/pages/Product/product-page.vue. The route checks that the
@@ -17,6 +18,7 @@ interface ProductPageProps {
 
 export function ProductPage({ category, productId }: ProductPageProps) {
 	const item = getProduct(category, productId)!
+	preloadMainImage(item.src)
 
 	return (
 		<main className="flex h-full w-screen flex-col items-center bg-white">
