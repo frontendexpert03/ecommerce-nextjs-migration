@@ -1,6 +1,6 @@
 # 0009. Shared contract tests run each unit test against both apps
 
-- Status: Accepted
+- Status: Accepted; amended by [0017](0017-frozen-vue-reference.md): the port is now checked against data recorded once from the Vue app
 - Date: 2026-10-27
 - Extends: [0007](0007-shared-parity-suite.md)
 

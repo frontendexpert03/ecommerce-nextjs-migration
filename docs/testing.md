@@ -1,8 +1,13 @@
 # Testing guide
 
-This project is a port of a Vue 3 store to Next.js, so tests must prove more than "the Next app works". They must prove that **it behaves and looks like the original**. The original is the reference, and it is never changed.
+This project is a port of a Vue 3 store to Next.js, so tests must prove more than "the Next app works". They must prove that **it behaves and looks like the original**.
 
-To do that, most tests run **against both apps**. The original Vue app sits next to this repo (`../E-Commerce-Store`) and serves as the test oracle: a test is right only if it passes on the original first.
+The original Vue app is the test oracle, but it is not part of this repo. Its behaviour was recorded **once** as static test data, which is committed here:
+
+- **golden files** (`tests/contracts/__golden__/`): the markup and data the original's components rendered;
+- **baseline screenshots** (`e2e/__screenshots__/`): every page and key state of the original.
+
+This repo's tests check the port against that data. The tool that recorded it, the **parity recorder**, lives in the Vue app's folder and is described [at the end](#how-the-reference-data-was-recorded) ([ADR 0017](adr/0017-frozen-vue-reference.md)).
 
 ## Contents
 
@@ -11,51 +16,44 @@ To do that, most tests run **against both apps**. The original Vue app sits next
 - [Part 1: Contract tests (Vitest)](#part-1-contract-tests-vitest)
 - [Part 2: Playwright tests (browser)](#part-2-playwright-tests-browser)
 - [How the layers fit together](#how-the-layers-fit-together)
+- [How the reference data was recorded](#how-the-reference-data-was-recorded)
 - [Troubleshooting](#troubleshooting)
 
 ## The layers at a glance
 
-| Layer                    | Tool                            | Runs against     | Checks                                                                 | Where                                 |
-| ------------------------ | ------------------------------- | ---------------- | ---------------------------------------------------------------------- | ------------------------------------- |
-| **Contract tests**       | Vitest + Testing Library, jsdom | Vue **and** Next | Each component, store and helper: behaviour and exact markup           | `tests/contracts/`                    |
-| **Next-only unit tests** | Vitest + React Testing Library  | Next             | What only the port has: hydration, accessibility additions             | next to the code, `src/**/*.test.tsx` |
-| **Behaviour tests**      | Playwright, Chromium            | Vue **and** Next | Whole user journeys in a real browser: cart, checkout, routing, titles | `e2e/specs/*.spec.ts`                 |
-| **Visual tests**         | Playwright screenshots          | Vue **and** Next | Every page and key state, compared pixel by pixel                      | `e2e/specs/visual.spec.ts`            |
-| **Lighthouse**           | Lighthouse 13                   | Next             | Performance, accessibility, best practices and SEO budgets             | `scripts/lighthouse.mjs`              |
+| Layer                    | Tool                            | Checked against                       | Checks                                                                 | Where                                 |
+| ------------------------ | ------------------------------- | ------------------------------------- | ---------------------------------------------------------------------- | ------------------------------------- |
+| **Contract tests**       | Vitest + Testing Library, jsdom | Behaviour IDs + Vue golden files      | Each component, store and helper: behaviour and exact markup           | `tests/contracts/`                    |
+| **Next-only unit tests** | Vitest + React Testing Library  | —                                     | What only the port has: hydration, accessibility additions             | next to the code, `src/**/*.test.tsx` |
+| **Behaviour tests**      | Playwright, Chromium            | The original's journeys and meta data | Whole user journeys in a real browser: cart, checkout, routing, titles | `e2e/specs/*.spec.ts`                 |
+| **Visual tests**         | Playwright screenshots          | Vue baseline screenshots              | Every page and key state, compared pixel by pixel                      | `e2e/specs/visual.spec.ts`            |
+| **Lighthouse**           | Lighthouse 13                   | Budgets                               | Performance, accessibility, best practices and SEO                     | `scripts/lighthouse.mjs`              |
 
 Current numbers:
 
-| Suite                      | Tests                                                            |
-| -------------------------- | ---------------------------------------------------------------- |
-| Vitest (`npm test`)        | 356 = 170 contracts on Vue + the same 170 on Next + 16 Next-only |
-| Playwright (`test:parity`) | 246 = 106 behaviour tests per app + 34 visual comparisons        |
+| Suite                      | Tests                                                                          |
+| -------------------------- | ------------------------------------------------------------------------------ |
+| Vitest (`npm test`)        | 186 = 170 contracts + 16 Next-only                                             |
+| Playwright (`test:e2e`)    | 106 behaviour tests (53 per screen size; 7 skipped where a size doesn't apply) |
+| Playwright (`test:visual`) | 34 screenshot comparisons (17 per screen size; the mobile menu is mobile only) |
+
+Every one of these tests passed on the original Vue app when the data was recorded.
 
 ## Quick start
 
-The parity tests need the original app next to this repo:
-
-```
-parent-folder/
-├─ E-Commerce-Store/   ← original Vue app (run `npm ci` once; never edited)
-└─ kiiibs-next/        ← this repo
-```
-
-Or point `VUE_APP_DIR` at it. Install Playwright's browser once: `npx playwright install chromium`.
+Install Playwright's browser once: `npx playwright install chromium`. The visual tests also need [Docker](https://www.docker.com/products/docker-desktop/) ([why](#visual-tests)).
 
 | Command                   | What it runs                                                                       |
 | ------------------------- | ---------------------------------------------------------------------------------- |
-| `npm test`                | All Vitest tests: contracts on both apps + Next-only unit tests                    |
-| `npm run test:vue`        | Contracts on the Vue app only (also records missing golden files)                  |
-| `npm run test:next`       | Contracts on the Next app + Next-only unit tests                                   |
-| `npm run test:golden`     | Re-records every golden file from the Vue app                                      |
+| `npm test`                | All Vitest tests: contracts + Next-only unit tests                                 |
+| `npm run test:watch`      | The same, rerun on every change                                                    |
 | `npm run test:coverage`   | Vitest with a coverage report in `coverage/`                                       |
-| `npm run test:e2e`        | Playwright behaviour tests on the Next app only                                    |
-| `npm run test:e2e:vue`    | Playwright behaviour tests on the Vue app only                                     |
+| `npm run test:e2e`        | Playwright behaviour tests (on Linux, the visual tests too)                        |
 | `npm run test:e2e:ui`     | Playwright UI mode: watch and step through tests ([more](#watching-the-tests-run)) |
 | `npm run test:e2e:headed` | Tests in a visible browser, slowed down ([more](#watching-the-tests-run))          |
-| `npm run test:parity`     | Playwright on both apps + the visual comparison                                    |
-| `npm run test:visual`     | Only the visual comparison                                                         |
-| `npm run lighthouse`      | Lighthouse budgets on the Next production build (run `npm run build` first)        |
+| `npm run test:visual`     | The visual tests, in the Playwright Docker image                                   |
+| `npm run test:e2e:docker` | Every Playwright test, in the Playwright Docker image (what CI runs)               |
+| `npm run lighthouse`      | Lighthouse budgets on the production build (run `npm run build` first)             |
 
 `npx playwright show-report` opens the last Playwright run, including screenshots and diffs.
 
@@ -67,53 +65,40 @@ Or point `VUE_APP_DIR` at it. Install Playwright's browser once: `npx playwright
 
 The Vue app had no unit tests. Writing a Vue suite and a React suite separately would not prove anything: two suites written by hand can expect different things and both pass.
 
-Instead, each test is written **once** and run **twice**: against the original `.vue` component and against its React port. Because the test must pass on the original first, it describes how the original really behaves; this is characterization testing. The port is then built until the same test passes. See [ADR 0009](adr/0009-shared-contract-tests.md).
+Instead, each test was written **once** and run against the original `.vue` component first. Because it had to pass on the original, it describes how the original really behaves; this is characterization testing. The port was then built until the same test passed on it. See [ADR 0009](adr/0009-shared-contract-tests.md).
 
-### How one test file runs against two apps
+### One spec, two adapters
 
 ```
 tests/contracts/specs/button-count.contract.test.ts
 │   import { target } from '@contract-target'      ← the only app-specific import
 │
-├── Vitest project "vue"
-│     @contract-target → tests/contracts/vue/target.ts
-│     @vue-app         → ../E-Commerce-Store/src            (read-only)
-│     renders          → src/components/Buttons/button-count.vue  with @testing-library/vue
+├── this repo (npm test)
+│     @contract-target → tests/contracts/next/target.tsx
+│     renders          → src/components/ui/ButtonCount.tsx  with @testing-library/react
+│     golden files     → compared, never written
 │
-└── Vitest project "next"
-      @contract-target → tests/contracts/next/target.tsx
-      renders          → src/components/ui/ButtonCount.tsx  with @testing-library/react
+└── parity recorder (in the Vue app's folder, run once)
+      @contract-target → its Vue adapter
+      renders          → src/components/Buttons/button-count.vue  with @testing-library/vue
+      golden files     → written into this repo's tests/contracts/__golden__/
 ```
 
-`vitest.config.mts` defines the two projects. Both include `tests/contracts/specs/**/*.contract.test.ts`, so every contract file runs twice and shows up as `|vue| …` and `|next| …` in the output. The only difference between the projects is what `@contract-target` points to.
+Specs never import a component directly. They talk to a `ContractTarget` (`tests/contracts/harness/types.ts`), which each adapter implements:
 
-The `vue` project needs some setup to load another repo's Vue files:
+| Member                  | Purpose                                                           | This repo's adapter (`next/target.tsx`)         |
+| ----------------------- | ----------------------------------------------------------------- | ----------------------------------------------- |
+| `name`                  | `'vue'` or `'next'`                                               | `'next'`                                        |
+| `reset()`               | Fresh state before each test                                      | Reset Zustand stores, start cart sync, set path |
+| `render(name, props)`   | Render a component by name; returns `root`, `rerender`, `unmount` | `@testing-library/react`                        |
+| `settle()`              | Wait for the DOM and storage to update                            | Nothing to wait for (React updates in `act()`)  |
+| `goTo(path)`            | Make a page the current one                                       | Sets the mocked `usePathname()`                 |
+| `currentPath()`         | Where a click navigated to                                        | The mocked router's path                        |
+| `golden(file, content)` | Check against a golden file                                       | **Compares only**, never writes                 |
+| `cart`, `form`          | Drive and read the stores                                         | The Zustand stores                              |
+| `lib`                   | Catalog, metadata and helper functions                            | `src/lib`                                       |
 
-| Setting                       | Why                                                                                                                                                        |
-| ----------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `@vitejs/plugin-vue`          | Compiles the `.vue` files.                                                                                                                                 |
-| `@vue-app` alias              | Points to `../E-Commerce-Store/src` (or `VUE_APP_DIR`).                                                                                                    |
-| `resolve.dedupe`              | `vue`, `pinia`, `@vueuse/core` and `vue-router` resolve from this repo, so there is one copy of Vue. They are pinned to the Vue lockfile's exact versions. |
-| `vuePublicAssets` plugin      | The original imports images by URL (`import banner from '/icons/…'`); like Vite's build, the plugin turns that into the URL string.                        |
-| Skipped if the app is missing | Without `../E-Commerce-Store`, only the `next` project runs, against the committed golden files.                                                           |
-
-### The target: one interface, two adapters
-
-Specs never import a component directly. They talk to a `ContractTarget` (`tests/contracts/harness/types.ts`), and each app has an adapter implementing it:
-
-| Member                  | Purpose                                                           | Vue adapter                                                           | Next adapter                                    |
-| ----------------------- | ----------------------------------------------------------------- | --------------------------------------------------------------------- | ----------------------------------------------- |
-| `name`                  | `'vue'` or `'next'`                                               |                                                                       |                                                 |
-| `reset()`               | Fresh state before each test                                      | New Pinia, new router on `/contract-test`, `formStore.ts` re-imported | Reset Zustand stores, start cart sync, set path |
-| `render(name, props)`   | Render a component by name; returns `root`, `rerender`, `unmount` | `@testing-library/vue`, real `<Transition>`, `className` → `class`    | `@testing-library/react`                        |
-| `settle()`              | Wait for the DOM and storage to update                            | Vue's `nextTick()`                                                    | Nothing to wait for (React updates in `act()`)  |
-| `goTo(path)`            | Make a page the current one                                       | `router.push(path)`                                                   | Sets the mocked `usePathname()`                 |
-| `currentPath()`         | Where a click navigated to                                        | `router.currentRoute`                                                 | The mocked router's path                        |
-| `golden(file, content)` | Compare with a golden file                                        | **Records** it (`toMatchFileSnapshot`)                                | **Compares only**, never writes                 |
-| `cart`, `form`          | Drive and read the stores                                         | The original Pinia stores                                             | The Zustand stores                              |
-| `lib`                   | Catalog, metadata and helper functions                            | The original `src/data` and `src/utils`                               | `src/lib`                                       |
-
-`ContractProps` (also in `types.ts`) lists every component and its props. Vue events are passed as `on<Event>` props (`onIncreaseCart`), which Vue treats as listeners and React takes as callbacks, so **the same props object renders both versions**. The Next adapter's component map is typed against `ContractProps`, so a React component whose props drift from the contract fails to compile.
+`ContractProps` (also in `types.ts`) lists every component and its props. Events are passed as `on<Event>` props (`onIncreaseCart`), which Vue treats as listeners and React takes as callbacks, so **the same props object renders both versions**. The adapter's component map is typed against `ContractProps`, so a React component whose props drift from the contract fails to compile.
 
 ### Anatomy of a contract test
 
@@ -121,7 +106,7 @@ Specs never import a component directly. They talk to a `ContractTarget` (`tests
 import { screen } from '@testing-library/dom' // framework-neutral queries
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, test, vi } from 'vitest'
-import { target } from '@contract-target' // Vue or Next, chosen by the project
+import { target } from '@contract-target' // the app under test
 import { expectMarkup } from '../harness/assertions'
 
 // Spec: docs/behaviour-spec.md#buttoncount
@@ -147,22 +132,21 @@ describe('ButtonCount', () => {
 })
 ```
 
-Every test name starts with a behaviour ID (`BC-02`, `CART-08`, `VAL-03`…). [`behaviour-spec.md`](behaviour-spec.md) lists each ID with the line of Vue source it comes from, so each row of the spec has a test that passes on both apps.
+Every test name starts with a behaviour ID (`BC-02`, `CART-08`, `VAL-03`…). [`behaviour-spec.md`](behaviour-spec.md) lists each ID with the line of Vue source it comes from.
 
 ### Golden files: exact markup and data
 
 Behaviour assertions can't catch a missing class or a changed attribute, so most components also have a **golden file** in `tests/contracts/__golden__/`:
 
 ```
-Vue run:   render → serialize → write  __golden__/cart-item.html   (recorded from the original)
-Next run:  render → serialize → compare with __golden__/cart-item.html (fails if missing or different)
+recorder (once):  Vue component → serialize → write    __golden__/cart-item.html
+npm test:         React port    → serialize → compare  __golden__/cart-item.html  (fails if missing or different)
 ```
 
-- **Only the Vue run writes.** The Next adapter only reads, so running the port can never overwrite the reference. `npm run test:golden` re-records every file from Vue.
+- **This repo never writes them.** `compareGolden()` only reads, so running the port can never overwrite the reference. Never edit them by hand; `.prettierignore` keeps formatters away too.
 - **Two helpers** in `harness/assertions.ts`:
   - `expectMarkup(root, name)` → `.html`. Used for components and whole pages: 43 golden files in all, including the full landing, category, product and checkout pages.
   - `expectData(value, name)` → `.json`. Used for the catalog, all page metadata, and the "You may also like" picks.
-- **Golden files are reviewed like code.** In a pull request, a changed golden file shows exactly what changed in the markup.
 
 The serializer (`harness/serialize.ts`) writes one tag or text line per line:
 
@@ -193,17 +177,14 @@ A few attributes are ignored on purpose, each documented:
 | `aria-label`, `role`, `tabindex` | everywhere          | Accessibility the port adds; nothing on screen changes ([ADR 0016](adr/0016-lighthouse.md)); covered by Next-only tests |
 | `value`                          | checkout tests only | React writes an input's value into the attribute; Vue only sets the property                                            |
 
-### What the adapters handle for you
+### What the adapter handles for you
 
-| Situation                                                                          | How it is handled                                                                                              |
-| ---------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
-| The original's `formStore.ts` reads the cart store when the file is first imported | The Vue adapter calls `vi.resetModules()` and re-imports it, and the checkout components, for each test        |
-| Components use `<router-link>` and `$router`                                       | A real vue-router with the app's named product routes; tests start on `/contract-test`, so no link is "active" |
-| Vue Test Utils replaces `<Transition>` with a stub                                 | Turned off (`stubs: { transition: false }`), so `Fade` is checked against the real thing                       |
-| Next hooks (`usePathname`, `useRouter`) need a running app router                  | `src/test/setup.ts` mocks them; `src/test/navigation.ts` holds the current path                                |
-| The cart loads from `localStorage` after mount in Next                             | `reset()` starts the same `startCartSync()` the root layout runs                                               |
-| Vue updates the DOM on the next tick; React inside `act()`                         | Specs call `await target.settle()` after changing state                                                        |
-| Both apps use `data-test` attributes                                               | Testing Library is configured with `testIdAttribute: 'data-test'`, so `getByTestId` works on both              |
+| Situation                                                         | How it is handled                                                                                |
+| ----------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| Next hooks (`usePathname`, `useRouter`) need a running app router | `src/test/setup.ts` mocks them; `src/test/navigation.ts` holds the current path                  |
+| The cart loads from `localStorage` after mount in Next            | `reset()` starts the same `startCartSync()` the root layout runs                                 |
+| Updates happen asynchronously                                     | Specs call `await target.settle()` after changing state (the Vue adapter waits for `nextTick()`) |
+| The original marks elements with `data-test`                      | Testing Library is configured with `testIdAttribute: 'data-test'`, so `getByTestId` works        |
 
 ### Next-only unit tests
 
@@ -217,14 +198,17 @@ Some behaviour exists only in the port and has no Vue equivalent. These tests li
 | `src/components/ui/ButtonGoBack.test.tsx`                                             | "Go Back" is a focusable button; Enter and Space go back                        |
 | `src/components/layout/accessibility.test.tsx`, `src/features/accessibility.test.tsx` | Icon-only and picture-only links have names                                     |
 
-### Adding a component
+### Changing or adding a contract
+
+A contract that checks markup or data needs a golden file from the original, so it has to be run on the Vue app first:
 
 1. Read the Vue file. Add its behaviours, with IDs and source lines, to `docs/behaviour-spec.md`.
-2. Add the component's props to `ContractProps` in `harness/types.ts`, and the component to both adapters.
-3. Write `tests/contracts/specs/<name>.contract.test.ts`.
-4. Run `npm run test:vue`. **It must pass on the original first.** If it fails there, the test is wrong, not the original. This run also records the golden file.
-5. Port the component until `npm run test:next` passes.
-6. Add Next-only tests for anything the original doesn't have.
+2. Write or change the spec in `tests/contracts/specs/` (and `ContractProps` in `harness/types.ts` for a new component).
+3. Run it on the original with the [parity recorder](#how-the-reference-data-was-recorded): `npm run contracts`. **It must pass on the original first.** If it fails there, the test is wrong, not the original. This run also writes any new golden file into this repo.
+4. Make the port pass: `npm test`.
+5. Add Next-only tests for anything the original doesn't have.
+
+Behaviour-only contracts (no golden file) can be written against the port directly, but should still be checked on the original once.
 
 ### Does it really catch differences?
 
@@ -243,41 +227,30 @@ After each phase, a few realistic bugs were put into the port on purpose, and th
 
 ## Part 2: Playwright tests (browser)
 
-### Projects: one suite, several targets
+### Projects
 
-`playwright.config.ts` builds its projects from `E2E_TARGETS`:
+| Project          | Specs                 | Viewport | Runs                                        |
+| ---------------- | --------------------- | -------- | ------------------------------------------- |
+| `desktop`        | all but `visual`      | 1440×900 | everywhere                                  |
+| `mobile`         | all but `visual`      | 375×667  | everywhere                                  |
+| `visual-desktop` | `visual.spec.ts` only | 1440×900 | on Linux only: CI, or `npm run test:visual` |
+| `visual-mobile`  | `visual.spec.ts` only | 375×667  | on Linux only: CI, or `npm run test:visual` |
 
-```
-E2E_TARGETS=next        →  next-desktop, next-mobile                          (npm run test:e2e)
-E2E_TARGETS=vue         →  vue-desktop,  vue-mobile                           (npm run test:e2e:vue)
-E2E_TARGETS=next,vue    →  all four  +  visual-desktop, visual-mobile         (npm run test:parity)
-```
-
-| Project    | Base URL                | Server Playwright starts                                    |
-| ---------- | ----------------------- | ----------------------------------------------------------- |
-| `next-*`   | `http://localhost:3100` | `npm run build && npm run start -- --port 3100`             |
-| `vue-*`    | `http://localhost:4173` | `npm run build && npm run preview` in `../E-Commerce-Store` |
-| `visual-*` | both                    | both                                                        |
-
-- **Production builds only, never dev servers.** The ports deliberately differ from the dev servers' defaults (3000 and 5173), so `reuseExistingServer` can never pick up a running `npm run dev` by mistake.
-- **Two screen sizes**, the original Cypress suite's: desktop 1440×900 and mobile 375×667. Every behaviour spec runs in both.
-- **Same specs for every target.** A spec that passes on `vue-*` but fails on `next-*` means the port doesn't match yet.
+- **Production build only, never the dev server.** Playwright starts `npm run build && npm run start -- --port 3100`. The port deliberately differs from the dev server's default (3000), so `reuseExistingServer` can never pick up a running `npm run dev` by mistake.
+- **Two screen sizes**, the original Cypress suite's: desktop 1440×900 and mobile 375×667.
 
 ### Watching the tests run
 
-| Command                       | What you see                                                                                                                                          |
-| ----------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `npm run test:e2e:ui`         | **Playwright UI mode** (best for exploring): pick tests from a list, run them, and step through every action with before/after snapshots of the page. |
-| `npm run test:parity:ui`      | UI mode with both apps, so the same test can be watched on `vue-*` and `next-*`, plus the visual tests                                                |
-| `npm run test:e2e:headed`     | A real Chromium window runs the Next tests one at a time, with a 300ms pause before each action                                                       |
-| `npm run test:e2e:vue:headed` | The same on the original Vue app                                                                                                                      |
-| `npm run test:parity:headed`  | The same on both apps, then the visual tests                                                                                                          |
-| `npm run e2e:codegen`         | **Playwright codegen**: opens the Next app and writes test code as you click (start the app first: `npm run build && npm run start -- --port 3100`)   |
+| Command                   | What you see                                                                                                                                          |
+| ------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `npm run test:e2e:ui`     | **Playwright UI mode** (best for exploring): pick tests from a list, run them, and step through every action with before/after snapshots of the page. |
+| `npm run test:e2e:headed` | A real Chromium window runs the tests one at a time, with a 300ms pause before each action                                                            |
+| `npm run e2e:codegen`     | **Playwright codegen**: opens the app and writes test code as you click (start the app first: `npm run build && npm run start -- --port 3100`)        |
 
 Extra Playwright options go after `--`. For example, one test on one project:
 
 ```bash
-npm run test:e2e:headed -- --project=next-desktop -g "badge counts"
+npm run test:e2e:headed -- --project=desktop -g "badge counts"
 ```
 
 `SLOW_MO` sets the pause in milliseconds (`cross-env SLOW_MO=1000 npm run test:e2e:headed`). Code recorded with codegen is a starting point: move its locators into the page objects before adding it as a spec.
@@ -320,7 +293,7 @@ test('"Checkout" goes to the checkout page and closes the cart', async ({
 
 Three helpers deserve a note:
 
-- **`open(path)` waits until the app is interactive.** Next sends server-rendered HTML that shows _before_ React attaches its click handlers, so a click right after loading could be lost. No locator can see this. Instead, `waitUntilInteractive()` checks what each framework leaves on a live page in a production build: `__vue_app__` on `#app` for Vue, `__reactFiber…` on the first element for React.
+- **`open(path)` waits until the app is interactive.** Next sends server-rendered HTML that shows _before_ React attaches its click handlers, so a click right after loading could be lost. No locator can see this. Instead, `waitUntilInteractive()` checks for the `__reactFiber…` keys React leaves on hydrated elements in a production build. (A page with no Next.js flight data, such as the original's, counts as live once `#app` has content; that is how the recorder drives the original with the same page objects.)
 - **`openCart()` and `openMenu()` wait for the fade to finish.** Playwright counts an element at opacity 0 as visible, so they also wait until no `v-enter`/`v-leave` class remains.
 - **`alertFrom(action)` attaches the dialog listener before clicking** and dismisses the alert while the click runs. The original Cypress checks attached it after the click, so they could never fail.
 
@@ -334,36 +307,34 @@ Three helpers deserve a note:
 | `routing.spec.ts`    | 404 rules ([ADR 0008](adr/0008-404-behaviour.md), [0012](adr/0012-404-implementation.md)), `/keyboards/1abc`, "Go Back", the ZX9 tile's `href=""`, scroll to top | No                                                       |
 | `seo.spec.ts`        | Title, description and Open Graph tags on 14 URLs (every page, plus an unknown path); favicon                                                                    | No                                                       |
 
-`seo.spec.ts` takes its expected values from `tests/contracts/__golden__/metadata.json`, which was recorded from the Vue app. So both apps are checked against the original's own data, and the two test layers share one reference.
+Every behaviour spec passed on the original Vue app before it was run on the port, so a failure here is a real difference in the port.
 
-Some tests only make sense on one screen size. `mobileOnly()` and `desktopOnly()` in `fixtures.ts` skip them elsewhere: 7 skips per app.
+`seo.spec.ts` takes its expected values from `tests/contracts/__golden__/metadata.json`, which was recorded from the Vue app, so the two test layers share one reference.
 
-Status codes are not compared. The Vue app is a single-page app, so its server answers 200 for everything, while Next sends real 404 and 307 codes (ADR 0012). The specs check what the user sees.
+Some tests only make sense on one screen size. `mobileOnly()` and `desktopOnly()` in `fixtures.ts` skip them elsewhere: 7 skips in all.
 
-### Visual parity tests
+Status codes are not checked against the original. The Vue app is a single-page app, so its server answers 200 for everything, while Next sends real 404 and 307 codes (ADR 0012). The specs check what the user sees.
 
-`visual.spec.ts` checks that the two apps **look** the same ([ADR 0014](adr/0014-visual-parity-tests.md)):
+### Visual tests
+
+`visual.spec.ts` checks that the port **looks** like the original ([ADR 0014](adr/0014-visual-parity-tests.md), [ADR 0017](adr/0017-frozen-vue-reference.md)):
 
 ```
-ParityCamera.expectSameLook('cart-open', scene)
-│
-├── new browser context → Vue app  (4173) → run scene → screenshot ──┐
-├── new browser context → Next app (3100) → run scene → screenshot ──┤  in parallel
-│                                                                     │
-├── Vue screenshot written as the expected image  (test-results/parity/…)
-└── expect(nextScreenshot).toMatchSnapshot('cart-open.png')    ← zero tolerance
+recorder (once):  Vue app  → scene → screenshot → e2e/__screenshots__/visual-mobile/cart-open.png
+test:visual:      Next app → scene → expect(page).toHaveScreenshot('cart-open.png')   ← zero tolerance
 ```
 
 - **Scenes:** all 13 pages (full page) plus four states: cart open, mobile menu open, checkout after a failed payment, and order confirmation. Each runs at both screen sizes.
-- **The original is the baseline, captured in the same run.** Nothing is committed, nothing goes stale, and no per-OS baseline files are needed.
+- **This repo never writes the expected images.** `playwright.config.ts` sets `updateSnapshots: 'none'`, so a missing image fails the test instead of being written from the port. Never run the visual tests with `--update-snapshots`.
+- **Linux only.** Font rendering differs between operating systems, so a screenshot taken on Windows or macOS never matches one taken on Linux. The expected images were recorded in the official Playwright Docker image, and the comparison runs in the same image: `npm run test:visual` locally, the same image in CI. On other systems `playwright.config.ts` leaves the `visual-*` projects out.
 - **On failure,** `npx playwright show-report` shows expected (Vue), actual (Next) and a diff image.
 - **Deterministic scenes:**
-  - `freezeRandomness()` makes `Math.random()` return 0.5, so "You may also like" picks the same products in both apps;
+  - `freezeRandomness()` makes `Math.random()` return 0.5, so "You may also like" picks the same products as in the recording;
   - `prepareForScreenshot()` loads lazy images and waits for the web font;
   - overlays are captured only after their fade;
   - screenshots disable animations and hide the caret.
 
-The first runs found three real differences that the markup tests could not see:
+The first comparisons found three real differences that the markup tests could not see:
 
 | Difference                                                                                  | Fix                                                                          |
 | ------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------- |
@@ -371,37 +342,63 @@ The first runs found three real differences that the markup tests could not see:
 | `next/font` served a different build of Manrope from the one Google sends the original      | Self-host Google's exact files ([ADR 0013](adr/0013-manrope-exact-files.md)) |
 | Turbopack's CSS minifier rounded `33.333333%` to `33.3333%`, shifting the cart by 1/64px    | Build with webpack ([ADR 0015](adr/0015-webpack-builds.md))                  |
 
-All 33 comparisons now match pixel for pixel, and stay stable over repeated runs.
+All 33 comparisons match pixel for pixel.
+
+`npm run test:visual` mounts the repo into the container. The container's Linux `node_modules` and `.next` live in Docker volumes (`kiiibs-next-node-modules`, `kiiibs-next-build`), so your local ones are left alone; packages are installed again only when `package-lock.json` changes. The first run downloads the image (about 2 GB).
 
 ---
 
 ## How the layers fit together
 
-| Question                                            | Contract tests      | Behaviour tests         | Visual tests |
-| --------------------------------------------------- | ------------------- | ----------------------- | ------------ |
-| Does each component behave like the original?       | ✔ (every edge case) | ✔ (as the user sees it) |              |
-| Is the markup identical, class for class?           | ✔                   |                         |              |
-| Do store maths and validators match exactly?        | ✔                   | partly                  |              |
-| Do whole journeys work in a real browser?           |                     | ✔                       |              |
-| Do reloads, other tabs and routing behave the same? |                     | ✔                       |              |
-| Does it look identical, with real CSS and fonts?    |                     |                         | ✔            |
-| How fast?                                           | seconds             | about 30s per app       | about 30s    |
+| Question                                            | Contract tests      | Behaviour tests         | Visual tests   |
+| --------------------------------------------------- | ------------------- | ----------------------- | -------------- |
+| Does each component behave like the original?       | ✔ (every edge case) | ✔ (as the user sees it) |                |
+| Is the markup identical, class for class?           | ✔                   |                         |                |
+| Do store maths and validators match exactly?        | ✔                   | partly                  |                |
+| Do whole journeys work in a real browser?           |                     | ✔                       |                |
+| Do reloads, other tabs and routing behave the same? |                     | ✔                       |                |
+| Does it look identical, with real CSS and fonts?    |                     |                         | ✔              |
+| How fast?                                           | seconds             | about a minute          | about a minute |
 
-The order is cheapest first. Run `npm test` while working; run `npm run test:parity` before a pull request. Each layer catches what the one before cannot: contracts see markup that a browser test would miss, behaviour tests see real navigation and storage, and visual tests see CSS, fonts and rendering.
+The order is cheapest first. Run `npm test` while working; run `npm run test:e2e:docker` (every Playwright test, as CI runs them) before a pull request. Each layer catches what the one before cannot: contracts see markup that a browser test would miss, behaviour tests see real navigation and storage, and visual tests see CSS, fonts and rendering.
 
-The CI workflow (Phase 9) will run the same commands: lint, typecheck, `npm test`, `npm run test:parity` and `npm run lighthouse`.
+---
+
+## How the reference data was recorded
+
+The golden files and baseline screenshots were recorded from the original Vue app ([`rauldotgit/E-Commerce-Store`](https://github.com/rauldotgit/E-Commerce-Store), commit `1e3596f`) by the **parity recorder**. It is not part of this repo: it lives in a `parity-recorder/` folder inside the Vue app, with its own `package.json`, and leaves the Vue app's own files untouched. It uses this repo's specs, so the tests that recorded the data are the tests the port runs against it.
+
+```
+parent-folder/
+├─ E-Commerce-Store/            ← original Vue app
+│  └─ parity-recorder/          ← records the reference data
+│     ├─ contracts/target.ts    ← ContractTarget adapter for the .vue components
+│     ├─ vitest.config.mts      ← runs ../../kiiibs-next/tests/contracts/specs on Vue
+│     ├─ playwright.config.mjs  ← runs ../../kiiibs-next/e2e/specs on the Vue build
+│     └─ scripts/record-visual.mjs
+└─ kiiibs-next/                 ← this repo: specs + recorded data
+```
+
+| Recorder command           | What it does                                                                                   |
+| -------------------------- | ---------------------------------------------------------------------------------------------- |
+| `npm run contracts`        | Runs the 170 contracts on the Vue components; writes missing golden files into this repo       |
+| `npm run record:contracts` | Re-records every golden file                                                                   |
+| `npm run e2e`              | Runs the 106 behaviour tests on the Vue app's production build                                 |
+| `npm run record:visual`    | Screenshots the Vue app in the Playwright Docker image into this repo's `e2e/__screenshots__/` |
+
+Re-recording is only needed when a spec changes. Golden files and screenshots that change show up in this repo's Git diff and are reviewed like code.
 
 ---
 
 ## Troubleshooting
 
-| Message or symptom                                        | What to do                                                                                                     |
-| --------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
-| `No golden file "x.html". Record it from the Vue app…`    | A new contract: run `npm run test:vue` first, then `npm run test:next`.                                        |
-| `Vue app not found … the "vue" test project is skipped`   | Clone the original next to this repo, or set `VUE_APP_DIR`. The Next side still runs against the golden files. |
-| A golden file differs and the Vue app changed on purpose  | `npm run test:golden`, then review the diff in Git like code.                                                  |
-| A new contract fails on Vue                               | The test is wrong; the original is the reference. Read the Vue source again.                                   |
-| A visual test fails                                       | `npx playwright show-report` and open the failed test's diff image.                                            |
-| Playwright can't start a server: port 3100 or 4173 in use | Stop the other process. The suite never reuses a dev server on 3000 or 5173.                                   |
-| `browserType.launch: Executable doesn't exist`            | `npx playwright install chromium`                                                                              |
-| A behaviour test passes on Vue but fails on Next          | That is a real difference in the port. Fix the port, not the test.                                             |
+| Message or symptom                                           | What to do                                                                                              |
+| ------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------- |
+| `No golden file "x.html". Record it from the Vue app…`       | A new contract: run it on the original with the parity recorder (`npm run contracts`), then `npm test`. |
+| A contract fails                                             | The port differs from the original. Fix the port, not the golden file.                                  |
+| A visual test fails                                          | `npx playwright show-report` and open the failed test's diff image.                                     |
+| `A snapshot doesn't exist at …/e2e/__screenshots__/…`        | A new visual scene: record it from the original with `npm run record:visual` in the parity recorder.    |
+| `npm run test:visual`: `failed to connect to the docker API` | Start Docker Desktop.                                                                                   |
+| No `visual-*` projects when running `npx playwright test`    | Expected outside Linux: use `npm run test:visual`.                                                      |
+| Playwright can't start a server: port 3100 in use            | Stop the other process. The suite never reuses a dev server on 3000.                                    |
+| `browserType.launch: Executable doesn't exist`               | `npx playwright install chromium`                                                                       |

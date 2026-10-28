@@ -1,6 +1,6 @@
 # Migration plan: KIIIBS Vue 3 → Next.js 16
 
-The goal is a Next.js App Router copy of the KIIIBS Vue store with the same look and behaviour, unit tests for every component, and a Playwright suite that runs against both apps to prove they match. The Vue project is the reference and is never modified.
+The goal is a Next.js App Router copy of the KIIIBS Vue store with the same look and behaviour, unit tests for every component, and a Playwright suite that proves they match. The Vue project is the reference and is never modified. Its behaviour was recorded once as test data, so this repo doesn't depend on it ([ADR 0017](adr/0017-frozen-vue-reference.md)).
 
 ## Source app at a glance
 
@@ -26,15 +26,16 @@ The goal is a Next.js App Router copy of the KIIIBS Vue store with the same look
 | 6   | Pages: 404 → landing → category → product → checkout, with metadata              | Done   |
 | 7   | Playwright specs (Cypress suites ported, cart, routing, SEO) + visual parity     | Done   |
 | 8   | Lighthouse on the Next app: performance and accessibility fixes, budgets         | Done   |
-| 9   | CI (GitHub Actions), README, Vercel deployment                                   | To do  |
+| 9a  | Isolate from Vue: tests run against recorded reference data (ADR 0017)           | Done   |
+| 9b  | CI (GitHub Actions), README, Vercel deployment                                   | To do  |
 
 Each phase ends with lint, typecheck, unit and contract tests and (from Phase 6) the parity suite passing, then a review before the next phase starts.
 
 ### How each component is ported
 
 1. Read the Vue file and add its behaviours, with IDs, to [`behaviour-spec.md`](behaviour-spec.md).
-2. Write the contract test and run it on the Vue app (`npm run test:vue`). It must pass there first; if it fails, the test is wrong. This also records the golden markup.
-3. Build the React component until the same contract passes on Next (`npm run test:next`).
+2. Write the contract test and run it on the Vue app (with the parity recorder since ADR 0017, `npm run test:vue` before). It must pass there first; if it fails, the test is wrong. This also records the golden markup.
+3. Build the React component until the same contract passes on Next (`npm test`).
 4. Add Next-only tests for anything the original doesn't have, such as hydration.
 
 ## Route map

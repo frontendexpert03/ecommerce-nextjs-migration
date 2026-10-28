@@ -1,6 +1,6 @@
 # Behaviour spec
 
-What each part of the Vue app does, read from its source. Every behaviour has an ID. The contract test with that ID runs against both apps ([ADR 0009](adr/0009-shared-contract-tests.md)), so each row below is checked in the original and in the port.
+What each part of the Vue app does, read from its source. Every behaviour has an ID. The contract test with that ID passed on the original and runs against the port ([ADR 0009](adr/0009-shared-contract-tests.md), [ADR 0017](adr/0017-frozen-vue-reference.md)), so each row below is checked in both.
 
 Source paths are relative to the Vue app's `src/`. **Quirk** marks behaviour that looks unintended but is kept, because the port copies the original exactly.
 

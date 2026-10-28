@@ -1,6 +1,6 @@
 # 0007. One Playwright suite runs against both apps
 
-- Status: Accepted
+- Status: Accepted; amended by [0017](0017-frozen-vue-reference.md): the port is now checked against data recorded once from the Vue app
 - Date: 2026-10-27
 
 ## Context
