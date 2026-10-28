@@ -2,14 +2,20 @@
 //
 //   npm run build && npm run lighthouse            one run per page
 //   npm run lighthouse -- --runs=3                 median of three runs
+//   npm run lighthouse -- --warn=performance       report that category's
+//                                                  misses without failing
 //
 // Starts `next start` on port 3100 (as the Playwright suite does), audits
 // each page on mobile and desktop with Playwright's Chromium, writes HTML
 // and JSON reports to lighthouse-reports/, prints a score table, and exits
 // with code 1 if a score is below its budget. See docs/adr/0016.
+//
+// CI passes --warn=performance: shared runners are noisy machines, and
+// performance scores vary between runs far more than the other categories
+// (docs/ci.md). On GitHub Actions the table also goes to the run's summary.
 
 import { spawn } from 'node:child_process'
-import { mkdir, writeFile } from 'node:fs/promises'
+import { appendFile, mkdir, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import { chromium } from '@playwright/test'
 import * as chromeLauncher from 'chrome-launcher'
@@ -51,9 +57,11 @@ const BUDGETS = {
 	},
 }
 
-const runs = Number(
-	process.argv.find((arg) => arg.startsWith('--runs='))?.split('=')[1] ?? 1,
-)
+const option = (name) =>
+	process.argv.find((arg) => arg.startsWith(`--${name}=`))?.split('=')[1]
+
+const runs = Number(option('runs') ?? 1)
+const warnOnly = (option('warn') ?? '').split(',').filter(Boolean)
 
 async function startServer() {
 	const server = spawn(
@@ -103,13 +111,21 @@ function median(results) {
 }
 
 const server = await startServer()
+// On Linux, Chrome's sandbox needs user namespaces, which Ubuntu's AppArmor
+// (GitHub's runners) and Docker deny to normal users, so Chrome would not
+// start. Playwright turns the sandbox off itself; chrome-launcher doesn't.
+// Only this app's own pages are opened.
 const chrome = await chromeLauncher.launch({
 	chromePath: chromium.executablePath(),
-	chromeFlags: ['--headless=new'],
+	chromeFlags: [
+		'--headless=new',
+		...(process.platform === 'linux' ? ['--no-sandbox'] : []),
+	],
 })
 
 const rows = []
 const failures = []
+const warnings = []
 try {
 	await mkdir(OUT_DIR, { recursive: true })
 	for (const formFactor of ['mobile', 'desktop']) {
@@ -127,9 +143,8 @@ try {
 			for (const category of CATEGORIES) {
 				const budget = BUDGETS[formFactor][category]
 				if (scores[category] < budget) {
-					failures.push(
-						`${page.path} (${formFactor}) ${category}: ${scores[category]} < ${budget}`,
-					)
+					const miss = `${page.path} (${formFactor}) ${category}: ${scores[category]} < ${budget}`
+					;(warnOnly.includes(category) ? warnings : failures).push(miss)
 				}
 			}
 		}
@@ -152,6 +167,35 @@ const table = [
 await writeFile(path.join(OUT_DIR, 'summary.md'), `${table}\n`)
 console.log(table)
 
+// The same report goes to the run's summary page and, through report.md,
+// to the pull request comment (docs/ci.md).
+const status = failures.length
+	? '❌ Below budget'
+	: warnings.length
+		? '⚠️ Within budget, with performance warnings'
+		: '✅ All scores within budget'
+const report = [
+	`## Lighthouse (median of ${runs})`,
+	'',
+	status,
+	'',
+	table,
+	...(failures.length
+		? ['', 'Below budget (fails):', ...failures.map((f) => `- ${f}`)]
+		: []),
+	...(warnings.length
+		? ['', 'Below budget (warning only):', ...warnings.map((w) => `- ${w}`)]
+		: []),
+	'',
+].join('\n')
+await writeFile(path.join(OUT_DIR, 'report.md'), report)
+if (process.env.GITHUB_STEP_SUMMARY) {
+	await appendFile(process.env.GITHUB_STEP_SUMMARY, report)
+}
+
+if (warnings.length) {
+	console.warn(`\nBelow budget (warning only):\n  ${warnings.join('\n  ')}`)
+}
 if (failures.length) {
 	console.error(`\nBelow budget:\n  ${failures.join('\n  ')}`)
 	process.exit(1)

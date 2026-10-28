@@ -1,0 +1,170 @@
+# Every check runs the same npm script as locally, so CI never tests anything
+# different from a developer's machine. See docs/ci.md.
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# A new push to a branch cancels the run still going for its previous push.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  quality:
+    name: Lint, types, format
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm run format:check
+
+  unit:
+    name: Unit and contract tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npm run test:coverage
+      - uses: actions/upload-artifact@v5
+        if: ${{ !cancelled() }}
+        with:
+          name: coverage
+          path: coverage/
+          retention-days: 14
+
+  e2e:
+    name: Playwright (behaviour and visual)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    # The image the visual tests' expected images were recorded in
+    # (docs/adr/0017). Its version must match @playwright/test in
+    # package.json; if it doesn't, Playwright can't find its browser and the
+    # job fails straight away.
+    container:
+      image: mcr.microsoft.com/playwright:v1.64.1-noble
+      options: --ipc=host
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      # On Linux, playwright.config.ts includes the visual-* projects.
+      - run: npx playwright test
+      - uses: actions/upload-artifact@v5
+        if: ${{ failure() }}
+        with:
+          name: playwright-report
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 14
+
+  lighthouse:
+    name: Lighthouse budgets
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npm run build
+      # Accessibility, best practices and SEO fail the job; performance is
+      # reported only, because shared runners make it noisy (docs/ci.md).
+      - run: npm run lighthouse -- --runs=3 --warn=performance
+      - uses: actions/upload-artifact@v5
+        if: ${{ !cancelled() }}
+        with:
+          name: lighthouse-reports
+          path: lighthouse-reports/
+          retention-days: 14
+
+  bundle:
+    name: Bundle analysis
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      # Builds with the bundle analyzer, adds a first-load JS table to the
+      # run's summary, and fails if a page is over its size budget (docs/ci.md).
+      - run: npm run analyze
+      - uses: actions/upload-artifact@v5
+        if: ${{ !cancelled() }}
+        with:
+          name: bundle-analysis
+          path: .next/analyze/
+          retention-days: 14
+
+  report:
+    name: PR report
+    needs: [lighthouse, bundle]
+    # Also after a failed check, so the comment shows what failed. Not for
+    # pull requests from forks or Dependabot: their token can't comment.
+    if: >-
+      ${{ !cancelled() && github.event_name == 'pull_request' &&
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      github.actor != 'dependabot[bot]' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/download-artifact@v5
+        continue-on-error: true
+        with:
+          name: lighthouse-reports
+          path: reports/lighthouse
+      - uses: actions/download-artifact@v5
+        continue-on-error: true
+        with:
+          name: bundle-analysis
+          path: reports/bundle
+      - run: bash scripts/pr-comment.sh
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          PR: ${{ github.event.pull_request.number }}
+          SHA: ${{ github.event.pull_request.head.sha }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+  audit:
+    name: Dependency audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+      - run: npm audit --audit-level=high

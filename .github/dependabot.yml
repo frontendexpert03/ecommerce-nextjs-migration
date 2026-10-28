@@ -1,0 +1,27 @@
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    groups:
+      # Minor and patch updates arrive as one pull request; CI decides.
+      minor-and-patch:
+        update-types: [minor, patch]
+    ignore:
+      # These decide the generated CSS and stay at the Vue app's versions
+      # (docs/adr/0003).
+      - dependency-name: tailwindcss
+      - dependency-name: autoprefixer
+      # The visual tests' expected images were taken with this version's
+      # Chromium; a new one needs them recorded again (docs/adr/0017).
+      - dependency-name: '@playwright/test'
+      # Major versions are planned changes, not weekly updates.
+      - dependency-name: '*'
+        update-types: [version-update:semver-major]
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly

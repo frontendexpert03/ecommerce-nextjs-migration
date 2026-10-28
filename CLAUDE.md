@@ -14,6 +14,8 @@ Read `docs/migration-plan.md` (phases, component map, known quirks) and `docs/ad
 - `npm run test:e2e`: Playwright against the Next production build (:3100)
 - `npm run test:e2e:ui` / `npm run test:e2e:headed`: watch the Playwright tests run (UI mode, or a visible browser with `SLOW_MO`)
 - `npm run lighthouse`: Lighthouse audit of the production build with budgets (`-- --runs=3` for medians; run `npm run build` first)
+- `npm run analyze`: production build with the bundle analyzer (treemaps in `.next/analyze/`) and first-load JS per page (ADR 0019)
+- CI (`.github/workflows/ci.yml`, docs/ci.md) runs these same scripts. `@playwright/test` is pinned exactly: it must match the CI image tag and the recorded screenshots (ADR 0018)
 - `npm run test:visual`: visual tests in the Playwright Docker image (Linux only; needs Docker); `npm run test:e2e:docker` runs every Playwright test there, as CI does
 
 ## Layout
