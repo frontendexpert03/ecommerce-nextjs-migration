@@ -1,10 +1,12 @@
+# npm packages only (package.json), once a month, as one pull request.
+# GitHub Actions versions are updated by hand. See docs/ci.md and
+# docs/adr/0021.
 version: 2
 updates:
   - package-ecosystem: npm
     directory: /
     schedule:
-      interval: weekly
-    open-pull-requests-limit: 5
+      interval: monthly
     groups:
       # Minor and patch updates arrive as one pull request; CI decides.
       minor-and-patch:
@@ -17,11 +19,6 @@ updates:
       # The visual tests' expected images were taken with this version's
       # Chromium; a new one needs them recorded again (docs/adr/0017).
       - dependency-name: '@playwright/test'
-      # Major versions are planned changes, not weekly updates.
+      # Major versions are planned changes, not routine updates.
       - dependency-name: '*'
         update-types: [version-update:semver-major]
-
-  - package-ecosystem: github-actions
-    directory: /
-    schedule:
-      interval: weekly

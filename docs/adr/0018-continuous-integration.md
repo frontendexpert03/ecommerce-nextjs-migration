@@ -1,6 +1,6 @@
 # 0018. Continuous integration with GitHub Actions
 
-- Status: Accepted; extended by [0019](0019-bundle-analysis.md) (a sixth job, Bundle analysis, also required)
+- Status: Accepted; extended by [0019](0019-bundle-analysis.md) (a sixth job, Bundle analysis, also required); amended by [0021](0021-dependabot-npm-monthly.md): Dependabot for npm packages only, monthly
 - Date: 2026-10-28
 
 ## Context
