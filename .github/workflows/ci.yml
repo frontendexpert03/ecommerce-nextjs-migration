@@ -114,8 +114,8 @@ jobs:
           node-version-file: .nvmrc
           cache: npm
       - run: npm ci
-      # Builds with the bundle analyzer and adds a first-load JS table to the
-      # run's summary. Report only: nothing fails on size (docs/ci.md).
+      # Builds with the bundle analyzer, adds a first-load JS table to the
+      # run's summary, and fails if a page is over its size budget (docs/ci.md).
       - run: npm run analyze
       - uses: actions/upload-artifact@v5
         if: ${{ !cancelled() }}

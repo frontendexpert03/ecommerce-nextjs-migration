@@ -1,6 +1,6 @@
 # 0018. Continuous integration with GitHub Actions
 
-- Status: Accepted; extended by [0019](0019-bundle-analysis.md) (a sixth, report-only job)
+- Status: Accepted; extended by [0019](0019-bundle-analysis.md) (a sixth job, Bundle analysis, also required)
 - Date: 2026-10-28
 
 ## Context
