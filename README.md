@@ -82,7 +82,7 @@ Median of three runs on the production build ([ADR 0016](docs/adr/0016-lighthous
 | Best practices | 100    | 100     |
 | SEO            | 100    | 100     |
 
-Links don't prefetch, as in the original; each page preloads its main image. The port adds labels for icon-only and picture-only links and makes "Go Back" keyboard-accessible, which changes nothing on screen. The brand yellow's low contrast and the original's large images are kept, so the mobile home page stays around 75 for performance.
+Links don't prefetch, as in the original; each page preloads its main image. The port adds labels for icon-only and picture-only links and makes "Go Back" keyboard-accessible, which changes nothing on screen. The brand yellow's low contrast is kept. The three largest home-page images are recompressed at the same size with no visible change (ADR 0020), which brings the mobile home page from about 75 to 90 for performance.
 
 ## Project structure
 

@@ -1,6 +1,6 @@
 # 0016. Lighthouse audit, performance fixes and accessibility additions
 
-- Status: Accepted
+- Status: Accepted; amended by [0020](0020-recompressed-images.md): the three largest home-page images are recompressed, bringing the mobile home page to 90
 - Date: 2026-10-28
 
 ## Context

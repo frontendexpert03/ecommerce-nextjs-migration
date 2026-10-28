@@ -19,10 +19,11 @@ Each record explains one decision: the context, what we chose, and what it costs
 | [0013](0013-manrope-exact-files.md)    | Self-host the exact Manrope files Google Fonts serves           | Accepted           |
 | [0014](0014-visual-parity-tests.md)    | Visual parity: compare live screenshots of both apps            | Amended by 0017    |
 | [0015](0015-webpack-builds.md)         | Build with webpack to keep CSS precision                        | Accepted           |
-| [0016](0016-lighthouse.md)             | Lighthouse audit, performance fixes and accessibility additions | Accepted           |
+| [0016](0016-lighthouse.md)             | Lighthouse audit, performance fixes and accessibility additions | Amended by 0020    |
 | [0017](0017-frozen-vue-reference.md)   | Test against reference data recorded once from the Vue app      | Accepted           |
 | [0018](0018-continuous-integration.md) | Continuous integration with GitHub Actions                      | Accepted           |
 | [0019](0019-bundle-analysis.md)        | Bundle analysis with @next/bundle-analyzer                      | Accepted           |
+| [0020](0020-recompressed-images.md)    | Recompress the three largest home-page images                   | Accepted           |
 
 ## Template
 
