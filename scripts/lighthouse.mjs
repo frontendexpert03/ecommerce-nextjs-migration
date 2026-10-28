@@ -111,9 +111,16 @@ function median(results) {
 }
 
 const server = await startServer()
+// On Linux, Chrome's sandbox needs user namespaces, which Ubuntu's AppArmor
+// (GitHub's runners) and Docker deny to normal users, so Chrome would not
+// start. Playwright turns the sandbox off itself; chrome-launcher doesn't.
+// Only this app's own pages are opened.
 const chrome = await chromeLauncher.launch({
 	chromePath: chromium.executablePath(),
-	chromeFlags: ['--headless=new'],
+	chromeFlags: [
+		'--headless=new',
+		...(process.platform === 'linux' ? ['--no-sandbox'] : []),
+	],
 })
 
 const rows = []
