@@ -4,7 +4,7 @@ import { expect, type Locator, type Page } from '@playwright/test'
 // page class exposes the elements and actions of its page. Locators use
 // Playwright's recommended, auto-waiting queries (getByRole, getByLabel,
 // getByText, getByTestId for the original's data-test hooks), so the same
-// spec drives the Vue app and the Next app.
+// spec can drive the original Vue app too (docs/adr/0017).
 
 /** The `lg` breakpoint: below it the desktop links are hidden. */
 const DESKTOP_MIN_WIDTH = 1024
@@ -39,19 +39,19 @@ export abstract class BasePage {
 	}
 
 	/**
-	 * The Next app sends server-rendered HTML that is visible before React
+	 * Next.js sends server-rendered HTML that is visible before React
 	 * attaches its event handlers, so a click right after load could be lost.
-	 * No locator can see this, so it checks what each framework leaves behind
-	 * in a production build:
-	 * - Vue renders in the browser and sets __vue_app__ on #app when it
-	 *   mounts, so the page is live as soon as #app has content.
-	 * - React puts __reactFiber… / __reactProps… on elements it has hydrated.
+	 * No locator can see this, so it checks what React leaves behind in a
+	 * production build: __reactFiber… / __reactProps… on hydrated elements.
+	 * A page rendered only in the browser (no Next.js flight data in
+	 * self.__next_f) is live as soon as #app has content; the recorder in the
+	 * Vue app's folder drives the original through these page objects.
 	 */
 	async waitUntilInteractive() {
 		await this.page.waitForFunction(() => {
 			const app = document.querySelector('#app')
 			if (!app) return false
-			if ('__vue_app__' in app) return app.childElementCount > 0
+			if (!('__next_f' in self)) return app.childElementCount > 0
 			const element = app.querySelector(':scope > div > *')
 			return (
 				element !== null &&

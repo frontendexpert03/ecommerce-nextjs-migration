@@ -1,11 +1,14 @@
-import { test } from '../fixtures'
-import { CategoryPage } from '../pages/category-page'
-import { CheckoutPage, VALID_ORDER } from '../pages/checkout-page'
-import { StorePage } from '../pages/store-page'
+import { expect, test } from '../fixtures'
+import { VALID_ORDER } from '../pages/checkout-page'
+import type { StorePage } from '../pages/store-page'
 
-// Every page, and the states that change how a page looks, screenshotted in
-// both apps and compared pixel by pixel (docs/adr/0014). Runs in the
-// visual-desktop and visual-mobile projects, which need both apps running.
+// Every page, and the states that change how a page looks, compared pixel
+// by pixel with screenshots of the original Vue app (docs/adr/0014). The
+// expected images in e2e/__screenshots__ were recorded from the Vue app by
+// the parity recorder (docs/adr/0017); this repo never writes them.
+// Screenshots depend on the operating system's font rendering, so these
+// tests run on Linux only: in CI, or locally with `npm run test:visual`,
+// which uses the same Playwright Docker image the images were recorded in.
 
 const PAGES = [
 	'/',
@@ -33,77 +36,65 @@ const openStill = async (store: StorePage, path: string) => {
 	await store.prepareForScreenshot()
 }
 
-test.describe('pages look the same', () => {
+test.describe('pages look like the original', () => {
 	for (const path of PAGES) {
-		test(path, async ({ parity }) => {
-			await parity.expectSameLook(fileName(path), (page) =>
-				openStill(new StorePage(page), path),
-			)
+		test(path, async ({ storePage, page }) => {
+			await openStill(storePage, path)
+			await expect(page).toHaveScreenshot(`${fileName(path)}.png`, {
+				fullPage: true,
+			})
 		})
 	}
 })
 
-test.describe('states look the same', () => {
-	test('cart open with items', async ({ parity }) => {
-		await parity.expectSameLook(
-			'cart-open',
-			async (page) => {
-				const store = new CategoryPage(page)
-				await openStill(store, '/keyboards')
-				await store.quickAdd('keyboards', 0, 2)
-				await store.quickAdd('keyboards', 2)
-				await store.openCart()
-			},
-			{ fullPage: false },
-		)
+// Fixed overlays (the cart, the menu, the success modal) are compared at
+// viewport size only.
+test.describe('states look like the original', () => {
+	test('cart open with items', async ({ categoryPage, page }) => {
+		await openStill(categoryPage, '/keyboards')
+		await categoryPage.quickAdd('keyboards', 0, 2)
+		await categoryPage.quickAdd('keyboards', 2)
+		await categoryPage.openCart()
+		await expect(page).toHaveScreenshot('cart-open.png')
 	})
 
-	test('mobile menu open', async ({ parity, viewport }) => {
+	test('mobile menu open', async ({ storePage, page, viewport }) => {
 		test.skip(
 			(viewport?.width ?? 0) >= 1024,
 			'The menu only exists on small screens',
 		)
-		await parity.expectSameLook(
-			'menu-open',
-			async (page) => {
-				const store = new StorePage(page)
-				await openStill(store, '/keycaps')
-				await store.openMenu()
-			},
-			{ fullPage: false },
-		)
+		await openStill(storePage, '/keycaps')
+		await storePage.openMenu()
+		await expect(page).toHaveScreenshot('menu-open.png')
 	})
 
-	test('checkout after a failed payment', async ({ parity }) => {
-		await parity.expectSameLook('checkout-errors', async (page) => {
-			const checkout = new CheckoutPage(page)
-			await openStill(checkout, '/keycaps')
-			await new CategoryPage(page).quickAdd('keycaps', 0)
-			await checkout.openCart()
-			await checkout.checkoutFromCart()
-			await checkout.fill({ email: 'steve@bruben', country: '10178' })
-			await checkout.pay()
-			await checkout.prepareForScreenshot()
+	test('checkout after a failed payment', async ({
+		categoryPage,
+		checkoutPage,
+		page,
+	}) => {
+		await openStill(checkoutPage, '/keycaps')
+		await categoryPage.quickAdd('keycaps', 0)
+		await checkoutPage.openCart()
+		await checkoutPage.checkoutFromCart()
+		await checkoutPage.fill({ email: 'steve@bruben', country: '10178' })
+		await checkoutPage.pay()
+		await checkoutPage.prepareForScreenshot()
+		await expect(page).toHaveScreenshot('checkout-errors.png', {
+			fullPage: true,
 		})
 	})
 
-	test('order confirmation', async ({ parity }) => {
-		await parity.expectSameLook(
-			'order-confirmation',
-			async (page) => {
-				const checkout = new CheckoutPage(page)
-				await openStill(checkout, '/deskmats')
-				const deskmats = new CategoryPage(page)
-				await deskmats.quickAdd('deskmats', 0, 2)
-				await deskmats.quickAdd('deskmats', 1)
-				await checkout.openCart()
-				await checkout.checkoutFromCart()
-				await checkout.fill(VALID_ORDER)
-				await checkout.pay()
-				await checkout.successModal.waitFor()
-				await checkout.prepareForScreenshot()
-			},
-			{ fullPage: false },
-		)
+	test('order confirmation', async ({ categoryPage, checkoutPage, page }) => {
+		await openStill(checkoutPage, '/deskmats')
+		await categoryPage.quickAdd('deskmats', 0, 2)
+		await categoryPage.quickAdd('deskmats', 1)
+		await checkoutPage.openCart()
+		await checkoutPage.checkoutFromCart()
+		await checkoutPage.fill(VALID_ORDER)
+		await checkoutPage.pay()
+		await checkoutPage.successModal.waitFor()
+		await checkoutPage.prepareForScreenshot()
+		await expect(page).toHaveScreenshot('order-confirmation.png')
 	})
 })

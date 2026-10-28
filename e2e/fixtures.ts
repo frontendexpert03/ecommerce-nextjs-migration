@@ -1,5 +1,4 @@
 import { test as base } from '@playwright/test'
-import { ParityCamera, type ParityURLs } from './parity-camera'
 import { CategoryPage } from './pages/category-page'
 import { CheckoutPage } from './pages/checkout-page'
 import { LandingPage } from './pages/landing-page'
@@ -17,15 +16,7 @@ export const test = base.extend<{
 	productPage: ProductPage
 	checkoutPage: CheckoutPage
 	notFoundPage: NotFoundPage
-	parity: ParityCamera
 }>({
-	// Only in the visual-* projects, which pass both apps' URLs as metadata.
-	parity: async ({ browser, viewport }, provide, testInfo) => {
-		const urls = testInfo.project.metadata.parity as ParityURLs | undefined
-		if (!urls || !viewport)
-			throw new Error('parity runs only in the visual-* projects')
-		await provide(new ParityCamera(browser, viewport, urls, testInfo))
-	},
 	storePage: async ({ page }, provide) => provide(new StorePage(page)),
 	landingPage: async ({ page }, provide) => provide(new LandingPage(page)),
 	categoryPage: async ({ page }, provide) => provide(new CategoryPage(page)),
