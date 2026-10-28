@@ -10,6 +10,11 @@ import { cx } from '@/lib/utils'
 // router-link-exact-active and aria-current="page". The original's routes
 // are flat, so "active" and "exact active" both mean "same path". Like
 // <router-link>, it always renders a class attribute, even an empty one.
+//
+// Like <router-link>, it does not prefetch. Next's default prefetch loads
+// each linked page in the background, and the browser then downloads that
+// page's images too: about 1.6MB of home-page images on every page
+// (docs/adr/0016).
 
 type RouterLinkProps = Omit<ComponentProps<typeof Link>, 'href'> & {
 	href: string
@@ -40,7 +45,15 @@ export function RouterLink({
 	}
 
 	if (hrefAttribute === undefined) {
-		return <Link href={href} onClick={onClick} {...linkProps} {...props} />
+		return (
+			<Link
+				href={href}
+				prefetch={false}
+				onClick={onClick}
+				{...linkProps}
+				{...props}
+			/>
+		)
 	}
 
 	// vue-router's guardEvent: leave modified, non-left and already handled
