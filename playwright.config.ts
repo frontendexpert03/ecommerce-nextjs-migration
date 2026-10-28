@@ -8,8 +8,13 @@ import { defineConfig, type Project } from '@playwright/test'
  * The same specs once ran against the original Vue app too; they now run
  * against this app only, and the visual tests compare it with screenshots
  * recorded from the original (docs/adr/0017).
+ *
+ * BASE_URL=https://… runs the same tests against a deployment instead, such
+ * as production on Vercel or a pull request's preview, without starting a
+ * local server.
  */
 const PORT = 3100
+const BASE_URL = process.env.BASE_URL
 
 // Same viewports the original Cypress suite used (macbook-15 and iphone-7).
 const viewports = {
@@ -50,7 +55,7 @@ export default defineConfig({
 	retries: process.env.CI ? 2 : 0,
 	reporter: process.env.CI ? [['github'], ['html']] : [['list'], ['html']],
 	use: {
-		baseURL: `http://localhost:${PORT}`,
+		baseURL: BASE_URL ?? `http://localhost:${PORT}`,
 		browserName: 'chromium',
 		// Selectors use the data-test attributes that already exist in the Vue app.
 		testIdAttribute: 'data-test',
@@ -60,10 +65,12 @@ export default defineConfig({
 		launchOptions: { slowMo: Number(process.env.SLOW_MO ?? 0) },
 	},
 	projects: [...behaviourProjects, ...visualProjects],
-	webServer: {
-		command: `npm run build && npm run start -- --port ${PORT}`,
-		url: `http://localhost:${PORT}`,
-		reuseExistingServer: !process.env.CI,
-		timeout: 180_000,
-	},
+	webServer: BASE_URL
+		? undefined
+		: {
+				command: `npm run build && npm run start -- --port ${PORT}`,
+				url: `http://localhost:${PORT}`,
+				reuseExistingServer: !process.env.CI,
+				timeout: 180_000,
+			},
 })
