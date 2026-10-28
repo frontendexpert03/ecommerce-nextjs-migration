@@ -13,6 +13,7 @@ Read `docs/migration-plan.md` (phases, component map, known quirks) and `docs/ad
 - `npm test`: Vitest unit and contract tests on both apps (`npm run test:coverage` for coverage)
 - `npm run test:vue` / `npm run test:next`: contract tests on one app; `npm run test:golden` re-records golden markup from Vue
 - `npm run test:e2e`: Playwright against the Next production build (:3100)
+- `npm run lighthouse`: Lighthouse audit of the production build with budgets (`-- --runs=3` for medians; run `npm run build` first)
 - `npm run test:parity`: Playwright against both apps (Vue preview on :4173), plus the visual comparison; `npm run test:visual` for the visual part only
 
 ## Layout
@@ -45,6 +46,7 @@ Read `docs/migration-plan.md` (phases, component map, known quirks) and `docs/ad
 - Every `<router-link>` in the original becomes `RouterLink` (`src/components/ui/RouterLink.tsx`), not a bare `next/link` (ADR 0011).
 - Conditional classes that the original writes as arrays of single names stay arrays in `cx([...])`. Inside a single string, Prettier's Tailwind plugin re-sorts them and the markup contracts fail.
 - `<Transition>` becomes `Fade` (`mode="show"` for `v-show`, `mode="if"` for `v-if`), except where the original never animates.
+- Accessibility additions that change nothing on screen (`aria-label`, `role`, `tabindex`) are allowed and ignored by the markup contracts; test them in a Next-only test (ADR 0016). Anything visible stays a copy.
 - Text that mixes static words and expressions is one template literal (``{`$ ${price}`}``), so React renders one text node like Vue does. Split text nodes are shaped differently and fail the visual tests.
 
 ## Playwright

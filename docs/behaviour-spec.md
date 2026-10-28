@@ -156,6 +156,8 @@ Source: `components/Buttons/button-go-back.vue` · Port: `src/components/ui/Butt
 | GB-01 | "Go Back" is an `<a>` without an `href`, styled as a link.                                                                       | L3–9   |
 | GB-02 | Clicking it goes back one page in the browser history (`$router.go(-1)`). The test accepts `history.go(-1)` or `history.back()`. | L5     |
 
+Port addition (ADR 0016): "Go Back" also has `role="button"`, is focusable and responds to Enter and Space; checked in `src/components/ui/ButtonGoBack.test.tsx`. Picture-only links and the hamburger get `aria-label`s, checked in the `accessibility.test.tsx` files.
+
 ## ButtonQuickAdd
 
 Source: `components/Buttons/button-quick-add.vue` · Port: `src/components/ui/ButtonQuickAdd.tsx` · Test: `tests/contracts/specs/button-quick-add.contract.test.ts`

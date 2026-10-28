@@ -2,7 +2,7 @@
 
 A Next.js 16 rebuild of [KIIIBS](https://github.com/rauldotgit/E-Commerce-Store), a Vue 3 web store for mechanical keyboards, keycaps and deskmats. The port keeps the original's look and behaviour, adds unit tests for every component, and includes one Playwright suite that runs against **both** apps to prove they match.
 
-> **Status:** Phase 7 of 9 done: every page is ported and checked against the Vue app at three levels: unit contracts, Playwright behaviour specs, and pixel-by-pixel screenshots. See the [migration plan](docs/migration-plan.md).
+> **Status:** Phase 8 of 9 done: every page is ported and checked against the Vue app at three levels (unit contracts, Playwright behaviour specs, pixel-by-pixel screenshots), and audited with Lighthouse. See the [migration plan](docs/migration-plan.md).
 
 ## Tech stack
 
@@ -30,23 +30,24 @@ npm run dev          # http://localhost:3000
 
 ## Scripts
 
-| Script                  | What it does                                         |
-| ----------------------- | ---------------------------------------------------- |
-| `npm run dev`           | Development server                                   |
-| `npm run build`         | Production build                                     |
-| `npm run start`         | Serve the production build                           |
-| `npm run lint`          | ESLint                                               |
-| `npm run typecheck`     | Generate route types, then `tsc --noEmit`            |
-| `npm run format`        | Format with Prettier (`format:check` to verify only) |
-| `npm test`              | Unit tests, and contract tests on both apps          |
-| `npm run test:vue`      | Contract tests on the Vue app; records golden markup |
-| `npm run test:next`     | Unit and contract tests on this app only             |
-| `npm run test:golden`   | Re-record all golden markup from the Vue app         |
-| `npm run test:coverage` | Unit tests with a coverage report in `coverage/`     |
-| `npm run test:e2e`      | Playwright against the Next app (production build)   |
-| `npm run test:e2e:vue`  | Playwright against the original Vue app              |
-| `npm run test:parity`   | Playwright against both apps, plus visual comparison |
-| `npm run test:visual`   | Only the visual comparison of both apps              |
+| Script                  | What it does                                                                       |
+| ----------------------- | ---------------------------------------------------------------------------------- |
+| `npm run dev`           | Development server                                                                 |
+| `npm run build`         | Production build                                                                   |
+| `npm run start`         | Serve the production build                                                         |
+| `npm run lint`          | ESLint                                                                             |
+| `npm run typecheck`     | Generate route types, then `tsc --noEmit`                                          |
+| `npm run format`        | Format with Prettier (`format:check` to verify only)                               |
+| `npm test`              | Unit tests, and contract tests on both apps                                        |
+| `npm run test:vue`      | Contract tests on the Vue app; records golden markup                               |
+| `npm run test:next`     | Unit and contract tests on this app only                                           |
+| `npm run test:golden`   | Re-record all golden markup from the Vue app                                       |
+| `npm run test:coverage` | Unit tests with a coverage report in `coverage/`                                   |
+| `npm run test:e2e`      | Playwright against the Next app (production build)                                 |
+| `npm run test:e2e:vue`  | Playwright against the original Vue app                                            |
+| `npm run test:parity`   | Playwright against both apps, plus visual comparison                               |
+| `npm run test:visual`   | Only the visual comparison of both apps                                            |
+| `npm run lighthouse`    | Lighthouse audit of the production build, with budgets (`-- --runs=3` for medians) |
 
 ## Testing strategy
 
@@ -70,6 +71,19 @@ parent-folder/
 
 Or point `VUE_APP_DIR` at it. The first run installs the Chromium browser with `npx playwright install chromium`. Without the Vue app, `npm test` skips the Vue side and checks the port against the committed golden files.
 
+## Lighthouse
+
+Median of three runs on the production build ([ADR 0016](docs/adr/0016-lighthouse.md)):
+
+| Category       | Mobile | Desktop |
+| -------------- | ------ | ------- |
+| Performance    | 76–100 | 97–100  |
+| Accessibility  | 95–96  | 95–96   |
+| Best practices | 100    | 100     |
+| SEO            | 100    | 100     |
+
+Links don't prefetch, as in the original; each page preloads its main image. The port adds labels for icon-only and picture-only links and makes "Go Back" keyboard-accessible, which changes nothing on screen. The brand yellow's low contrast and the original's large images are kept, so the mobile home page stays around 75 for performance.
+
 ## Project structure
 
 ```
@@ -85,6 +99,8 @@ tests/contracts/
 ├─ vue/, next/     one adapter per app
 ├─ harness/        shared types, markup serializer, golden files
 └─ __golden__/     markup recorded from the Vue app
+scripts/
+└─ lighthouse.mjs  Lighthouse audit with budgets
 e2e/
 ├─ specs/          Playwright specs (shared by both apps)
 ├─ pages/          page objects, one class per page

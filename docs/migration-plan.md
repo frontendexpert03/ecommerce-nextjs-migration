@@ -25,7 +25,7 @@ The goal is a Next.js App Router copy of the KIIIBS Vue store with the same look
 | 5   | Shared sections: navigation, cart modal, footer, info, category boxes, YMAL      | Done   |
 | 6   | Pages: 404 → landing → category → product → checkout, with metadata              | Done   |
 | 7   | Playwright specs (Cypress suites ported, cart, routing, SEO) + visual parity     | Done   |
-| 8   | Lighthouse: performance and accessibility of both apps compared                  | To do  |
+| 8   | Lighthouse on the Next app: performance and accessibility fixes, budgets         | Done   |
 | 9   | CI (GitHub Actions), README, Vercel deployment                                   | To do  |
 
 Each phase ends with lint, typecheck, unit and contract tests and (from Phase 6) the parity suite passing, then a review before the next phase starts.
@@ -102,6 +102,9 @@ These are Vue behaviours that a line-by-line translation to React would get wron
 - **og:image:** an absolute URL in the port (Next resolves it against the site URL), relative in the original.
 
 ### Differences users can see (agreed)
+
+- **Accessibility additions:** the hamburger and the picture-only links have `aria-label`s, and "Go Back" is a keyboard-accessible button. Nothing changes on screen, but screen-reader and keyboard users get more than the original offers (ADR 0016).
+- **No prefetching, plus image preloads:** links don't prefetch (as in the original), and each page preloads its main image, so pages load faster than the original would (ADR 0016).
 
 - **"You may also like" between products of one category:** the port picks again on each product page; the original keeps stale picks (behaviour spec, YouMayAlsoLike).
 - **Upper-case URLs** such as `/KEYBOARDS` show the 404 page; vue-router matches them case-insensitively (ADR 0012).
