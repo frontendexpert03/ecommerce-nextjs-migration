@@ -324,4 +324,5 @@ Source: `pages/Checkout/*` · Port: `src/features/checkout/*`, `src/app/checkout
 | COP-01 | The checkout page matches the original.                                                                                                                                            | `checkout-page.vue`          |
 | COP-02 | Filling in the form and clicking "continue & pay" shows the success modal.                                                                                                         | —                            |
 
-React also writes a controlled input's value into its `value` attribute; Vue only sets the property. The page looks the same, so the checkout markup comparisons ignore `value`.
+React also writes a controlled input's value into its `value` attribute; Vue only sets the property.
+The page looks the same, so the checkout markup comparisons ignore `value`.
